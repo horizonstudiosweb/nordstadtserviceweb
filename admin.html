@@ -70,6 +70,11 @@
             <small>Supportfälle</small>
           </button>
 
+          <button class="admin-nav-button" type="button" data-admin-view="security">
+            <span>Sicherheit</span>
+            <small>IP-Sperren</small>
+          </button>
+
           <button class="admin-nav-button" type="button" data-admin-view="settings">
             <span>Einstellungen</span>
             <small>System</small>
@@ -78,6 +83,12 @@
       </div>
 
       <div class="sidebar-bottom">
+        <div class="connection-card">
+          <span>Live-Verbindung</span>
+          <strong id="adminConnectionStatus">Prüfe...</strong>
+          <small id="adminLastRefresh">Noch nicht aktualisiert</small>
+        </div>
+
         <div class="admin-user-card">
           <span>Angemeldet als</span>
           <strong id="adminUserEmail">-</strong>
@@ -95,7 +106,7 @@
             <span class="eyebrow">Support Übersicht</span>
             <h1>Dashboard</h1>
             <p>
-              Behalte offene Tickets, aktuelle Fälle und den Supportstatus im Blick.
+              Behalte offene Tickets, aktuelle Fälle, Kategorien und den Systemstatus im Blick.
             </p>
           </div>
 
@@ -130,6 +141,32 @@
           </div>
         </div>
 
+        <div class="category-stats-grid">
+          <button class="category-stat-card" type="button" data-dashboard-category="support">
+            <span>Allgemein</span>
+            <strong id="statCategorySupport">0</strong>
+            <small>Support-Anliegen</small>
+          </button>
+
+          <button class="category-stat-card" type="button" data-dashboard-category="application">
+            <span>Bewerbung</span>
+            <strong id="statCategoryApplication">0</strong>
+            <small>Bewerbungen</small>
+          </button>
+
+          <button class="category-stat-card" type="button" data-dashboard-category="report">
+            <span>Report</span>
+            <strong id="statCategoryReport">0</strong>
+            <small>Spieler-Meldungen</small>
+          </button>
+
+          <button class="category-stat-card" type="button" data-dashboard-category="bug">
+            <span>Bug / Fehler</span>
+            <strong id="statCategoryBug">0</strong>
+            <small>Fehlermeldungen</small>
+          </button>
+        </div>
+
         <div class="dashboard-grid">
           <div class="panel-card panel-large">
             <div class="panel-title-row">
@@ -149,41 +186,41 @@
           <div class="panel-card">
             <div class="panel-title-row">
               <div>
-                <h2>Workflow</h2>
-                <p>Empfohlener Ablauf für sauberen Support.</p>
+                <h2>Systemstatus</h2>
+                <p>Aktuelle Verbindung und Support-Logik.</p>
               </div>
             </div>
 
-            <div class="workflow-list">
-              <div class="workflow-item">
-                <span>01</span>
+            <div class="system-list">
+              <div class="system-item">
+                <span></span>
                 <div>
-                  <strong>Ticket prüfen</strong>
-                  <small>Kategorie, Beschreibung und Beweise lesen.</small>
+                  <strong>Supabase</strong>
+                  <small id="systemSupabaseText">Verbindung wird geprüft...</small>
                 </div>
               </div>
 
-              <div class="workflow-item">
-                <span>02</span>
+              <div class="system-item">
+                <span></span>
                 <div>
-                  <strong>Status setzen</strong>
-                  <small>Bei aktiver Bearbeitung auf „In Bearbeitung“ stellen.</small>
+                  <strong>Session</strong>
+                  <small id="systemSessionText">Nicht geprüft</small>
                 </div>
               </div>
 
-              <div class="workflow-item">
-                <span>03</span>
+              <div class="system-item">
+                <span></span>
                 <div>
-                  <strong>Antwort schreiben</strong>
-                  <small>Der User sieht deine Nachricht im Ticketportal.</small>
+                  <strong>IP-Sperren</strong>
+                  <small>Nur Manager können IP-Adressen sperren.</small>
                 </div>
               </div>
 
-              <div class="workflow-item">
-                <span>04</span>
+              <div class="system-item">
+                <span></span>
                 <div>
-                  <strong>Mit Grund schließen</strong>
-                  <small>Tickets werden nur mit sichtbarem Schließgrund beendet.</small>
+                  <strong>Kategorien</strong>
+                  <small>Allgemein, Bewerbung, Report und Bug / Fehler.</small>
                 </div>
               </div>
             </div>
@@ -197,12 +234,34 @@
             <span class="eyebrow">Ticket Management</span>
             <h1>Tickets</h1>
             <p>
-              Bearbeite Supportfälle, schreibe mit Usern und schließe Tickets nur mit nachvollziehbarem Grund.
+              Bearbeite Supportfälle, filtere nach Kategorie, schreibe mit Usern und schließe Tickets nur mit Grund.
             </p>
           </div>
 
           <button id="reloadTicketsButtonTwo" class="admin-action" type="button">
             Aktualisieren
+          </button>
+        </div>
+
+        <div class="category-tabs" id="ticketCategoryTabs">
+          <button class="category-tab active" type="button" data-ticket-category="all">
+            Alle
+          </button>
+
+          <button class="category-tab" type="button" data-ticket-category="support">
+            Allgemein
+          </button>
+
+          <button class="category-tab" type="button" data-ticket-category="application">
+            Bewerbung
+          </button>
+
+          <button class="category-tab" type="button" data-ticket-category="report">
+            Report
+          </button>
+
+          <button class="category-tab" type="button" data-ticket-category="bug">
+            Bug / Fehler
           </button>
         </div>
 
@@ -231,7 +290,63 @@
             <div class="empty-detail">
               <div class="empty-icon"></div>
               <strong>Kein Ticket ausgewählt</strong>
-              <span>Wähle links ein Ticket aus, um Details, Chat und Aktionen zu öffnen.</span>
+              <span>Wähle links ein Ticket aus, um Details, Chat, Anhänge und Aktionen zu öffnen.</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="admin-view" id="view-security">
+        <div class="content-header">
+          <div>
+            <span class="eyebrow">Sicherheit</span>
+            <h1>IP-Sperren</h1>
+            <p>
+              Manager können störende IP-Adressen sperren, damit Ticket-Trolling reduziert wird.
+            </p>
+          </div>
+
+          <button id="reloadBansButton" class="admin-action" type="button">
+            Sperren laden
+          </button>
+        </div>
+
+        <div class="security-grid">
+          <div class="panel-card">
+            <div class="panel-title-row">
+              <div>
+                <h2>IP manuell sperren</h2>
+                <p>Nur Accounts mit der Rolle <strong>manager</strong> dürfen IP-Adressen sperren.</p>
+              </div>
+            </div>
+
+            <form class="security-form" id="manualBanForm">
+              <label>
+                IP-Adresse
+                <input id="manualBanIpInput" type="text" placeholder="z. B. 127.0.0.1" required />
+              </label>
+
+              <label>
+                Sperrgrund
+                <textarea id="manualBanReasonInput" placeholder="Grund für die Sperre..." required></textarea>
+              </label>
+
+              <button type="submit" class="danger-action">IP sperren</button>
+            </form>
+
+            <div id="manualBanMessage" class="admin-message"></div>
+          </div>
+
+          <div class="panel-card">
+            <div class="panel-title-row">
+              <div>
+                <h2>Aktive IP-Sperren</h2>
+                <p>Liste der aktuell gesperrten IP-Adressen.</p>
+              </div>
+            </div>
+
+            <div id="ipBansList" class="ip-bans-list">
+              <p class="muted">Noch nicht geladen.</p>
             </div>
           </div>
         </div>
@@ -258,17 +373,17 @@
           </div>
 
           <div class="panel-card">
-            <h2>Neue Teammitglieder</h2>
+            <h2>Manager-Rechte</h2>
             <p>
-              Neue Admins legst du in Supabase unter Authentication → Users an.
-              Danach setzt du die Rolle in der Tabelle <strong>profiles</strong>.
+              IP-Adressen sperren und entsperren dürfen ausschließlich Accounts mit der Rolle <strong>manager</strong>.
             </p>
           </div>
 
           <div class="panel-card">
-            <h2>Interne Notizen</h2>
+            <h2>Kategorien</h2>
             <p>
-              Interne Notizen sind nur im Admin-Panel sichtbar. Nachrichten im Ticket-Chat sind für User sichtbar.
+              Tickets werden nach <strong>Allgemein</strong>, <strong>Bewerbung</strong>, <strong>Report</strong>
+              und <strong>Bug / Fehler</strong> getrennt.
             </p>
           </div>
 
@@ -315,6 +430,46 @@
       </form>
 
       <div id="closeTicketMessage" class="admin-message"></div>
+    </div>
+  </div>
+
+  <div class="modal-backdrop hidden" id="banIpModal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <div>
+          <span class="eyebrow">IP sperren</span>
+          <h2>Ticket-IP sperren</h2>
+        </div>
+
+        <button class="modal-close" id="banIpCancelTop" type="button">×</button>
+      </div>
+
+      <p>
+        Diese Aktion ist nur für Manager erlaubt. Gesperrte IP-Adressen können keine neuen Tickets mehr erstellen.
+      </p>
+
+      <form id="banIpForm" class="close-form">
+        <label>
+          IP-Adresse
+          <input id="banIpInput" type="text" readonly />
+        </label>
+
+        <label>
+          Sperrgrund
+          <textarea
+            id="banIpReasonInput"
+            placeholder="z. B. Ticket-Spam, Trolling, beleidigende Inhalte..."
+            required
+          ></textarea>
+        </label>
+
+        <div class="modal-actions">
+          <button type="button" class="small-button ghost" id="banIpCancel">Abbrechen</button>
+          <button type="submit" class="danger-action">IP sperren</button>
+        </div>
+      </form>
+
+      <div id="banIpMessage" class="admin-message"></div>
     </div>
   </div>
 
