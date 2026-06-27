@@ -20,7 +20,7 @@
     </a>
 
     <nav class="top-actions">
-      <a href="tickets.html">Meine Tickets</a>
+      <a href="#myTicketsSection">Meine Tickets</a>
       <a href="admin.html">Admin-Panel</a>
       <a href="index.html">Website</a>
     </nav>
@@ -41,8 +41,8 @@
             Ticket erstellen
           </button>
 
-          <a class="secondary-btn" href="tickets.html">
-            Ticket ansehen
+          <a class="secondary-btn" href="#myTicketsSection">
+            Meine Tickets
           </a>
         </div>
       </div>
@@ -109,6 +109,31 @@
       </div>
     </section>
 
+    <section class="my-tickets-section" id="myTicketsSection">
+      <div class="my-tickets-card">
+        <div class="my-tickets-head">
+          <div>
+            <span class="eyebrow">Ticketübersicht</span>
+            <h2>Meine Tickets</h2>
+            <p>
+              Hier findest du Tickets, die du mit diesem Browser erstellt hast.
+              Geschlossene Tickets bleiben sichtbar und können weiterhin geöffnet werden.
+            </p>
+          </div>
+
+          <button class="my-tickets-clear" id="clearMyTicketsButton" type="button">
+            Liste leeren
+          </button>
+        </div>
+
+        <div class="my-tickets-list" id="myTicketsList">
+          <div class="my-tickets-empty">
+            Noch keine Tickets vorhanden. Sobald du ein Ticket erstellst, erscheint es hier automatisch.
+          </div>
+        </div>
+      </div>
+    </section>
+
     <section class="faq-section">
       <div class="section-head">
         <div>
@@ -153,7 +178,7 @@
           <p>
             Nach dem Absenden bekommst du eine Ticketnummer und einen Link zum Ticketportal.
           </p>
-          <a href="tickets.html">Meine Tickets öffnen</a>
+          <a href="#myTicketsSection">Meine Tickets öffnen</a>
         </article>
       </div>
     </section>
