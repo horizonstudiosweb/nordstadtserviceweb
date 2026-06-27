@@ -35,6 +35,7 @@
   border-radius: 50%;
   background: #ffffff;
   color: #0b1626;
+  flex: 0 0 auto;
 }
 
 .support-launcher-icon svg {
@@ -140,6 +141,13 @@
   background: rgba(255, 255, 255, 0.08);
   color: #f4f7fb;
   cursor: pointer;
+  flex: 0 0 auto;
+  transition: 0.2s ease;
+}
+
+.support-close:hover {
+  background: rgba(255, 255, 255, 0.14);
+  transform: translateY(-1px);
 }
 
 .support-close svg {
@@ -165,6 +173,13 @@
   text-decoration: none;
   font-weight: 900;
   font-size: 13px;
+  transition: 0.2s ease;
+}
+
+.support-quick-links a:hover {
+  border-color: rgba(106, 183, 255, 0.35);
+  background: rgba(106, 183, 255, 0.12);
+  transform: translateY(-1px);
 }
 
 .support-form {
@@ -204,6 +219,11 @@
   padding: 13px 14px;
 }
 
+.support-form input::placeholder,
+.support-form textarea::placeholder {
+  color: rgba(244, 247, 251, 0.42);
+}
+
 .support-form input:focus,
 .support-form select:focus,
 .support-form textarea:focus {
@@ -228,6 +248,11 @@
   padding: 13px 18px;
   font-weight: 950;
   cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.support-buttons button:hover {
+  transform: translateY(-1px);
 }
 
 .support-buttons button[type="submit"] {
@@ -250,6 +275,8 @@
 .support-message a {
   color: #b7ddff;
   font-weight: 950;
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 .support-message.success {
@@ -280,5 +307,17 @@
 
   .support-launcher {
     padding-right: 14px;
+  }
+
+  .support-launcher strong {
+    font-size: 13px;
+  }
+
+  .support-launcher small {
+    font-size: 11px;
+  }
+
+  .support-quick-links {
+    grid-template-columns: 1fr;
   }
 }
