@@ -1,0 +1,610 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Nordstadt Roleplay</title>
+
+  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="support.css" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Montserrat:wght@600;700;800;900&display=swap" rel="stylesheet">
+</head>
+
+<body>
+  <div id="introOverlay" class="intro-overlay">
+    <div class="intro-stage intro-stage-one">
+      <h1><strong>Horizon</strong> <span>Studios</span></h1>
+    </div>
+
+    <div class="intro-stage intro-stage-two">
+      <h1>
+        <span class="german-word">
+          <span class="german-black">GE</span><span class="german-red">RM</span><span class="german-gold">AN</span>
+        </span>
+
+        <span class="roleplay-word">
+          <span style="--i: 1;">R</span>
+          <span style="--i: 2;">O</span>
+          <span style="--i: 3;">L</span>
+          <span style="--i: 4;">E</span>
+          <span style="--i: 5;">P</span>
+          <span style="--i: 6;">L</span>
+          <span style="--i: 7;">A</span>
+          <span style="--i: 8;">Y</span>
+        </span>
+      </h1>
+    </div>
+  </div>
+
+  <div class="page-bg"></div>
+
+  <header class="navbar">
+    <div class="nav-logo">NORDSTADT ROLEPLAY</div>
+
+    <nav class="nav-links">
+      <button class="nav-link active" data-tab="home">Startseite</button>
+      <button class="nav-link" data-tab="systems">Systeme</button>
+      <button class="nav-link" data-tab="training">Ausbildung</button>
+      <button class="nav-link" data-tab="progress">Fortschritt</button>
+      <button class="nav-link" data-tab="status">Status</button>
+      <button class="nav-link" data-tab="events">Tests</button>
+      <button class="nav-link" data-tab="discord">Discord</button>
+    </nav>
+  </header>
+
+  <main>
+    <section id="home" class="tab-section active">
+      <div class="hero">
+        <div class="hero-content">
+          <p class="eyebrow">Fiktives Roblox Roleplay-Projekt</p>
+
+          <h1>
+            Nordstadt
+            <span>Roleplay.</span>
+          </h1>
+
+          <p class="hero-text">
+            Nordstadt Roleplay ist ein fiktives Roblox-Roleplay-Spiel, in dem sich Realismus
+            und Roleplay vereinen. Das Projekt setzt auf durchdachte Systeme, klare Strukturen
+            und ein realistisches Stadt- und Einsatzleben.
+          </p>
+
+          <div class="hero-actions">
+            <button class="primary-btn" data-tab-open="progress">Fortschritt ansehen</button>
+            <button class="secondary-btn" data-tab-open="discord">Discord beitreten</button>
+          </div>
+        </div>
+
+        <div class="hero-card">
+          <p class="eyebrow">Projektstatus</p>
+          <div class="brand-word">WORK<span>.</span></div>
+          <p>in progress</p>
+
+          <div class="mini-info">
+            Ein Projekt von Horizon Studios und German Roleplay.
+          </div>
+        </div>
+      </div>
+
+      <section class="content-section">
+        <div class="section-header">
+          <p class="eyebrow">Über die Stadt</p>
+          <h2>Eine fiktive Stadt für ernstes und realistisches Roleplay.</h2>
+        </div>
+
+        <div class="card-grid">
+          <article class="info-card">
+            <div class="card-light"></div>
+            <h3>Realistisches Roleplay</h3>
+            <p>
+              Nordstadt Roleplay verbindet alltägliches Stadtleben mit realistischen Einsatzlagen,
+              strukturierten Abläufen und einem klaren Fokus auf hochwertiges Roleplay.
+            </p>
+          </article>
+
+          <article class="info-card">
+            <div class="card-light"></div>
+            <h3>Behörden & Dienste</h3>
+            <p>
+              Im Spiel gibt es verschiedene Bereiche wie Polizei, Bundespolizei, LKA und weitere
+              Einheiten, die jeweils eigene Aufgaben und Verantwortungen besitzen.
+            </p>
+          </article>
+
+          <article class="info-card">
+            <div class="card-light"></div>
+            <h3>FailRP-Kontrolle</h3>
+            <p>
+              Wir achten stark auf FailRP, unrealistisches Verhalten und störendes Gameplay,
+              damit das Roleplay fair, ernst und immersiv bleibt.
+            </p>
+          </article>
+        </div>
+      </section>
+
+      <section class="content-section">
+        <div class="section-header">
+          <p class="eyebrow">Roleplay-Konzept</p>
+          <h2>Moderne Systeme mit Logik, Struktur und Tiefe.</h2>
+        </div>
+
+        <div class="project-grid">
+          <article class="project-card">
+            <h3>Ausbildungssystem</h3>
+            <p>
+              Für bestimmte Berufe ist eine Ausbildung notwendig, bevor man sie vollständig
+              ausführen kann. Dazu gehören unter anderem die Bundespolizei und das LKA.
+              Der Beitritt zur Landespolizei ist freier gestaltet.
+            </p>
+          </article>
+
+          <article class="project-card">
+            <h3>Kommunikation</h3>
+            <p>
+              Ein strukturiertes Funksystem unterstützt die Kommunikation zwischen Leitstelle,
+              Polizei, Bundespolizei, LKA und weiteren Einheiten. Dadurch entstehen realistischere
+              und besser koordinierte Roleplay-Situationen.
+            </p>
+          </article>
+
+          <article class="project-card">
+            <h3>Eigene Skripte</h3>
+            <p>
+              Die meisten Systeme werden von uns selbst entwickelt. Einige Skripte sind lizenziert
+              und rechtmäßig eingebunden, während die Struktur, Logik und Spielrichtung von uns
+              gestaltet werden.
+            </p>
+          </article>
+        </div>
+      </section>
+    </section>
+
+    <section id="systems" class="tab-section">
+      <div class="subpage">
+        <p class="eyebrow">Spielsysteme</p>
+        <h1>Systeme</h1>
+
+        <p class="subpage-text">
+          Nordstadt Roleplay basiert auf Systemen, die realistische Situationen, organisierte
+          Behörden und ein immersives Stadtleben ermöglichen.
+        </p>
+
+        <div class="feature-list">
+          <article class="wide-card">
+            <div>
+              <h3>Funk & Leitstelle</h3>
+              <p>
+                Ein strukturiertes Funksystem ermöglicht die Kommunikation zwischen Leitstelle,
+                Streifen, Sonderdiensten und weiteren Einsatzbereichen.
+              </p>
+            </div>
+            <span>01</span>
+          </article>
+
+          <article class="wide-card">
+            <div>
+              <h3>Behördenstruktur</h3>
+              <p>
+                Spieler können in verschiedenen Bereichen aktiv werden. Jede Einheit besitzt
+                eigene Aufgaben, Regeln und Erwartungen an das Roleplay.
+              </p>
+            </div>
+            <span>02</span>
+          </article>
+
+          <article class="wide-card">
+            <div>
+              <h3>Ausbildung & Freigaben</h3>
+              <p>
+                Einige Berufe benötigen eine Ausbildung oder Freigabe. Dadurch bleiben wichtige
+                Rollen seriös und das Roleplay wirkt geordneter.
+              </p>
+            </div>
+            <span>03</span>
+          </article>
+
+          <article class="wide-card">
+            <div>
+              <h3>Regelwerk & Realismus</h3>
+              <p>
+                FailRP, unrealistisches Verhalten und störende Aktionen werden aktiv kontrolliert,
+                damit die Spielerfahrung für alle fair und realistisch bleibt.
+              </p>
+            </div>
+            <span>04</span>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="training" class="tab-section">
+      <div class="subpage">
+        <p class="eyebrow">Fiktive Roleplay-Ausbildungen</p>
+        <h1>Ausbildung</h1>
+
+        <p class="subpage-text">
+          Ausbildungen helfen uns dabei, bestimmte Berufe realistischer, geordneter und hochwertiger
+          im Roleplay darzustellen. Sie sorgen dafür, dass wichtige Rollen verstanden werden und
+          Spieler besser auf ihre Aufgaben vorbereitet sind.
+        </p>
+
+        <div class="training-warning">
+          <h3>Wichtiger Hinweis</h3>
+          <p>
+            Alle Ausbildungen auf Nordstadt Roleplay sind vollständig fiktiv und ausschließlich
+            für Roleplay-Zwecke gedacht. Es handelt sich nicht um echte Ausbildungen, Behörden,
+            Qualifikationen oder offizielle Dokumente.
+          </p>
+        </div>
+
+        <div class="training-grid">
+          <article class="training-card available">
+            <div class="training-top">
+              <div>
+                <h3>Bundespolizei</h3>
+                <p>
+                  Ausbildung für strukturierte Einsätze, Kommunikation, Verhalten im Dienst und
+                  realistische Situationen innerhalb der fiktiven Bundespolizei.
+                </p>
+              </div>
+              <span class="training-badge available">Verfügbar</span>
+            </div>
+
+            <button class="download-btn" data-document="bundespolizei">
+              Ausbildungsdokument herunterladen
+            </button>
+          </article>
+
+          <article class="training-card">
+            <div class="training-top">
+              <div>
+                <h3>LKA</h3>
+                <p>Ausbildung für Ermittlungsarbeit, Sonderlagen und gehobenes Roleplay.</p>
+              </div>
+              <span class="training-badge unavailable">Nicht verfügbar</span>
+            </div>
+          </article>
+
+          <article class="training-card">
+            <div class="training-top">
+              <div>
+                <h3>Justiz</h3>
+                <p>Ausbildung für rechtliche Abläufe, Haft, Verfahren und Justiz-Roleplay.</p>
+              </div>
+              <span class="training-badge unavailable">Nicht verfügbar</span>
+            </div>
+          </article>
+
+          <article class="training-card">
+            <div class="training-top">
+              <div>
+                <h3>Bundeswehr</h3>
+                <p>Ausbildung für militärisches Roleplay, Disziplin und strukturierte Abläufe.</p>
+              </div>
+              <span class="training-badge unavailable">Nicht verfügbar</span>
+            </div>
+          </article>
+
+          <article class="training-card">
+            <div class="training-top">
+              <div>
+                <h3>Nordstadt Bank</h3>
+                <p>Ausbildung für Bankbetrieb, Kundenservice und wirtschaftliches Stadt-Roleplay.</p>
+              </div>
+              <span class="training-badge unavailable">Nicht verfügbar</span>
+            </div>
+          </article>
+
+          <article class="training-card">
+            <div class="training-top">
+              <div>
+                <h3>Nordstadt Mobil</h3>
+                <p>Ausbildung für Mobilfunk, Service und technische Abläufe im Stadtleben.</p>
+              </div>
+              <span class="training-badge unavailable">Nicht verfügbar</span>
+            </div>
+          </article>
+
+          <article class="training-card">
+            <div class="training-top">
+              <div>
+                <h3>Leitstelle</h3>
+                <p>Ausbildung für Notrufannahme, Koordination, Funkdisziplin und Einsatzführung.</p>
+              </div>
+              <span class="training-badge unavailable">Nicht verfügbar</span>
+            </div>
+          </article>
+
+          <article class="training-card">
+            <div class="training-top">
+              <div>
+                <h3>Verkehrsbetriebe Leitstelle</h3>
+                <p>Ausbildung für Linienkoordination, Verkehrsabläufe und Betriebsüberwachung.</p>
+              </div>
+              <span class="training-badge unavailable">Nicht verfügbar</span>
+            </div>
+          </article>
+
+          <article class="training-card">
+            <div class="training-top">
+              <div>
+                <h3>Verkehrsbetriebe Sicherheit</h3>
+                <p>Ausbildung für Sicherheit im ÖPNV, Kontrolle, Schutz und Einsatzlagen.</p>
+              </div>
+              <span class="training-badge unavailable">Nicht verfügbar</span>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="progress" class="tab-section">
+      <div class="subpage">
+        <p class="eyebrow">Entwicklungsübersicht</p>
+        <h1>Fortschritt</h1>
+
+        <p class="subpage-text">
+          Hier findest du den aktuellen Entwicklungsstand von Nordstadt Roleplay und ausgewählten Produkten.
+          Die Angaben sind ungefähre interne Fortschrittswerte.
+        </p>
+
+        <div class="progress-section">
+          <div class="section-header compact">
+            <p class="eyebrow">Kategorie</p>
+            <h2>Game</h2>
+          </div>
+
+          <article class="progress-main-card">
+            <div class="progress-card-header">
+              <div>
+                <h3>Nordstadt Roleplay <span>(Roblox)</span></h3>
+                <p>
+                  Nordstadt Roleplay befindet sich aktuell in einer frühen Entwicklungsphase.
+                  Der gesamte Fortschritt des Spiels liegt derzeit bei ungefähr 10 Prozent.
+                </p>
+              </div>
+
+              <strong>10%</strong>
+            </div>
+
+            <div class="progress-bar big">
+              <div class="progress-fill" style="--progress: 10%;"></div>
+            </div>
+
+            <div class="progress-grid">
+              <article class="progress-detail-card">
+                <div class="progress-detail-top">
+                  <h4>Stadtteile</h4>
+                  <span>5%</span>
+                </div>
+                <p>Die Stadtteile befinden sich noch am Anfang und werden schrittweise aufgebaut.</p>
+                <div class="progress-bar small">
+                  <div class="progress-fill" style="--progress: 5%;"></div>
+                </div>
+              </article>
+
+              <article class="progress-detail-card">
+                <div class="progress-detail-top">
+                  <h4>Systeme</h4>
+                  <span>12%</span>
+                </div>
+                <p>Grundlagen für Logik, Roleplay-Abläufe und technische Systeme werden vorbereitet.</p>
+                <div class="progress-bar small">
+                  <div class="progress-fill" style="--progress: 12%;"></div>
+                </div>
+              </article>
+
+              <article class="progress-detail-card">
+                <div class="progress-detail-top">
+                  <h4>Jobs</h4>
+                  <span>23%</span>
+                </div>
+                <p>Erste Jobstrukturen und Rollenbereiche sind geplant und teilweise vorbereitet.</p>
+                <div class="progress-bar small">
+                  <div class="progress-fill" style="--progress: 23%;"></div>
+                </div>
+              </article>
+
+              <article class="progress-detail-card">
+                <div class="progress-detail-top">
+                  <h4>Fahrzeuge</h4>
+                  <span>8%</span>
+                </div>
+                <p>Fahrzeuge und dazugehörige Funktionen befinden sich noch in einer frühen Phase.</p>
+                <div class="progress-bar small">
+                  <div class="progress-fill" style="--progress: 8%;"></div>
+                </div>
+              </article>
+            </div>
+          </article>
+        </div>
+
+        <div class="progress-section">
+          <div class="section-header compact">
+            <p class="eyebrow">Kategorie</p>
+            <h2>Produkte</h2>
+          </div>
+
+          <article class="progress-main-card product-waitlist">
+            <div class="waitlist-banner">
+              <span>Warteliste</span>
+              <p>
+                Bus-Link wurde vorerst auf eine Warteliste gesetzt, da wir uns aktuell auf andere Bereiche konzentrieren.
+                Das Produkt wird größer geplant und später strukturiert weiterentwickelt.
+              </p>
+            </div>
+
+            <div class="progress-card-header">
+              <div>
+                <h3>Bus-Link <span>Version 1.0 Beta</span></h3>
+                <p>
+                  Bus-Link ist ein geplantes Produkt für strukturierte Verkehrs- und Verbindungssysteme.
+                  Die Beta-Version befindet sich aktuell noch in einer frühen Entwicklungsphase.
+                </p>
+              </div>
+
+              <strong>20%</strong>
+            </div>
+
+            <div class="progress-bar big orange">
+              <div class="progress-fill" style="--progress: 20%;"></div>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="status" class="tab-section">
+      <div class="subpage">
+        <p class="eyebrow">Aktueller Entwicklungsstand</p>
+        <h1>Status</h1>
+
+        <p class="subpage-text">
+          Hier findest du den aktuellen Entwicklungs- und Zugangsstatus von Nordstadt Roleplay.
+        </p>
+
+        <div id="statusCards" class="status-grid"></div>
+      </div>
+    </section>
+
+    <section id="events" class="tab-section">
+      <div class="subpage">
+        <p class="eyebrow">Public Testing</p>
+        <h1>Tests</h1>
+
+        <p class="subpage-text">
+          Nordstadt Roleplay befindet sich aktuell im Aufbau. Testtermine werden über den Discord
+          bekanntgegeben, sobald neue öffentliche Tests geplant sind.
+        </p>
+
+        <div class="timeline">
+          <article class="timeline-item">
+            <div class="timeline-date">
+              <strong>Aktuell</strong>
+              <span>In Planung</span>
+            </div>
+
+            <div class="timeline-content">
+              <h3>Weitere Testphasen folgen</h3>
+              <p>
+                Neue Testtermine werden vorbereitet und später über den Discord-Server veröffentlicht.
+              </p>
+            </div>
+          </article>
+
+          <article class="timeline-item">
+            <div class="timeline-date">
+              <strong>Bewerbungen</strong>
+              <span>Geöffnet</span>
+            </div>
+
+            <div class="timeline-content">
+              <h3>Teampositionen gesucht</h3>
+              <p>
+                Wir suchen aktuell Unterstützung in Leitungspositionen sowie im administrativen Bereich.
+                Informationen dazu findest du auf unserem Discord.
+              </p>
+            </div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="discord" class="tab-section">
+      <div class="subpage">
+        <p class="eyebrow">Community & Informationen</p>
+        <h1>Discord</h1>
+
+        <p class="subpage-text">
+          Tritt unserem Discord-Server bei, um Ankündigungen, Testtermine, Entwicklungsupdates,
+          Bewerbungen und wichtige Informationen zu Nordstadt Roleplay zu erhalten.
+        </p>
+
+        <div class="support-card">
+          <div class="support-icon">
+            <span></span>
+          </div>
+
+          <div>
+            <h2>Nordstadt Roleplay beitreten</h2>
+            <p>
+              Werde Teil der Community, verfolge die Entwicklung und nimm an öffentlichen
+              Testsitzungen teil.
+            </p>
+          </div>
+
+          <a id="discordButton" class="support-btn" href="#" target="_blank" rel="noopener noreferrer">
+            Discord öffnen
+          </a>
+        </div>
+
+        <div class="card-grid support-grid">
+          <article class="info-card">
+            <div class="card-light"></div>
+            <h3>Ankündigungen</h3>
+            <p>Erhalte Informationen zu Tests, Updates, Änderungen und wichtigen Projektmeldungen.</p>
+          </article>
+
+          <article class="info-card">
+            <div class="card-light"></div>
+            <h3>Bewerbungen</h3>
+            <p>Informiere dich über Behörden, Ausbildungen, Freigaben und mögliche Roleplay-Positionen.</p>
+          </article>
+
+          <article class="info-card">
+            <div class="card-light"></div>
+            <h3>Community</h3>
+            <p>Verbinde dich mit anderen Spielern und bereite dich auf kommende Public Tests vor.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="recruitmentPopup" class="recruitment-popup">
+    <div class="notification-dot"></div>
+
+    <div class="notification-content">
+      <strong>Bewirb dich jetzt</strong>
+      <p>Wir suchen Leitungspersonal und Administratoren für Nordstadt Roleplay.</p>
+    </div>
+
+    <a id="applyButton" href="#" target="_blank" rel="noopener noreferrer">
+      Bewerben
+    </a>
+
+    <button id="closeRecruitmentPopup" class="close-notification">×</button>
+  </div>
+
+  <div id="downloadModal" class="modal-overlay">
+    <div class="download-modal">
+      <p class="eyebrow">Dokument herunterladen</p>
+      <h2>Fiktive Roleplay-Ausbildung</h2>
+
+      <p>
+        Dieses Dokument gehört zu einer fiktiven Roleplay-Ausbildung auf Nordstadt Roleplay.
+        Es handelt sich nicht um eine echte Ausbildung, keine echte Behörde und keine offizielle
+        Qualifikation.
+      </p>
+
+      <div class="modal-actions">
+        <button id="cancelDownload" class="secondary-btn">Abbrechen</button>
+        <button id="confirmDownload" class="primary-btn">Herunterladen</button>
+      </div>
+    </div>
+  </div>
+
+  <footer class="footer">
+    <p>Nordstadt Roleplay</p>
+    <p>Horizon Studios</p>
+    <p>German Roleplay</p>
+  </footer>
+
+  <script src="script.js"></script>
+  <script src="support.js"></script>
+</body>
+</html>
