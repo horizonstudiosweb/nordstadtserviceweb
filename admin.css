@@ -156,6 +156,7 @@ button {
 .login-card::before,
 .panel-card::before,
 .stat-card::before,
+.category-stat-card::before,
 .tickets-list-card::before,
 .ticket-detail-card::before,
 .modal-card::before {
@@ -247,7 +248,9 @@ button {
   gap: 14px;
 }
 
-.login-form label {
+.login-form label,
+.security-form label,
+.close-form label {
   display: grid;
   gap: 8px;
   color: var(--admin-muted);
@@ -261,7 +264,10 @@ button {
 .status-select,
 .chat-form textarea,
 .note-form textarea,
-.close-form textarea {
+.close-form textarea,
+.close-form input,
+.security-form input,
+.security-form textarea {
   width: 100%;
   border: 1px solid var(--admin-line);
   border-radius: var(--admin-radius-sm);
@@ -280,7 +286,9 @@ button {
 .login-form input,
 .ticket-filter-row input,
 .ticket-filter-row select,
-.status-select {
+.status-select,
+.close-form input,
+.security-form input {
   min-height: 50px;
   padding: 0 15px;
 }
@@ -289,7 +297,9 @@ button {
 .ticket-filter-row input::placeholder,
 .chat-form textarea::placeholder,
 .note-form textarea::placeholder,
-.close-form textarea::placeholder {
+.close-form textarea::placeholder,
+.security-form textarea::placeholder,
+.security-form input::placeholder {
   color: rgba(226, 238, 255, 0.34);
 }
 
@@ -299,7 +309,10 @@ button {
 .status-select:focus,
 .chat-form textarea:focus,
 .note-form textarea:focus,
-.close-form textarea:focus {
+.close-form textarea:focus,
+.close-form input:focus,
+.security-form input:focus,
+.security-form textarea:focus {
   border-color: rgba(117, 197, 255, 0.55);
   background: rgba(255, 255, 255, 0.082);
   box-shadow:
@@ -468,7 +481,8 @@ button {
   color: rgba(7, 17, 31, 0.58);
 }
 
-.admin-user-card {
+.admin-user-card,
+.connection-card {
   display: grid;
   gap: 7px;
   padding: 16px;
@@ -477,7 +491,8 @@ button {
   background: rgba(255, 255, 255, 0.045);
 }
 
-.admin-user-card span {
+.admin-user-card span,
+.connection-card span {
   color: var(--admin-muted-soft);
   font-size: 12px;
   font-weight: 760;
@@ -485,7 +500,8 @@ button {
   letter-spacing: 0.07em;
 }
 
-.admin-user-card strong {
+.admin-user-card strong,
+.connection-card strong {
   color: var(--admin-text);
   font-size: 13px;
   font-weight: 760;
@@ -493,7 +509,16 @@ button {
   word-break: break-word;
 }
 
-.admin-user-card small {
+.connection-card strong.online {
+  color: var(--admin-green);
+}
+
+.connection-card strong.offline {
+  color: var(--admin-red);
+}
+
+.admin-user-card small,
+.connection-card small {
   width: fit-content;
   padding: 7px 10px;
   border: 1px solid rgba(117, 197, 255, 0.2);
@@ -585,7 +610,8 @@ button {
 .small-button,
 .chat-form button,
 .note-form button,
-.danger-action {
+.danger-action,
+.security-form button {
   border: 0;
   border-radius: 999px;
   cursor: pointer;
@@ -629,7 +655,8 @@ button {
 .small-button:hover,
 .chat-form button:hover,
 .note-form button:hover,
-.danger-action:hover {
+.danger-action:hover,
+.security-form button:hover {
   transform: translateY(-2px);
 }
 
@@ -645,7 +672,8 @@ button {
   background: rgba(117, 197, 255, 0.1);
 }
 
-.danger-action {
+.danger-action,
+.security-form button {
   min-height: 44px;
   padding: 0 18px;
   background: linear-gradient(135deg, #ff9aab, #ff647f);
@@ -661,7 +689,15 @@ button {
   gap: 16px;
 }
 
+.category-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 16px;
+}
+
 .stat-card,
+.category-stat-card,
 .panel-card,
 .tickets-list-card,
 .ticket-detail-card {
@@ -677,7 +713,8 @@ button {
   overflow: hidden;
 }
 
-.stat-card {
+.stat-card,
+.category-stat-card {
   min-height: 154px;
   display: grid;
   align-content: space-between;
@@ -689,21 +726,30 @@ button {
     background 0.2s ease;
 }
 
-.stat-card:hover {
+.category-stat-card {
+  text-align: left;
+  color: var(--admin-text);
+  cursor: pointer;
+}
+
+.stat-card:hover,
+.category-stat-card:hover {
   transform: translateY(-4px);
   border-color: var(--admin-line-strong);
   background:
     linear-gradient(145deg, rgba(18, 40, 66, 0.82), rgba(9, 20, 36, 0.88));
 }
 
-.stat-card span {
+.stat-card span,
+.category-stat-card span {
   position: relative;
   color: var(--admin-muted);
   font-size: 13px;
   font-weight: 800;
 }
 
-.stat-card strong {
+.stat-card strong,
+.category-stat-card strong {
   position: relative;
   font-size: 48px;
   line-height: 0.9;
@@ -711,7 +757,8 @@ button {
   letter-spacing: -0.08em;
 }
 
-.stat-card small {
+.stat-card small,
+.category-stat-card small {
   position: relative;
   color: var(--admin-muted-soft);
   font-size: 12px;
@@ -764,13 +811,13 @@ button {
 }
 
 .latest-list,
-.workflow-list {
+.system-list {
   position: relative;
   display: grid;
   gap: 10px;
 }
 
-.workflow-item {
+.system-item {
   display: flex;
   gap: 13px;
   padding: 14px;
@@ -779,28 +826,75 @@ button {
   background: rgba(255, 255, 255, 0.045);
 }
 
-.workflow-item > span {
+.system-item > span {
   width: 34px;
   height: 34px;
   display: grid;
   place-items: center;
   flex: 0 0 auto;
   border-radius: 12px;
-  background: rgba(117, 197, 255, 0.1);
-  color: #d7eeff;
+  background: rgba(122, 240, 170, 0.12);
+  color: #c2ffd6;
   font-size: 12px;
   font-weight: 920;
 }
 
-.workflow-item strong {
+.system-item > span::before {
+  content: "";
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: currentColor;
+  box-shadow: 0 0 20px currentColor;
+}
+
+.system-item strong {
   display: block;
   margin-bottom: 4px;
   font-size: 14px;
 }
 
-.workflow-item small {
+.system-item small {
   color: var(--admin-muted);
   line-height: 1.45;
+}
+
+/* Category Tabs */
+
+.category-tabs {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin: -8px 0 18px;
+}
+
+.category-tab {
+  min-height: 44px;
+  border: 1px solid rgba(145, 190, 255, 0.14);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.06);
+  color: var(--admin-text);
+  cursor: pointer;
+  padding: 0 18px;
+  font-weight: 880;
+  transition:
+    transform 0.18s ease,
+    background 0.18s ease,
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.category-tab:hover {
+  transform: translateY(-2px);
+  border-color: rgba(117, 197, 255, 0.32);
+  background: rgba(117, 197, 255, 0.1);
+}
+
+.category-tab.active {
+  border-color: rgba(255, 255, 255, 0.58);
+  background: linear-gradient(135deg, #ffffff, #dcecff);
+  color: #07111f;
+  box-shadow: 0 16px 36px rgba(67, 164, 255, 0.16);
 }
 
 /* Tickets */
@@ -863,18 +957,22 @@ button {
   position: relative;
   display: grid;
   gap: 10px;
-  max-height: calc(100vh - 250px);
+  max-height: calc(100vh - 305px);
   overflow: auto;
   padding-right: 4px;
 }
 
 .admin-tickets-list::-webkit-scrollbar,
-.admin-messages::-webkit-scrollbar {
+.admin-messages::-webkit-scrollbar,
+.ip-bans-list::-webkit-scrollbar,
+.attachments-list::-webkit-scrollbar {
   width: 8px;
 }
 
 .admin-tickets-list::-webkit-scrollbar-thumb,
-.admin-messages::-webkit-scrollbar-thumb {
+.admin-messages::-webkit-scrollbar-thumb,
+.ip-bans-list::-webkit-scrollbar-thumb,
+.attachments-list::-webkit-scrollbar-thumb {
   border: 2px solid rgba(8, 18, 32, 0.9);
   border-radius: 999px;
   background: rgba(170, 205, 240, 0.35);
@@ -929,6 +1027,44 @@ button {
   color: var(--admin-muted);
   font-size: 12px;
   line-height: 1.45;
+}
+
+.ticket-category-pill {
+  width: fit-content;
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 9px;
+  border-radius: 999px;
+  border: 1px solid rgba(145, 190, 255, 0.13);
+  background: rgba(255, 255, 255, 0.055);
+  color: var(--admin-muted);
+  font-size: 11px;
+  font-weight: 900;
+}
+
+.ticket-category-pill.support {
+  color: #9dd2ff;
+  border-color: rgba(67, 164, 255, 0.24);
+  background: rgba(67, 164, 255, 0.1);
+}
+
+.ticket-category-pill.application {
+  color: #d3c8ff;
+  border-color: rgba(159, 140, 255, 0.24);
+  background: rgba(159, 140, 255, 0.1);
+}
+
+.ticket-category-pill.report {
+  color: #ffd1db;
+  border-color: rgba(255, 125, 150, 0.24);
+  background: rgba(255, 125, 150, 0.1);
+}
+
+.ticket-category-pill.bug {
+  color: #ffe083;
+  border-color: rgba(255, 224, 131, 0.24);
+  background: rgba(255, 224, 131, 0.1);
 }
 
 .status-badge {
@@ -1071,11 +1207,19 @@ button {
   text-transform: uppercase;
 }
 
-.detail-box span {
+.detail-box span,
+.detail-box a {
   color: var(--admin-text);
   line-height: 1.6;
   word-break: break-word;
   white-space: pre-wrap;
+}
+
+.detail-box a {
+  color: #bfe4ff;
+  font-weight: 850;
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 .closed-reason-box {
@@ -1085,8 +1229,16 @@ button {
     rgba(255, 125, 150, 0.045);
 }
 
+.security-warning-box {
+  border-color: rgba(255, 224, 131, 0.24);
+  background:
+    radial-gradient(circle at top left, rgba(255, 224, 131, 0.12), transparent 45%),
+    rgba(255, 224, 131, 0.045);
+}
+
 .admin-chat,
-.note-box {
+.note-box,
+.attachments-box {
   position: relative;
   margin-top: 16px;
   padding: 18px;
@@ -1105,7 +1257,8 @@ button {
 
 .section-title-row h3,
 .admin-chat h3,
-.note-box h3 {
+.note-box h3,
+.attachments-box h3 {
   margin: 0;
   font-size: 21px;
   font-weight: 920;
@@ -1182,7 +1335,8 @@ button {
 
 .chat-form,
 .note-form,
-.close-form {
+.close-form,
+.security-form {
   display: grid;
   gap: 10px;
   margin-top: 14px;
@@ -1190,7 +1344,8 @@ button {
 
 .chat-form textarea,
 .note-form textarea,
-.close-form textarea {
+.close-form textarea,
+.security-form textarea {
   min-height: 104px;
   resize: vertical;
   padding: 13px 14px;
@@ -1198,7 +1353,8 @@ button {
 }
 
 .chat-form button,
-.note-form button {
+.note-form button,
+.security-form button {
   width: fit-content;
   min-height: 44px;
   padding: 0 18px;
@@ -1208,6 +1364,114 @@ button {
   display: grid;
   gap: 10px;
   color: var(--admin-muted);
+}
+
+/* Attachments */
+
+.attachments-list {
+  display: grid;
+  gap: 10px;
+  max-height: 260px;
+  overflow: auto;
+  padding-right: 4px;
+}
+
+.attachment-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  padding: 13px 14px;
+  border: 1px solid rgba(145, 190, 255, 0.1);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.046);
+}
+
+.attachment-info {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+}
+
+.attachment-info strong {
+  font-size: 13px;
+  font-weight: 880;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.attachment-info small {
+  color: var(--admin-muted);
+  font-size: 12px;
+}
+
+.attachment-item a {
+  flex: 0 0 auto;
+  color: #07111f;
+  background: linear-gradient(135deg, #ffffff, #dcecff);
+  border-radius: 999px;
+  padding: 9px 13px;
+  font-size: 12px;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+/* Security */
+
+.security-grid {
+  display: grid;
+  grid-template-columns: minmax(320px, 0.8fr) minmax(0, 1.2fr);
+  gap: 16px;
+  align-items: start;
+}
+
+.ip-bans-list {
+  display: grid;
+  gap: 10px;
+  max-height: 620px;
+  overflow: auto;
+  padding-right: 4px;
+}
+
+.ip-ban-card {
+  position: relative;
+  display: grid;
+  gap: 9px;
+  padding: 15px;
+  border: 1px solid rgba(145, 190, 255, 0.11);
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.052);
+}
+
+.ip-ban-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+}
+
+.ip-ban-top strong {
+  font-size: 15px;
+  font-weight: 900;
+}
+
+.ip-ban-card p {
+  margin: 0;
+  color: var(--admin-muted);
+  line-height: 1.55;
+}
+
+.ip-ban-card small {
+  color: var(--admin-muted-soft);
+  line-height: 1.45;
+}
+
+.ip-ban-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 4px;
 }
 
 .settings-grid {
@@ -1313,11 +1577,17 @@ button {
   line-height: 1.6;
 }
 
+.locked-action {
+  opacity: 0.55;
+  pointer-events: none;
+}
+
 /* Responsive */
 
 @media (max-width: 1180px) {
   .dashboard-grid,
-  .tickets-layout {
+  .tickets-layout,
+  .security-grid {
     grid-template-columns: 1fr;
   }
 
@@ -1349,6 +1619,7 @@ button {
   }
 
   .stats-grid,
+  .category-stats-grid,
   .detail-grid,
   .settings-grid {
     grid-template-columns: 1fr;
@@ -1356,7 +1627,8 @@ button {
 
   .content-header,
   .detail-top,
-  .section-title-row {
+  .section-title-row,
+  .panel-title-row {
     flex-direction: column;
   }
 
@@ -1366,6 +1638,16 @@ button {
 
   .admin-message-bubble {
     max-width: 100%;
+  }
+
+  .category-tabs {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    padding-bottom: 4px;
+  }
+
+  .category-tab {
+    flex: 0 0 auto;
   }
 }
 
@@ -1403,5 +1685,20 @@ button {
 
   .modal-actions button {
     width: 100%;
+  }
+
+  .attachment-item,
+  .ip-ban-top {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .attachment-item a,
+  .chat-form button,
+  .note-form button,
+  .security-form button {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
   }
 }
