@@ -38,9 +38,9 @@ function supportIcon(name) {
 
 function supportLoadScript(src) {
   return new Promise((resolve, reject) => {
-    const existing = document.querySelector(`script[src="${src}"]`);
+    const existingScript = document.querySelector(`script[src="${src}"]`);
 
-    if (existing) {
+    if (existingScript) {
       resolve();
       return;
     }
@@ -48,7 +48,7 @@ function supportLoadScript(src) {
     const script = document.createElement("script");
     script.src = src;
     script.onload = resolve;
-    script.onerror = reject;
+    script.onerror = () => reject(new Error(`${src} konnte nicht geladen werden.`));
     document.head.appendChild(script);
   });
 }
@@ -68,12 +68,16 @@ async function supportSetupSupabase() {
     supportSupabaseClient = window.supabase.createClient(config.url, config.anonKey);
     supportBackendReady = true;
   } catch (error) {
+    console.warn("Support Supabase konnte nicht geladen werden:", error);
     supportBackendReady = false;
   }
 }
 
 function supportCreateTicketNumber() {
-  return `NRP-${Date.now().toString().slice(-6)}${Math.floor(Math.random() * 90 + 10)}`;
+  const timePart = Date.now().toString().slice(-6);
+  const randomPart = Math.floor(Math.random() * 90 + 10);
+
+  return `NRP-${timePart}${randomPart}`;
 }
 
 function supportGetTicketPortalUrl(ticketNumber, discordName) {
@@ -90,9 +94,9 @@ function supportGetAdminUrl(ticketNumber) {
 }
 
 function supportSaveDemoTicket(ticket) {
-  const saved = JSON.parse(localStorage.getItem(supportSettings.storageKey) || "[]");
-  saved.unshift(ticket);
-  localStorage.setItem(supportSettings.storageKey, JSON.stringify(saved));
+  const savedTickets = JSON.parse(localStorage.getItem(supportSettings.storageKey) || "[]");
+  savedTickets.unshift(ticket);
+  localStorage.setItem(supportSettings.storageKey, JSON.stringify(savedTickets));
 }
 
 async function supportSaveSupabaseTicket(ticket) {
@@ -111,23 +115,34 @@ async function supportSaveSupabaseTicket(ticket) {
     status: "open"
   };
 
-  const { error } = await supportSupabaseClient
+  const { error: ticketError } = await supportSupabaseClient
     .from("tickets")
     .insert(supabaseTicket);
 
-  if (error) {
-    throw new Error(error.message || "Ticket konnte nicht gespeichert werden.");
+  if (ticketError) {
+    throw new Error(ticketError.message || "Ticket konnte nicht gespeichert werden.");
   }
 
-  await supportSupabaseClient.rpc("send_public_ticket_message", {
+  const { data: messageData, error: messageError } = await supportSupabaseClient.rpc("send_public_ticket_message", {
     p_ticket_number: ticket.id,
     p_discord_username: ticket.discordUsername,
     p_message_text: ticket.description
   });
+
+  if (messageError) {
+    console.warn("Startnachricht konnte nicht gespeichert werden:", messageError);
+    return;
+  }
+
+  if (messageData && messageData.success !== true) {
+    console.warn("Startnachricht wurde nicht bestätigt:", messageData);
+  }
 }
 
 async function supportNotifyDiscord(ticket) {
-  if (!supportSupabaseClient) return false;
+  if (!supportSupabaseClient) {
+    return false;
+  }
 
   const payload = {
     ticket_number: ticket.id,
@@ -139,7 +154,7 @@ async function supportNotifyDiscord(ticket) {
     admin_url: supportGetAdminUrl(ticket.id)
   };
 
-  const { error } = await supportSupabaseClient.functions.invoke(
+  const { data, error } = await supportSupabaseClient.functions.invoke(
     supportSettings.discordFunctionName,
     {
       body: payload
@@ -147,7 +162,12 @@ async function supportNotifyDiscord(ticket) {
   );
 
   if (error) {
-    console.warn("Discord notification failed:", error);
+    console.warn("Discord-Benachrichtigung fehlgeschlagen:", error);
+    return false;
+  }
+
+  if (data && data.success === false) {
+    console.warn("Discord-Benachrichtigung nicht erfolgreich:", data);
     return false;
   }
 
@@ -155,8 +175,15 @@ async function supportNotifyDiscord(ticket) {
 }
 
 function supportBuildWidget() {
+  const oldWidget = document.querySelector(".support-widget-root");
+
+  if (oldWidget) {
+    oldWidget.remove();
+  }
+
   const root = document.createElement("div");
   root.className = "support-widget-root";
+
   root.innerHTML = `
     <button class="support-launcher" id="supportLauncher" type="button">
       <span class="support-launcher-icon">${supportIcon("chat")}</span>
@@ -175,7 +202,10 @@ function supportBuildWidget() {
             <p>FAQ, Tickets, Bewerbungen, Reports und Bugmeldungen.</p>
           </div>
         </div>
-        <button class="support-close" id="supportClose" type="button">${supportIcon("close")}</button>
+
+        <button class="support-close" id="supportClose" type="button" aria-label="Support schließen">
+          ${supportIcon("close")}
+        </button>
       </div>
 
       <div class="support-quick-links">
@@ -196,37 +226,37 @@ function supportBuildWidget() {
 
         <label>
           Discord-Name
-          <input id="supportDiscord" type="text" placeholder="z. B. deinname#0000" required />
+          <input id="supportDiscord" type="text" placeholder="z. B. deinname#0000" autocomplete="off" required />
         </label>
 
         <label>
           Rang / Rolle
-          <input id="supportRank" type="text" placeholder="z. B. Spieler, Tester, Supporter" />
+          <input id="supportRank" type="text" placeholder="z. B. Spieler, Tester, Supporter" autocomplete="off" />
         </label>
 
         <label>
           Titel
-          <input id="supportTitle" type="text" placeholder="Kurzer Betreff" required />
+          <input id="supportTitle" type="text" placeholder="Kurzer Betreff" autocomplete="off" required />
         </label>
 
         <label class="support-field application-field hidden">
           Bewerbungsbereich
-          <input id="supportApplicationArea" type="text" placeholder="z. B. Administrator, Leitung, Support" />
+          <input id="supportApplicationArea" type="text" placeholder="z. B. Administrator, Leitung, Support" autocomplete="off" />
         </label>
 
         <label class="support-field report-field hidden">
           Gemeldeter User
-          <input id="supportTargetUser" type="text" placeholder="Name des Spielers" />
+          <input id="supportTargetUser" type="text" placeholder="Name des Spielers" autocomplete="off" />
         </label>
 
         <label class="support-field report-field bug-field hidden">
           Beweise / Link
-          <input id="supportProof" type="text" placeholder="Screenshot, Video oder Link" />
+          <input id="supportProof" type="text" placeholder="Screenshot, Video oder Link" autocomplete="off" />
         </label>
 
         <label class="support-field bug-field hidden">
           Schritte zum Reproduzieren
-          <input id="supportReproduce" type="text" placeholder="Was muss man tun, damit der Fehler passiert?" />
+          <input id="supportReproduce" type="text" placeholder="Was muss man tun, damit der Fehler passiert?" autocomplete="off" />
         </label>
 
         <label>
@@ -249,14 +279,17 @@ function supportBuildWidget() {
 
 function supportSetMessage(text, type = "") {
   const message = document.getElementById("supportMessage");
-  if (!message) return;
+
+  if (!message) {
+    return;
+  }
 
   message.className = `support-message ${type}`.trim();
-  message.innerHTML = text;
+  message.innerHTML = text || "";
 }
 
 function supportToggleFields() {
-  const category = document.getElementById("supportCategory")?.value;
+  const category = document.getElementById("supportCategory")?.value || "support";
 
   document.querySelectorAll(".application-field").forEach((field) => {
     field.classList.toggle("hidden", category !== "application");
@@ -271,85 +304,154 @@ function supportToggleFields() {
   });
 }
 
+function supportOpenPanel() {
+  const panel = document.getElementById("supportPanel");
+
+  if (panel) {
+    panel.classList.add("open");
+  }
+}
+
+function supportClosePanel() {
+  const panel = document.getElementById("supportPanel");
+
+  if (panel) {
+    panel.classList.remove("open");
+  }
+}
+
+function supportCollectTicketData() {
+  const category = document.getElementById("supportCategory");
+  const selectedOption = category.options[category.selectedIndex];
+
+  return {
+    id: supportCreateTicketNumber(),
+    category: category.value,
+    categoryLabel: selectedOption.dataset.label || selectedOption.textContent,
+    discordUsername: document.getElementById("supportDiscord").value.trim(),
+    rank: document.getElementById("supportRank").value.trim(),
+    title: document.getElementById("supportTitle").value.trim(),
+    applicationArea: document.getElementById("supportApplicationArea").value.trim(),
+    targetUser: document.getElementById("supportTargetUser").value.trim(),
+    proof: document.getElementById("supportProof").value.trim(),
+    reproduce: document.getElementById("supportReproduce").value.trim(),
+    description: document.getElementById("supportDescription").value.trim(),
+    createdAt: new Date().toISOString(),
+    status: "open"
+  };
+}
+
+function supportValidateTicket(ticket) {
+  if (!ticket.discordUsername) {
+    return "Bitte gib deinen Discord-Namen ein.";
+  }
+
+  if (!ticket.title) {
+    return "Bitte gib einen Titel ein.";
+  }
+
+  if (!ticket.description) {
+    return "Bitte beschreibe dein Anliegen.";
+  }
+
+  if (ticket.description.length < 5) {
+    return "Die Beschreibung ist zu kurz.";
+  }
+
+  if (ticket.category === "application" && !ticket.applicationArea) {
+    return "Bitte gib den Bewerbungsbereich an.";
+  }
+
+  if (ticket.category === "report" && !ticket.targetUser) {
+    return "Bitte gib den gemeldeten User an.";
+  }
+
+  if (ticket.category === "bug" && !ticket.reproduce) {
+    return "Bitte beschreibe, wie man den Bug reproduzieren kann.";
+  }
+
+  return "";
+}
+
+async function supportHandleSubmit(event) {
+  event.preventDefault();
+
+  const form = document.getElementById("supportForm");
+  const ticket = supportCollectTicketData();
+  const validationError = supportValidateTicket(ticket);
+
+  if (validationError) {
+    supportSetMessage(validationError, "error");
+    return;
+  }
+
+  supportSetMessage("Ticket wird erstellt...");
+
+  try {
+    let discordSent = false;
+
+    if (supportBackendReady) {
+      await supportSaveSupabaseTicket(ticket);
+      discordSent = await supportNotifyDiscord(ticket);
+    } else {
+      supportSaveDemoTicket(ticket);
+    }
+
+    const portalUrl = supportGetTicketPortalUrl(ticket.id, ticket.discordUsername);
+
+    form.reset();
+    supportToggleFields();
+
+    supportSetMessage(`
+      <strong>Ticket erstellt.</strong><br>
+      Deine Ticketnummer: <strong>${supportEscape(ticket.id)}</strong><br>
+      <a href="${supportEscape(portalUrl)}">Ticket öffnen und Antworten lesen</a>
+      ${supportBackendReady ? "<br>Ticket wurde in Supabase gespeichert." : "<br>Demo-Modus: Ticket wurde lokal gespeichert."}
+      ${discordSent ? "<br>Discord wurde benachrichtigt." : "<br>Discord-Benachrichtigung konnte nicht bestätigt werden."}
+    `, "success");
+  } catch (error) {
+    supportSetMessage(`Ticket konnte nicht vollständig verarbeitet werden: ${supportEscape(error.message)}`, "error");
+  }
+}
+
 function supportSetupEvents() {
   const launcher = document.getElementById("supportLauncher");
-  const panel = document.getElementById("supportPanel");
   const close = document.getElementById("supportClose");
   const cancel = document.getElementById("supportCancel");
   const form = document.getElementById("supportForm");
   const category = document.getElementById("supportCategory");
 
-  launcher.addEventListener("click", () => {
-    panel.classList.add("open");
-  });
+  if (launcher) {
+    launcher.addEventListener("click", supportOpenPanel);
+  }
 
-  close.addEventListener("click", () => {
-    panel.classList.remove("open");
-  });
+  if (close) {
+    close.addEventListener("click", supportClosePanel);
+  }
 
-  cancel.addEventListener("click", () => {
-    panel.classList.remove("open");
-  });
+  if (cancel) {
+    cancel.addEventListener("click", supportClosePanel);
+  }
 
-  category.addEventListener("change", supportToggleFields);
+  if (category) {
+    category.addEventListener("change", supportToggleFields);
+  }
 
-  form.addEventListener("submit", async (event) => {
-    event.preventDefault();
+  if (form) {
+    form.addEventListener("submit", supportHandleSubmit);
+  }
 
-    const selectedOption = category.options[category.selectedIndex];
-
-    const ticket = {
-      id: supportCreateTicketNumber(),
-      category: category.value,
-      categoryLabel: selectedOption.dataset.label || selectedOption.textContent,
-      discordUsername: document.getElementById("supportDiscord").value.trim(),
-      rank: document.getElementById("supportRank").value.trim(),
-      title: document.getElementById("supportTitle").value.trim(),
-      applicationArea: document.getElementById("supportApplicationArea").value.trim(),
-      targetUser: document.getElementById("supportTargetUser").value.trim(),
-      proof: document.getElementById("supportProof").value.trim(),
-      reproduce: document.getElementById("supportReproduce").value.trim(),
-      description: document.getElementById("supportDescription").value.trim(),
-      createdAt: new Date().toISOString(),
-      status: "open"
-    };
-
-    if (!ticket.discordUsername || !ticket.title || !ticket.description) {
-      supportSetMessage("Bitte fülle alle Pflichtfelder aus.", "error");
-      return;
-    }
-
-    supportSetMessage("Ticket wird erstellt...");
-
-    try {
-      let discordSent = false;
-
-      if (supportBackendReady) {
-        await supportSaveSupabaseTicket(ticket);
-        discordSent = await supportNotifyDiscord(ticket);
-      } else {
-        supportSaveDemoTicket(ticket);
-      }
-
-      const portalUrl = supportGetTicketPortalUrl(ticket.id, ticket.discordUsername);
-
-      form.reset();
-      supportToggleFields();
-
-      supportSetMessage(`
-        <strong>Ticket erstellt.</strong><br>
-        Deine Ticketnummer: <strong>${supportEscape(ticket.id)}</strong><br>
-        <a href="${supportEscape(portalUrl)}">Ticket öffnen und Antworten lesen</a>
-        ${discordSent ? "<br>Discord wurde benachrichtigt." : "<br>Discord-Benachrichtigung konnte nicht bestätigt werden."}
-      `, "success");
-    } catch (error) {
-      supportSetMessage(`Ticket konnte nicht vollständig verarbeitet werden: ${supportEscape(error.message)}`, "error");
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      supportClosePanel();
     }
   });
 }
 
 (async function initSupportWidget() {
-  if (!supportSettings.enabled) return;
+  if (!supportSettings.enabled) {
+    return;
+  }
 
   supportBuildWidget();
   supportSetupEvents();
