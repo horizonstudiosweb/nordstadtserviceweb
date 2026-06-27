@@ -21,7 +21,7 @@
 */
 
 const SUPABASE_CONFIG = {
-  enabled: false,
+  enabled: true,
 
   /*
     Später hier eintragen:
