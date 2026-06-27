@@ -177,7 +177,7 @@
           <span>Ticketportal</span>
           <h3>Wo finde ich mein Ticket?</h3>
           <p>
-            Nach dem Absenden bekommst du eine Ticketnummer und einen Link zum Ticketportal.
+            Nach dem Absenden bekommst du eine Ticketnummer. Der Chat öffnet direkt hier im Support-Center.
           </p>
           <a href="#myTicketsSection">Meine Tickets öffnen</a>
         </article>
@@ -273,8 +273,27 @@
         </div>
 
         <div class="success-actions">
-          <a class="primary-btn" id="successTicketLink" href="tickets.html">Ticket öffnen</a>
-          <button class="secondary-btn" id="successCloseButton" type="button">Schließen</button>
+          <button class="primary-btn" id="successTicketLink" type="button">
+            Ticket-Chat anzeigen
+          </button>
+
+          <button class="secondary-btn" id="successCloseButton" type="button">
+            Schließen
+          </button>
+        </div>
+
+        <div id="embeddedTicketChatBox" class="embedded-ticket-chat-box hidden" style="margin-top: 22px;">
+          <iframe
+            id="embeddedTicketChatFrame"
+            title="Ticket-Chat"
+            style="
+              width: 100%;
+              min-height: 720px;
+              border: 1px solid rgba(145, 190, 255, 0.18);
+              border-radius: 24px;
+              background: #050d18;
+            "
+          ></iframe>
         </div>
       </div>
     </section>
