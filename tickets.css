@@ -35,6 +35,13 @@ a {
   text-decoration: none;
 }
 
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
 .tickets-page {
   width: min(1120px, calc(100% - 32px));
   margin: 0 auto;
@@ -161,7 +168,6 @@ a {
   background: rgba(255, 255, 255, 0.07);
   color: var(--text);
   outline: none;
-  font: inherit;
 }
 
 .ticket-form input {
