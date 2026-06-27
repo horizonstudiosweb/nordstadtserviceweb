@@ -39,8 +39,8 @@ const SUPABASE_CONFIG = {
     → anon public key
   */
 
-  url: "DEINE_SUPABASE_PROJECT_URL_HIER",
-  anonKey: "DEIN_SUPABASE_ANON_PUBLIC_KEY_HIER"
+  url: "https://nhasjzrtvxmlrwwoqnrk.supabase.co",
+  anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5oYXNqenJ0dnhtbHJ3d29xbnJrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI1NTY2NTgsImV4cCI6MjA5ODEzMjY1OH0.SGRA0aVeiLVGu-xYxCZvHXcFXtqNEMZGwiICaN1Z-F0"
 };
 
 function getSupabaseConfig() {
