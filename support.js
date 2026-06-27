@@ -1,7 +1,7 @@
 const supportSettings = {
   enabled: true,
   storageKey: "nordstadt_support_demo_tickets",
-  backendReady: false
+  supabaseJsUrl: "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
 };
 
 const supportFaqs = [
@@ -59,6 +59,8 @@ const supportCategories = {
 };
 
 let activeSupportCategory = null;
+let supportSupabaseClient = null;
+let supportBackendReady = false;
 
 function supportIcon(name) {
   const icons = {
@@ -112,6 +114,53 @@ function supportCreateElement(tagName, className, textContent) {
   return element;
 }
 
+function supportLoadScript(src) {
+  return new Promise((resolve, reject) => {
+    const existingScript = document.querySelector(`script[src="${src}"]`);
+
+    if (existingScript) {
+      resolve();
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.src = src;
+    script.onload = resolve;
+    script.onerror = reject;
+
+    document.head.appendChild(script);
+  });
+}
+
+async function supportSetupSupabase() {
+  try {
+    await supportLoadScript("supabase-config.js");
+    await supportLoadScript(supportSettings.supabaseJsUrl);
+
+    if (!window.NordstadtSupabaseConfig || !window.NordstadtSupabaseConfig.getConfig) {
+      supportBackendReady = false;
+      return;
+    }
+
+    const config = window.NordstadtSupabaseConfig.getConfig();
+
+    if (!config.enabled || !config.url || !config.anonKey) {
+      supportBackendReady = false;
+      return;
+    }
+
+    if (!window.supabase || !window.supabase.createClient) {
+      supportBackendReady = false;
+      return;
+    }
+
+    supportSupabaseClient = window.supabase.createClient(config.url, config.anonKey);
+    supportBackendReady = true;
+  } catch (error) {
+    supportBackendReady = false;
+  }
+}
+
 function supportGetStoredTickets() {
   try {
     const rawTickets = localStorage.getItem(supportSettings.storageKey);
@@ -130,6 +179,35 @@ function supportSaveDemoTicket(ticket) {
   const tickets = supportGetStoredTickets();
   tickets.unshift(ticket);
   localStorage.setItem(supportSettings.storageKey, JSON.stringify(tickets));
+}
+
+async function supportSaveSupabaseTicket(ticket) {
+  if (!supportSupabaseClient || !supportBackendReady) {
+    throw new Error("Supabase ist nicht verbunden.");
+  }
+
+  const supabaseTicket = {
+    ticket_number: ticket.id,
+    category: ticket.category,
+    category_label: ticket.categoryLabel,
+    discord_username: ticket.discordUsername,
+    rank: ticket.rank || null,
+    title: ticket.title,
+    description: ticket.description,
+    application_area: ticket.applicationArea || null,
+    target_user: ticket.targetUser || null,
+    proof: ticket.proof || null,
+    reproduce: ticket.reproduce || null,
+    status: "open"
+  };
+
+  const { error } = await supportSupabaseClient
+    .from("tickets")
+    .insert(supabaseTicket);
+
+  if (error) {
+    throw error;
+  }
 }
 
 function supportCreateTicketNumber() {
@@ -383,11 +461,8 @@ async function supportSubmitTicket(event) {
   };
 
   try {
-    if (
-      window.NordstadtSupportBackend &&
-      typeof window.NordstadtSupportBackend.createTicket === "function"
-    ) {
-      await window.NordstadtSupportBackend.createTicket(ticket);
+    if (supportBackendReady) {
+      await supportSaveSupabaseTicket(ticket);
     } else {
       supportSaveDemoTicket(ticket);
     }
@@ -403,17 +478,24 @@ async function supportSubmitTicket(event) {
       `;
     }
 
-    supportShowStatus(
-      "success",
-      "Dein Ticket wurde erstellt. Im aktuellen Demo-Modus wird es lokal gespeichert. Sobald Supabase verbunden ist, wird es richtig in der Datenbank gespeichert und an Discord gemeldet."
-    );
+    if (supportBackendReady) {
+      supportShowStatus(
+        "success",
+        "Dein Ticket wurde erstellt und in Supabase gespeichert."
+      );
+    } else {
+      supportShowStatus(
+        "success",
+        "Dein Ticket wurde im Demo-Modus lokal gespeichert. Supabase ist noch nicht verbunden."
+      );
+    }
 
     const form = document.getElementById("supportTicketForm");
     if (form) form.reset();
   } catch (error) {
     supportShowStatus(
       "error",
-      "Das Ticket konnte gerade nicht erstellt werden. Bitte versuche es später erneut."
+      "Das Ticket konnte nicht in Supabase gespeichert werden. Prüfe bitte die Supabase-Konfiguration und RLS-Policies."
     );
   }
 }
@@ -465,8 +547,8 @@ function supportBuildWidget() {
           <div id="supportCategoryGrid" class="support-category-grid"></div>
 
           <div class="support-mini-note">
-            Hinweis: Dieses Support-Fenster ist frontendseitig vorbereitet.
-            Die sichere Speicherung und Discord-Benachrichtigung verbinden wir danach über Supabase.
+            Hinweis: Tickets werden jetzt mit Supabase verbunden. Falls Supabase nicht erreichbar ist,
+            speichert die Website sie nur lokal im Demo-Modus.
           </div>
         </div>
 
@@ -598,4 +680,9 @@ function supportBuildWidget() {
   supportStartPopupWatcher();
 }
 
-document.addEventListener("DOMContentLoaded", supportBuildWidget);
+async function supportInit() {
+  await supportSetupSupabase();
+  supportBuildWidget();
+}
+
+document.addEventListener("DOMContentLoaded", supportInit);
