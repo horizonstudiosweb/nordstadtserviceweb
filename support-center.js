@@ -5,6 +5,7 @@ const supportCenterSettings = {
   maxFiles: 5,
   maxFileSize: 10 * 1024 * 1024,
   localTicketsKey: "nordstadt_my_tickets",
+  lastCreatedTicketUrl: "",
   categories: {
     support: {
       label: "Allgemein",
@@ -80,6 +81,9 @@ const successText = document.getElementById("successText");
 const successTicketNumber = document.getElementById("successTicketNumber");
 const successTicketLink = document.getElementById("successTicketLink");
 const successCloseButton = document.getElementById("successCloseButton");
+
+const embeddedTicketChatBox = document.getElementById("embeddedTicketChatBox");
+const embeddedTicketChatFrame = document.getElementById("embeddedTicketChatFrame");
 
 const openTicketButtons = document.querySelectorAll("[data-open-ticket]");
 
@@ -258,12 +262,18 @@ function renderMyTickets() {
           </div>
         </div>
 
-        <a class="my-ticket-open" href="${escapeHtml(ticketUrl)}">
+        <button class="my-ticket-open" type="button" data-open-local-ticket="${escapeHtml(ticketUrl)}">
           Öffnen
-        </a>
+        </button>
       </article>
     `;
   }).join("");
+
+  document.querySelectorAll("[data-open-local-ticket]").forEach((button) => {
+    button.addEventListener("click", () => {
+      openEmbeddedTicketChat(button.dataset.openLocalTicket);
+    });
+  });
 }
 
 function resetForm() {
@@ -274,7 +284,15 @@ function resetForm() {
   supportCenterForm.classList.remove("hidden");
 
   successTicketNumber.textContent = "-";
-  successTicketLink.href = "tickets.html";
+  supportCenterSettings.lastCreatedTicketUrl = "";
+
+  if (embeddedTicketChatBox) {
+    embeddedTicketChatBox.classList.add("hidden");
+  }
+
+  if (embeddedTicketChatFrame) {
+    embeddedTicketChatFrame.removeAttribute("src");
+  }
 }
 
 function openTicketModal(category) {
@@ -481,21 +499,48 @@ async function createTicket(ticket, attachments) {
   return data;
 }
 
+function openEmbeddedTicketChat(ticketUrl) {
+  if (!ticketUrl || !embeddedTicketChatBox || !embeddedTicketChatFrame) {
+    return;
+  }
+
+  ticketModal.classList.remove("hidden");
+  successView.classList.remove("hidden");
+  supportCenterForm.classList.add("hidden");
+
+  embeddedTicketChatFrame.src = ticketUrl;
+  embeddedTicketChatBox.classList.remove("hidden");
+
+  setTimeout(() => {
+    embeddedTicketChatBox.scrollIntoView({
+      behavior: "smooth",
+      block: "start"
+    });
+  }, 100);
+}
+
 function renderSuccess(result, ticket) {
   const config = getCategoryConfig(ticket.category);
   const ticketNumber = result.ticket_number || "";
   const discordUsername = ticket.discord_username || "";
   const ticketUrl = buildTicketUrl(ticketNumber, discordUsername);
 
+  supportCenterSettings.lastCreatedTicketUrl = ticketUrl;
+
   supportCenterForm.classList.add("hidden");
   successView.classList.remove("hidden");
 
   successTitle.textContent = result.message || config.successTitle;
-  successText.textContent = config.successText;
+  successText.textContent = "Der Ticket-Chat kann direkt hier geöffnet werden.";
   successTicketNumber.textContent = ticketNumber || "-";
 
-  successTicketLink.href = ticketUrl;
-  successTicketLink.setAttribute("href", ticketUrl);
+  if (embeddedTicketChatBox) {
+    embeddedTicketChatBox.classList.add("hidden");
+  }
+
+  if (embeddedTicketChatFrame) {
+    embeddedTicketChatFrame.removeAttribute("src");
+  }
 }
 
 async function handleSubmit(event) {
@@ -559,6 +604,10 @@ openTicketButtons.forEach((button) => {
 ticketModalClose.addEventListener("click", closeTicketModal);
 ticketModalCancel.addEventListener("click", closeTicketModal);
 successCloseButton.addEventListener("click", closeTicketModal);
+
+successTicketLink.addEventListener("click", () => {
+  openEmbeddedTicketChat(supportCenterSettings.lastCreatedTicketUrl);
+});
 
 ticketModal.addEventListener("click", (event) => {
   if (event.target === ticketModal) {
