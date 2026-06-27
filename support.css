@@ -1,246 +1,526 @@
-const websiteLinks = {
-  discord: "https://discord.gg/pR2Yxb5RTh",
-  game: "https://www.roblox.com/de/games/101669977836710/Nordstadt-Roleplay",
-  bundespolizeiDocument: "https://drive.google.com/file/d/1t-MPyiy-5xwtz_gKgl1zr8JYi0EwvGuv/view?usp=sharing"
-};
-
-const introSettings = {
-  enabled: true,
-  totalDurationInSeconds: 5
-};
-
-const recruitmentPopupSettings = {
-  enabled: true,
-  delayInSeconds: 8,
-  title: "Bewirb dich jetzt",
-  text: "Wir suchen Leitungspersonal und Administratoren für Nordstadt Roleplay."
-};
-
-const projectStatuses = [
-  {
-    name: "Nordstadt Roleplay",
-    status: "wip",
-    label: "Work in Progress",
-    description: "Nordstadt Roleplay befindet sich aktuell in Entwicklung und Vorbereitung für öffentliche Tests."
-  },
-  {
-    name: "Ausbildungen",
-    status: "testing",
-    label: "Teilweise verfügbar",
-    description: "Die Bundespolizei-Ausbildung ist verfügbar. Weitere Ausbildungen folgen später."
-  },
-  {
-    name: "Spielzugang",
-    status: "wip",
-    label: "Eingeschränkter Zugang",
-    description: "Das Spiel ist noch nicht vollständig veröffentlicht und kann nur während bestimmter Testphasen verfügbar sein."
-  }
-];
-
-/*
-  Status-Optionen:
-
-  active   = weißer leuchtender Punkt
-  testing  = blauer leuchtender Punkt
-  wip      = gelber Punkt
-  closed   = roter Punkt
-
-  Du kannst den Statusbereich jederzeit oben ändern.
-*/
-
-/*
-  Intro:
-
-  enabled: true  = Intro erscheint beim Öffnen der Website
-  enabled: false = Intro ist ausgeschaltet
-*/
-
-/*
-  Bewerbungs-Popup:
-
-  enabled: true  = Pop-up erscheint
-  enabled: false = Pop-up ist ausgeschaltet
-
-  delayInSeconds bestimmt, nach wie vielen Sekunden das Pop-up erscheint.
-*/
-
-const navButtons = document.querySelectorAll(".nav-link");
-const sections = document.querySelectorAll(".tab-section");
-const openTabButtons = document.querySelectorAll("[data-tab-open]");
-const statusCardsContainer = document.getElementById("statusCards");
-
-const discordButton = document.getElementById("discordButton");
-const applyButton = document.getElementById("applyButton");
-
-const introOverlay = document.getElementById("introOverlay");
-
-const recruitmentPopup = document.getElementById("recruitmentPopup");
-const closeRecruitmentPopup = document.getElementById("closeRecruitmentPopup");
-
-const downloadButtons = document.querySelectorAll(".download-btn");
-const downloadModal = document.getElementById("downloadModal");
-const cancelDownload = document.getElementById("cancelDownload");
-const confirmDownload = document.getElementById("confirmDownload");
-
-let selectedDownloadLink = "";
-
-function openTab(tabName) {
-  navButtons.forEach((button) => {
-    button.classList.toggle("active", button.dataset.tab === tabName);
-  });
-
-  sections.forEach((section) => {
-    section.classList.toggle("active", section.id === tabName);
-  });
-
-  window.scrollTo({
-    top: 0,
-    behavior: "smooth"
-  });
+.support-widget-root {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  z-index: 140;
+  font-family: "Inter", sans-serif;
 }
 
-navButtons.forEach((button) => {
-  button.addEventListener("click", () => {
-    openTab(button.dataset.tab);
-  });
-});
-
-openTabButtons.forEach((button) => {
-  button.addEventListener("click", () => {
-    openTab(button.dataset.tabOpen);
-  });
-});
-
-function createStatusCards() {
-  if (!statusCardsContainer) return;
-
-  statusCardsContainer.innerHTML = "";
-
-  projectStatuses.forEach((project) => {
-    const card = document.createElement("article");
-    card.className = "status-card";
-
-    card.innerHTML = `
-      <div>
-        <div class="status-top">
-          <div>
-            <h3>${project.name}</h3>
-            <p>${project.description}</p>
-          </div>
-
-          <span class="status-indicator ${project.status}"></span>
-        </div>
-      </div>
-
-      <div class="status-label">${project.label}</div>
-    `;
-
-    statusCardsContainer.appendChild(card);
-  });
+.support-widget-root.shift-up {
+  bottom: 122px;
 }
 
-function applyLinks() {
-  if (discordButton) {
-    discordButton.href = websiteLinks.discord;
-  }
-
-  if (applyButton) {
-    applyButton.href = websiteLinks.discord;
-  }
+.support-launcher {
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.14), rgba(255, 255, 255, 0.055)),
+    rgba(6, 17, 31, 0.92);
+  color: #ffffff;
+  backdrop-filter: blur(22px);
+  box-shadow: 0 24px 65px rgba(0, 0, 0, 0.45);
+  border-radius: 999px;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  cursor: pointer;
+  transition: 0.35s ease;
 }
 
-function setupIntro() {
-  if (!introOverlay) return;
-
-  if (!introSettings.enabled) {
-    introOverlay.style.display = "none";
-    return;
-  }
-
-  document.body.classList.add("intro-active");
-
-  setTimeout(() => {
-    introOverlay.classList.add("hide");
-    document.body.classList.remove("intro-active");
-  }, introSettings.totalDurationInSeconds * 1000);
-
-  setTimeout(() => {
-    introOverlay.style.display = "none";
-  }, introSettings.totalDurationInSeconds * 1000 + 900);
+.support-launcher:hover {
+  transform: translateY(-4px);
+  border-color: rgba(127, 178, 255, 0.42);
+  background:
+    linear-gradient(145deg, rgba(127, 178, 255, 0.18), rgba(255, 255, 255, 0.07)),
+    rgba(6, 17, 31, 0.95);
 }
 
-function setupRecruitmentPopup() {
-  if (!recruitmentPopup || !recruitmentPopupSettings.enabled) return;
-
-  const title = recruitmentPopup.querySelector(".notification-content strong");
-  const text = recruitmentPopup.querySelector(".notification-content p");
-
-  if (title) title.textContent = recruitmentPopupSettings.title;
-  if (text) text.textContent = recruitmentPopupSettings.text;
-
-  setTimeout(() => {
-    recruitmentPopup.classList.add("show");
-  }, recruitmentPopupSettings.delayInSeconds * 1000);
-
-  if (closeRecruitmentPopup) {
-    closeRecruitmentPopup.addEventListener("click", () => {
-      recruitmentPopup.classList.remove("show");
-    });
-  }
+.support-launcher-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  color: #06111f;
+  background: #ffffff;
+  font-weight: 900;
+  font-size: 1.05rem;
 }
 
-function openDownloadModal(link) {
-  selectedDownloadLink = link;
+.support-launcher-text {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+}
 
-  if (downloadModal) {
-    downloadModal.classList.add("show");
+.support-launcher-text strong {
+  font-size: 0.95rem;
+  line-height: 1;
+  color: #ffffff;
+}
+
+.support-launcher-text span {
+  margin-top: 5px;
+  font-size: 0.78rem;
+  color: #9fb0c7;
+}
+
+.support-panel {
+  position: absolute;
+  right: 0;
+  bottom: 72px;
+  width: min(430px, calc(100vw - 48px));
+  max-height: min(720px, calc(100vh - 170px));
+  overflow: hidden;
+  border-radius: 32px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background:
+    radial-gradient(circle at 20% 0%, rgba(127, 178, 255, 0.18), transparent 34%),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.105), rgba(255, 255, 255, 0.045)),
+    rgba(6, 17, 31, 0.96);
+  backdrop-filter: blur(26px);
+  box-shadow: 0 32px 90px rgba(0, 0, 0, 0.55);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(22px) scale(0.96);
+  transition: 0.35s ease;
+}
+
+.support-panel.open {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0) scale(1);
+}
+
+.support-panel-header {
+  padding: 22px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.support-panel-header p {
+  color: #9fb0c7;
+  margin-top: 7px;
+  line-height: 1.55;
+  font-size: 0.92rem;
+}
+
+.support-panel-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.support-panel-logo {
+  width: 44px;
+  height: 44px;
+  border-radius: 18px;
+  display: grid;
+  place-items: center;
+  color: #06111f;
+  background: #ffffff;
+  font-weight: 900;
+}
+
+.support-panel-title h3 {
+  font-family: "Montserrat", sans-serif;
+  color: #ffffff;
+  font-size: 1.18rem;
+  letter-spacing: -0.04em;
+}
+
+.support-close {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: none;
+  cursor: pointer;
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.09);
+  font-size: 1.25rem;
+  line-height: 1;
+  transition: 0.25s ease;
+}
+
+.support-close:hover {
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.support-panel-body {
+  max-height: calc(min(720px, calc(100vh - 170px)) - 90px);
+  overflow-y: auto;
+  padding: 18px;
+}
+
+.support-panel-body::-webkit-scrollbar {
+  width: 8px;
+}
+
+.support-panel-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.support-panel-body::-webkit-scrollbar-thumb {
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+}
+
+.support-view {
+  display: none;
+}
+
+.support-view.active {
+  display: block;
+  animation: supportFade 0.28s ease forwards;
+}
+
+@keyframes supportFade {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
-function closeDownloadModal() {
-  selectedDownloadLink = "";
-
-  if (downloadModal) {
-    downloadModal.classList.remove("show");
-  }
+.support-intro-card {
+  padding: 18px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.12);
 }
 
-function setupDownloads() {
-  downloadButtons.forEach((button) => {
-    button.addEventListener("click", () => {
-      const documentName = button.dataset.document;
-
-      if (documentName === "bundespolizei") {
-        openDownloadModal(websiteLinks.bundespolizeiDocument);
-      }
-    });
-  });
-
-  if (cancelDownload) {
-    cancelDownload.addEventListener("click", closeDownloadModal);
-  }
-
-  if (downloadModal) {
-    downloadModal.addEventListener("click", (event) => {
-      if (event.target === downloadModal) {
-        closeDownloadModal();
-      }
-    });
-  }
-
-  if (confirmDownload) {
-    confirmDownload.addEventListener("click", () => {
-      if (selectedDownloadLink) {
-        window.open(selectedDownloadLink, "_blank", "noopener,noreferrer");
-      }
-
-      closeDownloadModal();
-    });
-  }
+.support-intro-card strong {
+  display: block;
+  color: #ffffff;
+  font-size: 1rem;
 }
 
-createStatusCards();
-applyLinks();
-setupIntro();
-setupRecruitmentPopup();
-setupDownloads();
+.support-intro-card p {
+  margin-top: 9px;
+  color: #9fb0c7;
+  line-height: 1.65;
+  font-size: 0.92rem;
+}
+
+.support-faq-list {
+  margin-top: 14px;
+  display: grid;
+  gap: 10px;
+}
+
+.support-faq-button,
+.support-category-button,
+.support-back-button,
+.support-submit-button,
+.support-secondary-button {
+  border: none;
+  outline: none;
+  cursor: pointer;
+  font-family: "Inter", sans-serif;
+  transition: 0.3s ease;
+}
+
+.support-faq-button {
+  width: 100%;
+  text-align: left;
+  padding: 14px 15px;
+  border-radius: 18px;
+  color: #edf4ff;
+  background: rgba(255, 255, 255, 0.075);
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  font-weight: 800;
+  line-height: 1.4;
+}
+
+.support-faq-button:hover {
+  transform: translateY(-2px);
+  border-color: rgba(127, 178, 255, 0.32);
+  background: rgba(255, 255, 255, 0.105);
+}
+
+.support-section-title {
+  margin-top: 18px;
+  margin-bottom: 12px;
+  color: #ffffff;
+  font-family: "Montserrat", sans-serif;
+  font-size: 1.15rem;
+  letter-spacing: -0.04em;
+}
+
+.support-category-grid {
+  display: grid;
+  gap: 12px;
+}
+
+.support-category-button {
+  width: 100%;
+  padding: 17px;
+  border-radius: 22px;
+  text-align: left;
+  display: grid;
+  grid-template-columns: 42px 1fr;
+  gap: 14px;
+  color: #edf4ff;
+  background: rgba(255, 255, 255, 0.075);
+  border: 1px solid rgba(255, 255, 255, 0.11);
+}
+
+.support-category-button:hover {
+  transform: translateY(-3px);
+  border-color: rgba(127, 178, 255, 0.38);
+  background: rgba(255, 255, 255, 0.11);
+}
+
+.support-category-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 16px;
+  display: grid;
+  place-items: center;
+  color: #06111f;
+  background: #ffffff;
+  font-weight: 900;
+}
+
+.support-category-content strong {
+  display: block;
+  color: #ffffff;
+  font-size: 0.98rem;
+}
+
+.support-category-content span {
+  display: block;
+  margin-top: 6px;
+  color: #9fb0c7;
+  line-height: 1.45;
+  font-size: 0.84rem;
+}
+
+.support-answer-box {
+  padding: 18px;
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.075);
+  border: 1px solid rgba(255, 255, 255, 0.11);
+}
+
+.support-answer-box h4 {
+  color: #ffffff;
+  font-family: "Montserrat", sans-serif;
+  letter-spacing: -0.04em;
+  font-size: 1.16rem;
+}
+
+.support-answer-box p {
+  margin-top: 12px;
+  color: #9fb0c7;
+  line-height: 1.75;
+  font-size: 0.92rem;
+}
+
+.support-form-header {
+  margin-bottom: 16px;
+}
+
+.support-form-header h4 {
+  color: #ffffff;
+  font-family: "Montserrat", sans-serif;
+  letter-spacing: -0.04em;
+  font-size: 1.25rem;
+}
+
+.support-form-header p {
+  margin-top: 8px;
+  color: #9fb0c7;
+  line-height: 1.6;
+  font-size: 0.92rem;
+}
+
+.support-form {
+  display: grid;
+  gap: 13px;
+}
+
+.support-field {
+  display: grid;
+  gap: 7px;
+}
+
+.support-field label {
+  color: #ffffff;
+  font-size: 0.84rem;
+  font-weight: 800;
+}
+
+.support-field input,
+.support-field select,
+.support-field textarea {
+  width: 100%;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  outline: none;
+  border-radius: 16px;
+  padding: 13px 14px;
+  color: #edf4ff;
+  background: rgba(255, 255, 255, 0.075);
+  font-family: "Inter", sans-serif;
+  font-size: 0.92rem;
+  transition: 0.25s ease;
+}
+
+.support-field textarea {
+  resize: vertical;
+  min-height: 110px;
+}
+
+.support-field input:focus,
+.support-field select:focus,
+.support-field textarea:focus {
+  border-color: rgba(127, 178, 255, 0.56);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.support-field input::placeholder,
+.support-field textarea::placeholder {
+  color: rgba(159, 176, 199, 0.72);
+}
+
+.support-form-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 6px;
+}
+
+.support-submit-button,
+.support-secondary-button,
+.support-back-button {
+  padding: 13px 17px;
+  border-radius: 999px;
+  font-weight: 900;
+}
+
+.support-submit-button {
+  color: #06111f;
+  background: #ffffff;
+}
+
+.support-submit-button:hover {
+  transform: translateY(-2px);
+}
+
+.support-secondary-button,
+.support-back-button {
+  color: #ffffff;
+  background: rgba(255, 255, 255, 0.09);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.support-secondary-button:hover,
+.support-back-button:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.support-back-button {
+  margin-bottom: 14px;
+}
+
+.support-status-message {
+  display: none;
+  margin-top: 14px;
+  padding: 14px 15px;
+  border-radius: 18px;
+  line-height: 1.55;
+  font-size: 0.9rem;
+}
+
+.support-status-message.show {
+  display: block;
+}
+
+.support-status-message.success {
+  color: #dfffe9;
+  background: rgba(100, 224, 145, 0.12);
+  border: 1px solid rgba(100, 224, 145, 0.28);
+}
+
+.support-status-message.error {
+  color: #ffe1e1;
+  background: rgba(239, 75, 75, 0.12);
+  border: 1px solid rgba(239, 75, 75, 0.28);
+}
+
+.support-ticket-preview {
+  display: none;
+  margin-top: 14px;
+  padding: 15px;
+  border-radius: 20px;
+  background: rgba(127, 178, 255, 0.08);
+  border: 1px solid rgba(127, 178, 255, 0.18);
+}
+
+.support-ticket-preview.show {
+  display: block;
+}
+
+.support-ticket-preview strong {
+  display: block;
+  color: #ffffff;
+}
+
+.support-ticket-preview span {
+  display: block;
+  margin-top: 6px;
+  color: #9fb0c7;
+  font-size: 0.88rem;
+  line-height: 1.5;
+}
+
+.support-mini-note {
+  margin-top: 14px;
+  padding: 13px 14px;
+  border-radius: 18px;
+  color: #9fb0c7;
+  line-height: 1.55;
+  font-size: 0.86rem;
+  background: rgba(255, 255, 255, 0.055);
+  border: 1px solid rgba(255, 255, 255, 0.09);
+}
+
+@media (max-width: 520px) {
+  .support-widget-root {
+    right: 16px;
+    bottom: 16px;
+  }
+
+  .support-widget-root.shift-up {
+    bottom: 110px;
+  }
+
+  .support-panel {
+    right: -8px;
+    width: calc(100vw - 32px);
+    bottom: 70px;
+    border-radius: 26px;
+  }
+
+  .support-launcher-text {
+    display: none;
+  }
+
+  .support-form-actions {
+    flex-direction: column;
+  }
+
+  .support-submit-button,
+  .support-secondary-button,
+  .support-back-button {
+    width: 100%;
+  }
+}
