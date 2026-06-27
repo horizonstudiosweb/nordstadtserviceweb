@@ -795,3 +795,210 @@ a {
     width: 100%;
   }
 }
+
+.my-tickets-section {
+  width: min(1120px, calc(100% - 36px));
+  margin: 0 auto 110px;
+}
+
+.my-tickets-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 34px;
+  background:
+    radial-gradient(circle at top left, rgba(117, 197, 255, 0.16), transparent 34%),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.04));
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.32);
+  padding: 30px;
+  backdrop-filter: blur(24px);
+}
+
+.my-tickets-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.11), transparent 24%),
+    linear-gradient(135deg, rgba(117, 197, 255, 0.08), transparent 44%);
+}
+
+.my-tickets-head,
+.my-tickets-list {
+  position: relative;
+}
+
+.my-tickets-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+  align-items: flex-start;
+  margin-bottom: 22px;
+}
+
+.my-tickets-head h2 {
+  margin: 0;
+  color: #ffffff;
+  font-family: "Montserrat", sans-serif;
+  font-size: clamp(2.2rem, 4vw, 4rem);
+  line-height: 0.95;
+  letter-spacing: -0.07em;
+  font-weight: 950;
+}
+
+.my-tickets-head p {
+  max-width: 720px;
+  margin: 14px 0 0;
+  color: rgba(237, 244, 255, 0.68);
+  font-size: 1rem;
+  line-height: 1.7;
+}
+
+.my-tickets-clear {
+  min-height: 44px;
+  padding: 0 18px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  color: #ffffff;
+  cursor: pointer;
+  font-weight: 900;
+  white-space: nowrap;
+  transition:
+    transform 0.18s ease,
+    background 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.my-tickets-clear:hover {
+  transform: translateY(-2px);
+  border-color: rgba(117, 197, 255, 0.34);
+  background: rgba(117, 197, 255, 0.12);
+}
+
+.my-tickets-list {
+  display: grid;
+  gap: 12px;
+}
+
+.my-tickets-empty {
+  padding: 18px;
+  border: 1px dashed rgba(255, 255, 255, 0.2);
+  border-radius: 24px;
+  color: rgba(237, 244, 255, 0.68);
+  line-height: 1.65;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.my-ticket-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 16px;
+  align-items: center;
+  padding: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.13);
+  border-radius: 24px;
+  background: rgba(255, 255, 255, 0.055);
+  transition:
+    transform 0.18s ease,
+    border-color 0.18s ease,
+    background 0.18s ease;
+}
+
+.my-ticket-item:hover {
+  transform: translateY(-3px);
+  border-color: rgba(117, 197, 255, 0.34);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.my-ticket-info {
+  min-width: 0;
+}
+
+.my-ticket-top {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.my-ticket-number {
+  color: #ffffff;
+  font-weight: 950;
+}
+
+.my-ticket-pill {
+  width: fit-content;
+  padding: 6px 9px;
+  border-radius: 999px;
+  background: rgba(117, 197, 255, 0.13);
+  color: #d7eeff;
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.my-ticket-title {
+  color: #ffffff;
+  font-size: 16px;
+  font-weight: 900;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.my-ticket-meta {
+  margin-top: 6px;
+  color: rgba(237, 244, 255, 0.58);
+  font-size: 13px;
+  line-height: 1.45;
+}
+
+.my-ticket-open {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 0 18px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #ffffff, #dcecff);
+  color: #07111f;
+  font-weight: 950;
+  text-decoration: none;
+  white-space: nowrap;
+  box-shadow: 0 16px 36px rgba(67, 164, 255, 0.16);
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease;
+}
+
+.my-ticket-open:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 22px 50px rgba(67, 164, 255, 0.24);
+}
+
+@media (max-width: 700px) {
+  .my-tickets-card {
+    padding: 22px;
+    border-radius: 28px;
+  }
+
+  .my-tickets-head {
+    display: grid;
+  }
+
+  .my-tickets-clear {
+    width: 100%;
+  }
+
+  .my-ticket-item {
+    grid-template-columns: 1fr;
+  }
+
+  .my-ticket-open {
+    width: 100%;
+  }
+}
