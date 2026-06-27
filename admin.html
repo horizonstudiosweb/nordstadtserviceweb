@@ -16,7 +16,46 @@
 <body>
   <div class="admin-bg"></div>
 
-  <main class="admin-app">
+  <section id="adminLoginScreen" class="admin-login-screen">
+    <div class="admin-login-card">
+      <div class="admin-brand login-brand">
+        <div class="admin-brand-icon">N</div>
+
+        <div>
+          <strong>Nordstadt</strong>
+          <span>Admin Login</span>
+        </div>
+      </div>
+
+      <p class="admin-eyebrow">Supabase Auth</p>
+      <h1>Einloggen</h1>
+
+      <p class="admin-login-text">
+        Melde dich mit deinem Supabase-Admin-Account an. Zugriff erhalten nur Accounts mit
+        der Rolle Support, Admin, Leitung oder Manager.
+      </p>
+
+      <form id="adminLoginForm" class="admin-login-form">
+        <label>
+          E-Mail
+          <input id="adminEmail" type="email" placeholder="admin@example.com" autocomplete="email" required>
+        </label>
+
+        <label>
+          Passwort
+          <input id="adminPassword" type="password" placeholder="Passwort" autocomplete="current-password" required>
+        </label>
+
+        <button type="submit">Einloggen</button>
+      </form>
+
+      <div id="adminLoginMessage" class="admin-login-message"></div>
+
+      <a href="index.html" class="admin-login-back">Zur Website</a>
+    </div>
+  </section>
+
+  <main id="adminApp" class="admin-app hidden">
     <aside class="admin-sidebar">
       <div class="admin-brand">
         <div class="admin-brand-icon">N</div>
@@ -37,8 +76,8 @@
       </nav>
 
       <div class="admin-sidebar-footer">
-        <p>Demo-Modus</p>
-        <span>Supabase wird danach verbunden.</span>
+        <p id="adminUserRole">Nicht verbunden</p>
+        <span id="adminUserEmail">Supabase wird geladen.</span>
       </div>
     </aside>
 
@@ -52,15 +91,15 @@
         <div class="admin-top-actions">
           <a href="index.html" class="admin-small-button">Website öffnen</a>
           <button id="adminRefreshButton" class="admin-small-button">Aktualisieren</button>
+          <button id="adminLogoutButton" class="admin-small-button danger">Abmelden</button>
         </div>
       </header>
 
       <section class="admin-warning-card">
-        <strong>Sicherheits-Hinweis</strong>
+        <strong>Live verbunden</strong>
         <p>
-          Dieses Panel ist aktuell eine sichere Frontend-Vorbereitung ohne echte Zugangsdaten.
-          Echte Admin-Accounts, Rollen, Passwörter und Webhooks kommen später über Supabase und werden
-          nicht in diesen Dateien gespeichert.
+          Dieses Admin-Panel ist mit Supabase verbunden. Tickets werden aus der Datenbank geladen,
+          Statusänderungen werden gespeichert und interne Notizen werden in Supabase abgelegt.
         </p>
       </section>
 
@@ -87,7 +126,7 @@
           <article class="admin-stat-card">
             <span>Gesamt</span>
             <strong id="statTotal">0</strong>
-            <p>Alle lokal gespeicherten Demo-Tickets.</p>
+            <p>Alle gespeicherten Supabase-Tickets.</p>
           </article>
         </div>
 
@@ -107,24 +146,24 @@
             <div class="admin-card-header">
               <div>
                 <p class="admin-eyebrow">System</p>
-                <h2>Nächste Schritte</h2>
+                <h2>Status</h2>
               </div>
             </div>
 
             <div class="admin-step-list">
               <div>
-                <strong>1. Support-Frontend</strong>
-                <span>Support-Fenster erstellt Tickets lokal im Demo-Modus.</span>
+                <strong>Supabase</strong>
+                <span id="adminConnectionStatus">Verbindung wird geprüft.</span>
               </div>
 
               <div>
-                <strong>2. Admin-Panel</strong>
-                <span>Dieses Panel zeigt Tickets, Status und Details an.</span>
+                <strong>Discord</strong>
+                <span>Benachrichtigungen laufen über die Supabase Edge Function.</span>
               </div>
 
               <div>
-                <strong>3. Supabase</strong>
-                <span>Danach verbinden wir Login, Datenbank und Discord-Benachrichtigung.</span>
+                <strong>Rollen</strong>
+                <span>Zugriff nur für Support, Admin, Leitung und Manager.</span>
               </div>
             </div>
           </article>
@@ -214,28 +253,24 @@
           <div class="admin-settings-grid">
             <div class="admin-setting-box">
               <strong>Login</strong>
-              <p>Noch nicht aktiv. Echte Logins werden später über Supabase Auth erstellt.</p>
+              <p>Aktiv über Supabase Auth.</p>
             </div>
 
             <div class="admin-setting-box">
               <strong>Rollen</strong>
-              <p>Geplant: Manager, Leitung, Administrator und Support.</p>
+              <p>Aktiv über die Tabelle profiles.</p>
             </div>
 
             <div class="admin-setting-box">
               <strong>Discord</strong>
-              <p>Discord-Benachrichtigungen laufen später über eine Supabase Edge Function.</p>
+              <p>Aktiv über Edge Function und Discord Webhook Secret.</p>
             </div>
 
             <div class="admin-setting-box">
               <strong>Datenbank</strong>
-              <p>Tickets, Nachrichten und Accounts werden später in Supabase gespeichert.</p>
+              <p>Tickets und Notizen werden in Supabase gespeichert.</p>
             </div>
           </div>
-
-          <button id="clearDemoTickets" class="admin-danger-button">
-            Lokale Demo-Tickets löschen
-          </button>
         </article>
       </section>
     </section>
