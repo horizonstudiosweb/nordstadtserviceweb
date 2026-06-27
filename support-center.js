@@ -4,6 +4,7 @@ const supportCenterSettings = {
   uploadBucket: "ticket-uploads",
   maxFiles: 5,
   maxFileSize: 10 * 1024 * 1024,
+  localTicketsKey: "nordstadt_my_tickets",
   categories: {
     support: {
       label: "Allgemein",
@@ -82,6 +83,15 @@ const successCloseButton = document.getElementById("successCloseButton");
 
 const openTicketButtons = document.querySelectorAll("[data-open-ticket]");
 
+function escapeHtml(value) {
+  return String(value || "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
 function setFormMessage(text, type = "") {
   ticketFormMessage.textContent = text || "";
   ticketFormMessage.className = `form-message ${type}`.trim();
@@ -124,6 +134,331 @@ async function setupSupabase() {
 
 function getCategoryConfig(category) {
   return supportCenterSettings.categories[category] || supportCenterSettings.categories.support;
+}
+
+function getBasePageUrl() {
+  return `${window.location.origin}${window.location.pathname.replace(/\/[^/]*$/, "/")}`;
+}
+
+function buildTicketUrl(ticketNumber, discordUsername) {
+  const url = new URL("tickets.html", getBasePageUrl());
+
+  url.searchParams.set("ticket", ticketNumber || "");
+  url.searchParams.set("discord", discordUsername || "");
+
+  return url.toString();
+}
+
+function getLocalTickets() {
+  try {
+    const rawTickets = localStorage.getItem(supportCenterSettings.localTicketsKey);
+    const tickets = JSON.parse(rawTickets || "[]");
+
+    if (!Array.isArray(tickets)) {
+      return [];
+    }
+
+    return tickets;
+  } catch (_error) {
+    return [];
+  }
+}
+
+function saveLocalTickets(tickets) {
+  localStorage.setItem(supportCenterSettings.localTicketsKey, JSON.stringify(tickets));
+}
+
+function saveCreatedTicket(result, ticket) {
+  const ticketNumber = result.ticket_number || result.ticket_id || "";
+  const discordUsername = ticket.discord_username || "";
+  const categoryConfig = getCategoryConfig(ticket.category);
+
+  if (!ticketNumber || !discordUsername) {
+    return;
+  }
+
+  const existingTickets = getLocalTickets();
+
+  const newTicket = {
+    ticket_number: ticketNumber,
+    ticket_id: result.ticket_id || "",
+    discord_username: discordUsername,
+    title: ticket.title || "Ohne Titel",
+    category: ticket.category || "support",
+    category_label: result.category_label || categoryConfig.label || "Support",
+    status: "open",
+    created_at: new Date().toISOString(),
+    url: buildTicketUrl(ticketNumber, discordUsername)
+  };
+
+  const filteredTickets = existingTickets.filter((item) => {
+    return item.ticket_number !== newTicket.ticket_number;
+  });
+
+  filteredTickets.unshift(newTicket);
+  saveLocalTickets(filteredTickets.slice(0, 30));
+  renderMyTickets();
+}
+
+function createMyTicketsSection() {
+  if (document.getElementById("myTicketsSection")) {
+    return;
+  }
+
+  const section = document.createElement("section");
+  section.id = "myTicketsSection";
+  section.className = "my-tickets-section";
+
+  section.innerHTML = `
+    <div class="my-tickets-card">
+      <div class="my-tickets-head">
+        <div>
+          <p class="my-tickets-eyebrow">Ticketübersicht</p>
+          <h2>Meine Tickets</h2>
+          <p>Hier siehst du Tickets, die du mit diesem Browser erstellt hast.</p>
+        </div>
+
+        <button class="my-tickets-clear" id="clearMyTicketsButton" type="button">
+          Liste leeren
+        </button>
+      </div>
+
+      <div class="my-tickets-list" id="myTicketsList"></div>
+    </div>
+  `;
+
+  const footer = document.querySelector("footer");
+  const main = document.querySelector("main");
+  const target = footer?.parentNode || main || document.body;
+
+  if (footer && footer.parentNode) {
+    footer.parentNode.insertBefore(section, footer);
+  } else {
+    target.appendChild(section);
+  }
+
+  const style = document.createElement("style");
+  style.textContent = `
+    .my-tickets-section {
+      width: min(1120px, calc(100% - 36px));
+      margin: 0 auto 80px;
+    }
+
+    .my-tickets-card {
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 34px;
+      background:
+        radial-gradient(circle at top left, rgba(117, 197, 255, 0.16), transparent 34%),
+        rgba(255, 255, 255, 0.07);
+      box-shadow: 0 26px 70px rgba(0, 0, 0, 0.26);
+      padding: 28px;
+      overflow: hidden;
+    }
+
+    .my-tickets-head {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      align-items: flex-start;
+      margin-bottom: 18px;
+    }
+
+    .my-tickets-eyebrow {
+      margin: 0 0 8px;
+      color: rgba(127, 178, 255, 0.92);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+    }
+
+    .my-tickets-head h2 {
+      margin: 0;
+      color: #ffffff;
+      font-family: "Montserrat", sans-serif;
+      font-size: clamp(2rem, 4vw, 3.4rem);
+      line-height: 1;
+      letter-spacing: -0.06em;
+    }
+
+    .my-tickets-head p:not(.my-tickets-eyebrow) {
+      margin: 12px 0 0;
+      color: rgba(237, 244, 255, 0.68);
+      line-height: 1.6;
+    }
+
+    .my-tickets-clear {
+      min-height: 42px;
+      padding: 0 16px;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.07);
+      color: #ffffff;
+      cursor: pointer;
+      font-weight: 900;
+      white-space: nowrap;
+    }
+
+    .my-tickets-list {
+      display: grid;
+      gap: 12px;
+    }
+
+    .my-ticket-item {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      gap: 16px;
+      align-items: center;
+      padding: 16px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.055);
+    }
+
+    .my-ticket-info {
+      min-width: 0;
+    }
+
+    .my-ticket-top {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 8px;
+    }
+
+    .my-ticket-number {
+      color: #ffffff;
+      font-weight: 950;
+    }
+
+    .my-ticket-pill {
+      width: fit-content;
+      padding: 6px 9px;
+      border-radius: 999px;
+      background: rgba(117, 197, 255, 0.12);
+      color: #d7eeff;
+      font-size: 11px;
+      font-weight: 900;
+    }
+
+    .my-ticket-title {
+      color: #ffffff;
+      font-size: 16px;
+      font-weight: 900;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .my-ticket-meta {
+      margin-top: 6px;
+      color: rgba(237, 244, 255, 0.58);
+      font-size: 13px;
+      line-height: 1.45;
+    }
+
+    .my-ticket-open {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 42px;
+      padding: 0 18px;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #ffffff, #dcecff);
+      color: #07111f;
+      font-weight: 950;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .my-tickets-empty {
+      padding: 18px;
+      border: 1px dashed rgba(255, 255, 255, 0.18);
+      border-radius: 24px;
+      color: rgba(237, 244, 255, 0.68);
+      line-height: 1.6;
+      background: rgba(255, 255, 255, 0.035);
+    }
+
+    @media (max-width: 700px) {
+      .my-tickets-head {
+        display: grid;
+      }
+
+      .my-tickets-clear {
+        width: 100%;
+      }
+
+      .my-ticket-item {
+        grid-template-columns: 1fr;
+      }
+
+      .my-ticket-open {
+        width: 100%;
+      }
+    }
+  `;
+
+  document.head.appendChild(style);
+
+  const clearButton = document.getElementById("clearMyTicketsButton");
+
+  if (clearButton) {
+    clearButton.addEventListener("click", () => {
+      localStorage.removeItem(supportCenterSettings.localTicketsKey);
+      renderMyTickets();
+    });
+  }
+}
+
+function renderMyTickets() {
+  createMyTicketsSection();
+
+  const list = document.getElementById("myTicketsList");
+
+  if (!list) {
+    return;
+  }
+
+  const tickets = getLocalTickets();
+
+  if (!tickets.length) {
+    list.innerHTML = `
+      <div class="my-tickets-empty">
+        Noch keine Tickets vorhanden. Sobald du ein Ticket erstellst, erscheint es hier automatisch.
+      </div>
+    `;
+    return;
+  }
+
+  list.innerHTML = tickets.map((ticket) => {
+    const ticketNumber = ticket.ticket_number || ticket.ticket_id || "Ticket";
+    const discordUsername = ticket.discord_username || "";
+    const ticketUrl = ticket.url || buildTicketUrl(ticketNumber, discordUsername);
+
+    return `
+      <article class="my-ticket-item">
+        <div class="my-ticket-info">
+          <div class="my-ticket-top">
+            <span class="my-ticket-number">${escapeHtml(ticketNumber)}</span>
+            <span class="my-ticket-pill">${escapeHtml(ticket.category_label || "Support")}</span>
+            <span class="my-ticket-pill">${escapeHtml(ticket.status || "open")}</span>
+          </div>
+
+          <div class="my-ticket-title">${escapeHtml(ticket.title || "Ohne Titel")}</div>
+
+          <div class="my-ticket-meta">
+            Discord: ${escapeHtml(discordUsername || "Unbekannt")}
+          </div>
+        </div>
+
+        <a class="my-ticket-open" href="${escapeHtml(ticketUrl)}">
+          Öffnen
+        </a>
+      </article>
+    `;
+  }).join("");
 }
 
 function resetForm() {
@@ -316,10 +651,6 @@ async function uploadFiles(ticket) {
   return uploadedFiles;
 }
 
-function getBasePageUrl() {
-  return `${window.location.origin}${window.location.pathname.replace(/\/[^/]*$/, "/")}`;
-}
-
 async function createTicket(ticket, attachments) {
   const { data, error } = await supportCenterSupabaseClient.functions.invoke(
     supportCenterSettings.createTicketFunctionName,
@@ -345,14 +676,17 @@ async function createTicket(ticket, attachments) {
 
 function renderSuccess(result, ticket) {
   const config = getCategoryConfig(ticket.category);
+  const ticketNumber = result.ticket_number || result.ticket_id || "";
+  const discordUsername = ticket.discord_username || "";
+  const ticketUrl = buildTicketUrl(ticketNumber, discordUsername);
 
   supportCenterForm.classList.add("hidden");
   successView.classList.remove("hidden");
 
   successTitle.textContent = result.message || config.successTitle;
   successText.textContent = config.successText;
-  successTicketNumber.textContent = result.ticket_number || "-";
-  successTicketLink.href = result.portal_url || "tickets.html";
+  successTicketNumber.textContent = ticketNumber || "-";
+  successTicketLink.href = ticketUrl;
 }
 
 async function handleSubmit(event) {
@@ -388,6 +722,8 @@ async function handleSubmit(event) {
     setFormMessage("Ticket wird erstellt und weitergeleitet...");
 
     const result = await createTicket(ticket, attachments);
+
+    saveCreatedTicket(result, ticket);
 
     setFormMessage("");
     renderSuccess(result, ticket);
@@ -453,6 +789,7 @@ attachmentsInput.addEventListener("change", () => {
 
 (async function initSupportCenter() {
   try {
+    renderMyTickets();
     await setupSupabase();
   } catch (error) {
     setFormMessage(error.message, "error");
