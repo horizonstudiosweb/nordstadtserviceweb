@@ -30,28 +30,28 @@ const supportFaqs = [
 const supportCategories = {
   general: {
     title: "Allgemeiner Support",
-    icon: "?",
+    icon: "message",
     description: "Für Fragen, Probleme, Hilfe oder sonstige Anliegen.",
     intro:
       "Erstelle ein Support-Ticket. Unser Team kann dein Anliegen später im Admin-Panel ansehen und bearbeiten."
   },
   application: {
     title: "Bewerbung",
-    icon: "+",
+    icon: "user",
     description: "Für Bewerbungen im Admin-, Support- oder Leitungsbereich.",
     intro:
       "Erstelle eine Bewerbung. Wähle den Bereich aus und beschreibe kurz deine Erfahrung und Motivation."
   },
   report: {
     title: "Report",
-    icon: "!",
+    icon: "shield",
     description: "Melde Spieler, Regelverstöße oder problematisches Verhalten.",
     intro:
       "Erstelle einen Report. Bitte gib möglichst genaue Informationen und Beweise an."
   },
   bug: {
     title: "Bug melden",
-    icon: "#",
+    icon: "bug",
     description: "Melde Fehler, Bugs oder technische Probleme.",
     intro:
       "Melde einen Bug. Beschreibe, was passiert ist und wie man den Fehler nachstellen kann."
@@ -59,6 +59,44 @@ const supportCategories = {
 };
 
 let activeSupportCategory = null;
+
+function supportIcon(name) {
+  const icons = {
+    help: `
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+        <path d="M12 18h.01M9.1 9a3 3 0 1 1 5.2 2c-.9.7-1.4 1.2-1.7 2.4" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M12 22a10 10 0 1 0 0-20 10 10 0 0 0 0 20Z" fill="none" stroke="currentColor" stroke-width="2.2"/>
+      </svg>
+    `,
+    message: `
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+        <path d="M4 5.5A3.5 3.5 0 0 1 7.5 2h9A3.5 3.5 0 0 1 20 5.5v6A3.5 3.5 0 0 1 16.5 15H10l-5 5v-5.2A3.5 3.5 0 0 1 4 12V5.5Z" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    `,
+    user: `
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+        <path d="M20 21a8 8 0 0 0-16 0" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/>
+        <path d="M12 13a5 5 0 1 0 0-10 5 5 0 0 0 0 10Z" fill="none" stroke="currentColor" stroke-width="2.1"/>
+      </svg>
+    `,
+    shield: `
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10Z" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linejoin="round"/>
+        <path d="M12 7v5" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/>
+        <path d="M12 16h.01" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round"/>
+      </svg>
+    `,
+    bug: `
+      <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+        <path d="M8 8h8v9a4 4 0 0 1-8 0V8Z" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linejoin="round"/>
+        <path d="M9 8a3 3 0 0 1 6 0" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/>
+        <path d="M3 13h5M16 13h5M4 19l4-2M20 19l-4-2M4 7l4 2M20 7l-4 2" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round"/>
+      </svg>
+    `
+  };
+
+  return icons[name] || icons.help;
+}
 
 function supportCreateElement(tagName, className, textContent) {
   const element = document.createElement(tagName);
@@ -202,7 +240,7 @@ function supportRenderCategoryButtons() {
     button.type = "button";
 
     button.innerHTML = `
-      <div class="support-category-icon">${category.icon}</div>
+      <div class="support-category-icon">${supportIcon(category.icon)}</div>
       <div class="support-category-content">
         <strong>${category.title}</strong>
         <span>${category.description}</span>
@@ -390,7 +428,7 @@ function supportBuildWidget() {
 
   widget.innerHTML = `
     <button id="supportLauncher" class="support-launcher" type="button">
-      <div class="support-launcher-icon">?</div>
+      <div class="support-launcher-icon">${supportIcon("help")}</div>
       <div class="support-launcher-text">
         <strong>Brauchst du Hilfe?</strong>
         <span>Support & Meldungen</span>
@@ -400,7 +438,7 @@ function supportBuildWidget() {
     <div id="supportPanel" class="support-panel">
       <div class="support-panel-header">
         <div class="support-panel-title">
-          <div class="support-panel-logo">N</div>
+          <div class="support-panel-logo">${supportIcon("message")}</div>
           <div>
             <h3>Nordstadt Support</h3>
             <p>FAQ, Tickets, Bewerbungen, Reports und Bugmeldungen.</p>
