@@ -10,8 +10,13 @@
   <main class="tickets-page">
     <section class="tickets-hero">
       <div class="tickets-badge">Nordstadt Support</div>
+
       <h1>Meine Tickets</h1>
-      <p>Hier kannst du dein Ticket öffnen, Antworten lesen und dem Support schreiben.</p>
+
+      <p>
+        Hier kannst du dein Ticket öffnen, Antworten lesen und dem Support schreiben.
+        Du brauchst dafür deine Ticketnummer und deinen Discord-Namen.
+      </p>
 
       <div class="tickets-actions">
         <a href="index.html" class="ghost-link">Zurück zur Website</a>
@@ -21,17 +26,32 @@
 
     <section class="lookup-card" id="lookupCard">
       <h2>Ticket öffnen</h2>
-      <p>Gib deine Ticketnummer und deinen Discord-Namen ein.</p>
+
+      <p>
+        Gib deine Ticketnummer und deinen Discord-Namen exakt so ein, wie du ihn beim Erstellen des Tickets angegeben hast.
+      </p>
 
       <form id="ticketLookupForm" class="ticket-form">
         <label>
           Ticketnummer
-          <input id="ticketNumberInput" type="text" placeholder="z. B. NRP-123456" required />
+          <input
+            id="ticketNumberInput"
+            type="text"
+            placeholder="z. B. NRP-12345678"
+            autocomplete="off"
+            required
+          />
         </label>
 
         <label>
           Discord-Name
-          <input id="discordNameInput" type="text" placeholder="z. B. deinname#0000" required />
+          <input
+            id="discordNameInput"
+            type="text"
+            placeholder="z. B. deinname#0000"
+            autocomplete="off"
+            required
+          />
         </label>
 
         <button type="submit">Ticket laden</button>
@@ -48,7 +68,9 @@
           <p id="ticketMeta"></p>
         </div>
 
-        <button id="changeTicketButton" class="small-button">Anderes Ticket öffnen</button>
+        <button id="changeTicketButton" class="small-button" type="button">
+          Anderes Ticket öffnen
+        </button>
       </div>
 
       <div class="ticket-details">
@@ -56,10 +78,12 @@
           <strong>Kategorie</strong>
           <span id="ticketCategory"></span>
         </div>
+
         <div>
           <strong>Discord</strong>
           <span id="ticketDiscord"></span>
         </div>
+
         <div>
           <strong>Beschreibung</strong>
           <span id="ticketDescription"></span>
@@ -69,13 +93,24 @@
       <div class="chat-card">
         <div class="chat-title">
           <h3>Nachrichten</h3>
-          <button id="refreshTicketButton" class="small-button">Aktualisieren</button>
+
+          <button id="refreshTicketButton" class="small-button" type="button">
+            Aktualisieren
+          </button>
         </div>
 
         <div id="ticketMessages" class="messages-list"></div>
 
         <form id="ticketReplyForm" class="reply-form">
-          <textarea id="ticketReplyInput" placeholder="Antwort schreiben..." required></textarea>
+          <label>
+            Antwort
+            <textarea
+              id="ticketReplyInput"
+              placeholder="Antwort an den Support schreiben..."
+              required
+            ></textarea>
+          </label>
+
           <button type="submit">Antwort senden</button>
         </form>
 
