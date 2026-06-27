@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Nordstadt Admin Panel</title>
+
+  <link rel="stylesheet" href="admin.css" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Montserrat:wght@600;700;800;900&display=swap" rel="stylesheet">
+</head>
+
+<body>
+  <div class="admin-bg"></div>
+
+  <main class="admin-app">
+    <aside class="admin-sidebar">
+      <div class="admin-brand">
+        <div class="admin-brand-icon">N</div>
+
+        <div>
+          <strong>Nordstadt</strong>
+          <span>Admin Panel</span>
+        </div>
+      </div>
+
+      <nav class="admin-nav">
+        <button class="admin-nav-button active" data-admin-view="dashboard">Übersicht</button>
+        <button class="admin-nav-button" data-admin-view="tickets">Tickets</button>
+        <button class="admin-nav-button" data-admin-view="applications">Bewerbungen</button>
+        <button class="admin-nav-button" data-admin-view="reports">Reports</button>
+        <button class="admin-nav-button" data-admin-view="bugs">Bugs</button>
+        <button class="admin-nav-button" data-admin-view="settings">Einstellungen</button>
+      </nav>
+
+      <div class="admin-sidebar-footer">
+        <p>Demo-Modus</p>
+        <span>Supabase wird danach verbunden.</span>
+      </div>
+    </aside>
+
+    <section class="admin-main">
+      <header class="admin-topbar">
+        <div>
+          <p class="admin-eyebrow">Management</p>
+          <h1 id="adminPageTitle">Übersicht</h1>
+        </div>
+
+        <div class="admin-top-actions">
+          <a href="index.html" class="admin-small-button">Website öffnen</a>
+          <button id="adminRefreshButton" class="admin-small-button">Aktualisieren</button>
+        </div>
+      </header>
+
+      <section class="admin-warning-card">
+        <strong>Sicherheits-Hinweis</strong>
+        <p>
+          Dieses Panel ist aktuell eine sichere Frontend-Vorbereitung ohne echte Zugangsdaten.
+          Echte Admin-Accounts, Rollen, Passwörter und Webhooks kommen später über Supabase und werden
+          nicht in diesen Dateien gespeichert.
+        </p>
+      </section>
+
+      <section class="admin-view active" data-admin-view-panel="dashboard">
+        <div class="admin-stat-grid">
+          <article class="admin-stat-card">
+            <span>Offen</span>
+            <strong id="statOpen">0</strong>
+            <p>Tickets, die noch nicht abgeschlossen sind.</p>
+          </article>
+
+          <article class="admin-stat-card">
+            <span>In Bearbeitung</span>
+            <strong id="statProgress">0</strong>
+            <p>Tickets, die aktuell vom Team bearbeitet werden.</p>
+          </article>
+
+          <article class="admin-stat-card">
+            <span>Geschlossen</span>
+            <strong id="statClosed">0</strong>
+            <p>Tickets, die bereits erledigt wurden.</p>
+          </article>
+
+          <article class="admin-stat-card">
+            <span>Gesamt</span>
+            <strong id="statTotal">0</strong>
+            <p>Alle lokal gespeicherten Demo-Tickets.</p>
+          </article>
+        </div>
+
+        <div class="admin-content-grid">
+          <article class="admin-panel-card">
+            <div class="admin-card-header">
+              <div>
+                <p class="admin-eyebrow">Aktuell</p>
+                <h2>Neue Tickets</h2>
+              </div>
+            </div>
+
+            <div id="latestTickets" class="admin-mini-list"></div>
+          </article>
+
+          <article class="admin-panel-card">
+            <div class="admin-card-header">
+              <div>
+                <p class="admin-eyebrow">System</p>
+                <h2>Nächste Schritte</h2>
+              </div>
+            </div>
+
+            <div class="admin-step-list">
+              <div>
+                <strong>1. Support-Frontend</strong>
+                <span>Support-Fenster erstellt Tickets lokal im Demo-Modus.</span>
+              </div>
+
+              <div>
+                <strong>2. Admin-Panel</strong>
+                <span>Dieses Panel zeigt Tickets, Status und Details an.</span>
+              </div>
+
+              <div>
+                <strong>3. Supabase</strong>
+                <span>Danach verbinden wir Login, Datenbank und Discord-Benachrichtigung.</span>
+              </div>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="admin-view" data-admin-view-panel="tickets">
+        <div class="admin-ticket-layout">
+          <article class="admin-panel-card admin-ticket-list-card">
+            <div class="admin-card-header">
+              <div>
+                <p class="admin-eyebrow">Tickets</p>
+                <h2>Alle Tickets</h2>
+              </div>
+
+              <select id="ticketFilter" class="admin-select">
+                <option value="all">Alle</option>
+                <option value="open">Offen</option>
+                <option value="progress">In Bearbeitung</option>
+                <option value="waiting">Wartet auf User</option>
+                <option value="closed">Geschlossen</option>
+              </select>
+            </div>
+
+            <div id="ticketList" class="admin-ticket-list"></div>
+          </article>
+
+          <article class="admin-panel-card admin-ticket-detail-card">
+            <div id="ticketDetailEmpty" class="admin-empty-detail">
+              <strong>Kein Ticket ausgewählt</strong>
+              <p>Wähle links ein Ticket aus, um Details, Status und Verlauf zu sehen.</p>
+            </div>
+
+            <div id="ticketDetail" class="admin-ticket-detail"></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="admin-view" data-admin-view-panel="applications">
+        <article class="admin-panel-card">
+          <div class="admin-card-header">
+            <div>
+              <p class="admin-eyebrow">Bewerbungen</p>
+              <h2>Bewerbungs-Tickets</h2>
+            </div>
+          </div>
+
+          <div id="applicationTickets" class="admin-category-list"></div>
+        </article>
+      </section>
+
+      <section class="admin-view" data-admin-view-panel="reports">
+        <article class="admin-panel-card">
+          <div class="admin-card-header">
+            <div>
+              <p class="admin-eyebrow">Reports</p>
+              <h2>Spieler-Meldungen</h2>
+            </div>
+          </div>
+
+          <div id="reportTickets" class="admin-category-list"></div>
+        </article>
+      </section>
+
+      <section class="admin-view" data-admin-view-panel="bugs">
+        <article class="admin-panel-card">
+          <div class="admin-card-header">
+            <div>
+              <p class="admin-eyebrow">Bugs</p>
+              <h2>Bugmeldungen</h2>
+            </div>
+          </div>
+
+          <div id="bugTickets" class="admin-category-list"></div>
+        </article>
+      </section>
+
+      <section class="admin-view" data-admin-view-panel="settings">
+        <article class="admin-panel-card">
+          <div class="admin-card-header">
+            <div>
+              <p class="admin-eyebrow">Einstellungen</p>
+              <h2>Admin-System</h2>
+            </div>
+          </div>
+
+          <div class="admin-settings-grid">
+            <div class="admin-setting-box">
+              <strong>Login</strong>
+              <p>Noch nicht aktiv. Echte Logins werden später über Supabase Auth erstellt.</p>
+            </div>
+
+            <div class="admin-setting-box">
+              <strong>Rollen</strong>
+              <p>Geplant: Manager, Leitung, Administrator und Support.</p>
+            </div>
+
+            <div class="admin-setting-box">
+              <strong>Discord</strong>
+              <p>Discord-Benachrichtigungen laufen später über eine Supabase Edge Function.</p>
+            </div>
+
+            <div class="admin-setting-box">
+              <strong>Datenbank</strong>
+              <p>Tickets, Nachrichten und Accounts werden später in Supabase gespeichert.</p>
+            </div>
+          </div>
+
+          <button id="clearDemoTickets" class="admin-danger-button">
+            Lokale Demo-Tickets löschen
+          </button>
+        </article>
+      </section>
+    </section>
+  </main>
+
+  <script src="admin.js"></script>
+</body>
+</html>
