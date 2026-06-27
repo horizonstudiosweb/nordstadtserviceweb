@@ -1,0 +1,741 @@
+:root {
+  --bg: #05070d;
+  --panel: rgba(255, 255, 255, 0.065);
+  --panel-hover: rgba(255, 255, 255, 0.095);
+  --border: rgba(255, 255, 255, 0.12);
+  --border-strong: rgba(255, 255, 255, 0.18);
+  --text: #f4f7fb;
+  --muted: #9ca8b8;
+  --white: #ffffff;
+  --blue: #7fb2ff;
+  --green: #64e091;
+  --yellow: #f0c866;
+  --red: #ef4b4b;
+  --shadow: rgba(0, 0, 0, 0.46);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  background: var(--bg);
+}
+
+body {
+  min-height: 100vh;
+  font-family: "Inter", sans-serif;
+  color: var(--text);
+  overflow-x: hidden;
+}
+
+button,
+select,
+input,
+textarea {
+  font-family: "Inter", sans-serif;
+}
+
+.admin-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  background:
+    radial-gradient(circle at 12% 8%, rgba(127, 178, 255, 0.2), transparent 28%),
+    radial-gradient(circle at 90% 18%, rgba(255, 255, 255, 0.085), transparent 25%),
+    radial-gradient(circle at 55% 92%, rgba(127, 178, 255, 0.13), transparent 34%),
+    linear-gradient(135deg, #05070d 0%, #07111f 54%, #05070d 100%);
+}
+
+.admin-app {
+  width: min(1500px, calc(100% - 28px));
+  min-height: calc(100vh - 28px);
+  margin: 14px auto;
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 14px;
+}
+
+.admin-sidebar {
+  position: sticky;
+  top: 14px;
+  height: calc(100vh - 28px);
+  padding: 18px;
+  border-radius: 30px;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.045)),
+    rgba(5, 7, 13, 0.84);
+  border: 1px solid var(--border);
+  backdrop-filter: blur(24px);
+  box-shadow: 0 30px 80px var(--shadow);
+  display: flex;
+  flex-direction: column;
+}
+
+.admin-brand {
+  display: flex;
+  align-items: center;
+  gap: 13px;
+  padding: 8px 6px 22px;
+}
+
+.admin-brand-icon {
+  width: 48px;
+  height: 48px;
+  border-radius: 18px;
+  background: var(--white);
+  color: #05070d;
+  display: grid;
+  place-items: center;
+  font-weight: 900;
+  font-size: 1.25rem;
+}
+
+.admin-brand strong {
+  display: block;
+  font-family: "Montserrat", sans-serif;
+  font-size: 1.05rem;
+  letter-spacing: -0.04em;
+}
+
+.admin-brand span {
+  display: block;
+  color: var(--muted);
+  margin-top: 4px;
+  font-size: 0.86rem;
+}
+
+.admin-nav {
+  display: grid;
+  gap: 8px;
+}
+
+.admin-nav-button {
+  width: 100%;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  padding: 14px 15px;
+  border-radius: 18px;
+  color: var(--muted);
+  background: transparent;
+  font-weight: 800;
+  transition: 0.28s ease;
+}
+
+.admin-nav-button:hover {
+  color: var(--white);
+  background: rgba(255, 255, 255, 0.075);
+}
+
+.admin-nav-button.active {
+  color: #05070d;
+  background: var(--white);
+}
+
+.admin-sidebar-footer {
+  margin-top: auto;
+  padding: 16px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border);
+}
+
+.admin-sidebar-footer p {
+  font-weight: 900;
+  color: var(--white);
+}
+
+.admin-sidebar-footer span {
+  display: block;
+  margin-top: 7px;
+  color: var(--muted);
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+
+.admin-main {
+  min-width: 0;
+  padding: 8px;
+}
+
+.admin-topbar {
+  min-height: 90px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 22px;
+  padding: 10px 4px 22px;
+}
+
+.admin-eyebrow {
+  color: var(--blue);
+  font-family: "Montserrat", sans-serif;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.admin-topbar h1 {
+  margin-top: 8px;
+  font-family: "Montserrat", sans-serif;
+  font-size: clamp(2rem, 5vw, 4.4rem);
+  line-height: 0.95;
+  letter-spacing: -0.075em;
+}
+
+.admin-top-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.admin-small-button {
+  border: 1px solid var(--border);
+  cursor: pointer;
+  text-decoration: none;
+  color: var(--white);
+  background: rgba(255, 255, 255, 0.075);
+  padding: 12px 15px;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 900;
+  transition: 0.28s ease;
+}
+
+.admin-small-button:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.admin-warning-card {
+  margin-bottom: 16px;
+  padding: 18px 20px;
+  border-radius: 24px;
+  background: rgba(240, 200, 102, 0.085);
+  border: 1px solid rgba(240, 200, 102, 0.24);
+}
+
+.admin-warning-card strong {
+  display: block;
+  color: var(--white);
+  font-weight: 900;
+}
+
+.admin-warning-card p {
+  color: var(--muted);
+  line-height: 1.65;
+  margin-top: 8px;
+}
+
+.admin-view {
+  display: none;
+}
+
+.admin-view.active {
+  display: block;
+  animation: adminFade 0.35s ease forwards;
+}
+
+@keyframes adminFade {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.admin-stat-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+.admin-stat-card,
+.admin-panel-card {
+  position: relative;
+  overflow: hidden;
+  border-radius: 28px;
+  border: 1px solid var(--border);
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.038)),
+    rgba(5, 7, 13, 0.68);
+  backdrop-filter: blur(22px);
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.25);
+}
+
+.admin-stat-card {
+  padding: 24px;
+  transition: 0.28s ease;
+}
+
+.admin-stat-card:hover,
+.admin-panel-card:hover {
+  border-color: var(--border-strong);
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.105), rgba(255, 255, 255, 0.045)),
+    rgba(5, 7, 13, 0.72);
+}
+
+.admin-stat-card span {
+  color: var(--muted);
+  font-weight: 900;
+  font-size: 0.82rem;
+}
+
+.admin-stat-card strong {
+  display: block;
+  margin-top: 14px;
+  font-family: "Montserrat", sans-serif;
+  font-size: 3rem;
+  letter-spacing: -0.08em;
+  line-height: 0.9;
+}
+
+.admin-stat-card p {
+  margin-top: 14px;
+  color: var(--muted);
+  line-height: 1.55;
+  font-size: 0.9rem;
+}
+
+.admin-content-grid {
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 14px;
+}
+
+.admin-panel-card {
+  padding: 22px;
+}
+
+.admin-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.admin-card-header h2 {
+  margin-top: 6px;
+  font-family: "Montserrat", sans-serif;
+  font-size: 1.55rem;
+  letter-spacing: -0.05em;
+}
+
+.admin-mini-list,
+.admin-category-list,
+.admin-ticket-list {
+  display: grid;
+  gap: 10px;
+}
+
+.admin-mini-ticket,
+.admin-ticket-item,
+.admin-category-ticket {
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 20px;
+  padding: 15px;
+  transition: 0.25s ease;
+}
+
+.admin-mini-ticket:hover,
+.admin-ticket-item:hover,
+.admin-category-ticket:hover {
+  background: rgba(255, 255, 255, 0.095);
+  border-color: rgba(127, 178, 255, 0.35);
+}
+
+.admin-mini-ticket strong,
+.admin-ticket-item strong,
+.admin-category-ticket strong {
+  display: block;
+  color: var(--white);
+  line-height: 1.35;
+}
+
+.admin-mini-ticket span,
+.admin-ticket-item span,
+.admin-category-ticket span {
+  display: block;
+  margin-top: 7px;
+  color: var(--muted);
+  font-size: 0.86rem;
+  line-height: 1.45;
+}
+
+.admin-step-list {
+  display: grid;
+  gap: 12px;
+}
+
+.admin-step-list div,
+.admin-setting-box {
+  padding: 16px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border);
+}
+
+.admin-step-list strong,
+.admin-setting-box strong {
+  display: block;
+  color: var(--white);
+}
+
+.admin-step-list span,
+.admin-setting-box p {
+  display: block;
+  margin-top: 8px;
+  color: var(--muted);
+  line-height: 1.55;
+  font-size: 0.9rem;
+}
+
+.admin-ticket-layout {
+  display: grid;
+  grid-template-columns: 420px 1fr;
+  gap: 14px;
+  min-height: 680px;
+}
+
+.admin-ticket-list-card,
+.admin-ticket-detail-card {
+  min-height: 680px;
+}
+
+.admin-select,
+.admin-status-select,
+.admin-textarea {
+  border: 1px solid var(--border);
+  outline: none;
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.075);
+  border-radius: 16px;
+  padding: 12px 13px;
+  font-weight: 700;
+}
+
+.admin-select {
+  min-width: 170px;
+}
+
+.admin-ticket-item,
+.admin-category-ticket {
+  cursor: pointer;
+  color: var(--text);
+  text-align: left;
+  width: 100%;
+}
+
+.admin-ticket-item.active {
+  border-color: rgba(127, 178, 255, 0.48);
+  background: rgba(127, 178, 255, 0.12);
+}
+
+.ticket-meta-row {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+
+.ticket-badge {
+  display: inline-flex;
+  width: fit-content;
+  padding: 7px 10px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.ticket-badge.open {
+  color: #06111f;
+  background: var(--green);
+}
+
+.ticket-badge.progress {
+  color: #06111f;
+  background: var(--blue);
+}
+
+.ticket-badge.waiting {
+  color: #06111f;
+  background: var(--yellow);
+}
+
+.ticket-badge.closed {
+  color: #ffffff;
+  background: rgba(239, 75, 75, 0.72);
+}
+
+.ticket-badge.category {
+  color: var(--white);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.admin-empty {
+  padding: 20px;
+  border-radius: 22px;
+  color: var(--muted);
+  line-height: 1.6;
+  background: rgba(255, 255, 255, 0.055);
+  border: 1px solid var(--border);
+}
+
+.admin-empty-detail {
+  min-height: 620px;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  padding: 30px;
+}
+
+.admin-empty-detail strong {
+  display: block;
+  font-family: "Montserrat", sans-serif;
+  font-size: 1.6rem;
+  letter-spacing: -0.05em;
+}
+
+.admin-empty-detail p {
+  margin-top: 12px;
+  color: var(--muted);
+  line-height: 1.65;
+  max-width: 420px;
+}
+
+.admin-ticket-detail {
+  display: none;
+}
+
+.admin-ticket-detail.show {
+  display: block;
+}
+
+.admin-detail-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+  margin-bottom: 18px;
+}
+
+.admin-detail-header h2 {
+  font-family: "Montserrat", sans-serif;
+  font-size: clamp(1.8rem, 4vw, 3.3rem);
+  line-height: 0.95;
+  letter-spacing: -0.075em;
+}
+
+.admin-detail-id {
+  margin-top: 10px;
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.admin-detail-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+  margin-top: 18px;
+}
+
+.admin-detail-box {
+  padding: 15px;
+  border-radius: 20px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border);
+}
+
+.admin-detail-box span {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.admin-detail-box strong {
+  display: block;
+  margin-top: 8px;
+  color: var(--white);
+  line-height: 1.45;
+}
+
+.admin-description-box {
+  margin-top: 14px;
+  padding: 18px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid var(--border);
+}
+
+.admin-description-box span {
+  color: var(--muted);
+  font-weight: 900;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.admin-description-box p {
+  margin-top: 12px;
+  color: var(--text);
+  line-height: 1.75;
+  white-space: pre-wrap;
+}
+
+.admin-actions-box {
+  margin-top: 14px;
+  padding: 18px;
+  border-radius: 22px;
+  background: rgba(255, 255, 255, 0.055);
+  border: 1px solid var(--border);
+}
+
+.admin-actions-row {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.admin-action-button,
+.admin-danger-button {
+  border: none;
+  cursor: pointer;
+  padding: 12px 15px;
+  border-radius: 999px;
+  font-weight: 900;
+  transition: 0.25s ease;
+}
+
+.admin-action-button {
+  color: #05070d;
+  background: var(--white);
+}
+
+.admin-action-button:hover,
+.admin-danger-button:hover {
+  transform: translateY(-2px);
+}
+
+.admin-danger-button {
+  margin-top: 20px;
+  color: #ffffff;
+  background: rgba(239, 75, 75, 0.8);
+}
+
+.admin-message-box {
+  margin-top: 14px;
+  display: grid;
+  gap: 10px;
+}
+
+.admin-textarea {
+  min-height: 100px;
+  resize: vertical;
+  line-height: 1.55;
+}
+
+.admin-settings-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+@media (max-width: 1180px) {
+  .admin-app {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-sidebar {
+    position: relative;
+    top: auto;
+    height: auto;
+  }
+
+  .admin-nav {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .admin-ticket-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-ticket-list-card,
+  .admin-ticket-detail-card {
+    min-height: auto;
+  }
+}
+
+@media (max-width: 860px) {
+  .admin-stat-grid,
+  .admin-content-grid,
+  .admin-detail-grid,
+  .admin-settings-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-topbar {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .admin-top-actions {
+    justify-content: flex-start;
+  }
+
+  .admin-nav {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 520px) {
+  .admin-app {
+    width: calc(100% - 16px);
+    margin: 8px auto;
+  }
+
+  .admin-sidebar,
+  .admin-panel-card,
+  .admin-stat-card {
+    border-radius: 22px;
+  }
+
+  .admin-nav {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-detail-header {
+    flex-direction: column;
+  }
+
+  .admin-select {
+    width: 100%;
+  }
+
+  .admin-actions-row {
+    flex-direction: column;
+  }
+
+  .admin-action-button,
+  .admin-danger-button,
+  .admin-status-select {
+    width: 100%;
+  }
+}
