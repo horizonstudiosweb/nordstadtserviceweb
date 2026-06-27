@@ -1,7 +1,9 @@
 const supportSettings = {
   enabled: true,
   storageKey: "nordstadt_support_demo_tickets",
-  supabaseJsUrl: "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+  supabaseJsUrl: "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+  discordFunctionName: "notify-discord-ticket",
+  adminPanelPath: "admin.html"
 };
 
 const supportFaqs = [
@@ -204,6 +206,37 @@ async function supportSaveSupabaseTicket(ticket) {
   const { error } = await supportSupabaseClient
     .from("tickets")
     .insert(supabaseTicket);
+
+  if (error) {
+    throw error;
+  }
+}
+
+function supportGetAdminUrl() {
+  return new URL(supportSettings.adminPanelPath, window.location.href).href;
+}
+
+async function supportNotifyDiscord(ticket) {
+  if (!supportSupabaseClient || !supportBackendReady) {
+    return;
+  }
+
+  const payload = {
+    ticket_number: ticket.id,
+    category: ticket.category,
+    category_label: ticket.categoryLabel,
+    discord_username: ticket.discordUsername,
+    title: ticket.title,
+    description: ticket.description,
+    admin_url: supportGetAdminUrl()
+  };
+
+  const { error } = await supportSupabaseClient.functions.invoke(
+    supportSettings.discordFunctionName,
+    {
+      body: payload
+    }
+  );
 
   if (error) {
     throw error;
@@ -463,6 +496,7 @@ async function supportSubmitTicket(event) {
   try {
     if (supportBackendReady) {
       await supportSaveSupabaseTicket(ticket);
+      await supportNotifyDiscord(ticket);
     } else {
       supportSaveDemoTicket(ticket);
     }
@@ -481,7 +515,7 @@ async function supportSubmitTicket(event) {
     if (supportBackendReady) {
       supportShowStatus(
         "success",
-        "Dein Ticket wurde erstellt und in Supabase gespeichert."
+        "Dein Ticket wurde erstellt, in Supabase gespeichert und an Discord gemeldet."
       );
     } else {
       supportShowStatus(
@@ -495,7 +529,7 @@ async function supportSubmitTicket(event) {
   } catch (error) {
     supportShowStatus(
       "error",
-      "Das Ticket konnte nicht in Supabase gespeichert werden. Prüfe bitte die Supabase-Konfiguration und RLS-Policies."
+      "Das Ticket konnte nicht vollständig verarbeitet werden. Prüfe Supabase, Edge Function und Discord Webhook."
     );
   }
 }
@@ -547,8 +581,8 @@ function supportBuildWidget() {
           <div id="supportCategoryGrid" class="support-category-grid"></div>
 
           <div class="support-mini-note">
-            Hinweis: Tickets werden jetzt mit Supabase verbunden. Falls Supabase nicht erreichbar ist,
-            speichert die Website sie nur lokal im Demo-Modus.
+            Tickets werden jetzt in Supabase gespeichert. Zusätzlich wird eine Benachrichtigung
+            in den Discord-Support-Channel gesendet.
           </div>
         </div>
 
