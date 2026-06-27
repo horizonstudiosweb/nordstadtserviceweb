@@ -1,6 +1,7 @@
 const adminSettings = {
   supabaseJsUrl: "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
   selectedTicketId: null,
+  pendingCloseTicketId: null,
   tickets: [],
   messagesByTicketId: {},
   notesByTicketId: {},
@@ -9,6 +10,8 @@ const adminSettings = {
 };
 
 const adminAllowedRoles = ["support", "admin", "leitung", "manager"];
+const adminReopenRoles = ["admin", "leitung", "manager"];
+
 let adminSupabaseClient = null;
 
 const adminLoginScreen = document.getElementById("adminLoginScreen");
@@ -27,6 +30,7 @@ const adminViews = document.querySelectorAll(".admin-view");
 
 const reloadTicketsButton = document.getElementById("reloadTicketsButton");
 const reloadTicketsButtonTwo = document.getElementById("reloadTicketsButtonTwo");
+const openTicketsViewButtons = document.querySelectorAll("[data-open-tickets-view]");
 
 const statAll = document.getElementById("statAll");
 const statOpen = document.getElementById("statOpen");
@@ -38,6 +42,14 @@ const adminTicketsList = document.getElementById("adminTicketsList");
 const ticketDetailCard = document.getElementById("ticketDetailCard");
 const ticketSearchInput = document.getElementById("ticketSearchInput");
 const ticketStatusFilter = document.getElementById("ticketStatusFilter");
+const ticketListCount = document.getElementById("ticketListCount");
+
+const closeTicketModal = document.getElementById("closeTicketModal");
+const closeTicketForm = document.getElementById("closeTicketForm");
+const closeReasonInput = document.getElementById("closeReasonInput");
+const closeModalCancel = document.getElementById("closeModalCancel");
+const closeModalCancelTop = document.getElementById("closeModalCancelTop");
+const closeTicketMessage = document.getElementById("closeTicketMessage");
 
 function adminEscape(value) {
   return String(value || "")
@@ -49,7 +61,9 @@ function adminEscape(value) {
 }
 
 function adminFormatDate(value) {
-  if (!value) return "Unbekannt";
+  if (!value) {
+    return "Unbekannt";
+  }
 
   return new Date(value).toLocaleString("de-DE", {
     day: "2-digit",
@@ -70,9 +84,25 @@ function adminStatusLabel(status) {
   return labels[status] || status || "Unbekannt";
 }
 
+function adminCategoryLabel(category, fallback) {
+  const labels = {
+    support: "Allgemeiner Support",
+    application: "Bewerbung",
+    report: "Spieler melden",
+    bug: "Bug melden"
+  };
+
+  return fallback || labels[category] || category || "Support";
+}
+
 function adminSetLoginMessage(text, type = "") {
   adminLoginMessage.textContent = text || "";
   adminLoginMessage.className = `admin-message ${type}`.trim();
+}
+
+function adminSetCloseMessage(text, type = "") {
+  closeTicketMessage.textContent = text || "";
+  closeTicketMessage.className = `admin-message ${type}`.trim();
 }
 
 function adminLoadScript(src) {
@@ -158,9 +188,13 @@ function adminNormalizeTicket(row) {
     targetUser: row.target_user,
     proof: row.proof,
     reproduce: row.reproduce,
-    status: row.status,
+    status: row.status || "open",
     createdAt: row.created_at,
-    updatedAt: row.updated_at
+    updatedAt: row.updated_at,
+    lastMessageAt: row.last_message_at,
+    closedReason: row.closed_reason,
+    closedByEmail: row.closed_by_email,
+    closedAt: row.closed_at
   };
 }
 
@@ -168,6 +202,7 @@ async function adminLoadTickets() {
   const { data, error } = await adminSupabaseClient
     .from("tickets")
     .select("*")
+    .order("last_message_at", { ascending: false, nullsFirst: false })
     .order("created_at", { ascending: false });
 
   if (error) {
@@ -223,6 +258,18 @@ async function adminLoadNotes(ticketId) {
   adminSettings.notesByTicketId[ticketId] = data || [];
 }
 
+function adminGetTicketPreview(ticket) {
+  if (ticket.closedReason && ticket.status === "closed") {
+    return `Geschlossen: ${ticket.closedReason}`;
+  }
+
+  if (ticket.description) {
+    return ticket.description;
+  }
+
+  return "Keine Beschreibung vorhanden.";
+}
+
 function adminRenderDashboard() {
   const tickets = adminSettings.tickets;
 
@@ -231,13 +278,14 @@ function adminRenderDashboard() {
   statProgress.textContent = tickets.filter((ticket) => ticket.status === "in_progress").length;
   statClosed.textContent = tickets.filter((ticket) => ticket.status === "closed").length;
 
-  latestTickets.innerHTML = tickets.slice(0, 6).map((ticket) => `
+  latestTickets.innerHTML = tickets.slice(0, 7).map((ticket) => `
     <button class="ticket-card" type="button" data-ticket-id="${adminEscape(ticket.id)}">
       <div class="ticket-card-row">
         <strong>${adminEscape(ticket.ticketNumber)}</strong>
         <span class="status-badge ${adminEscape(ticket.status)}">${adminEscape(adminStatusLabel(ticket.status))}</span>
       </div>
-      <small>${adminEscape(ticket.title)} · ${adminEscape(ticket.discordUsername)}</small>
+      <small>${adminEscape(ticket.title || "Ohne Titel")}</small>
+      <small>${adminEscape(ticket.discordUsername || "Unbekannt")} · ${adminEscape(adminFormatDate(ticket.lastMessageAt || ticket.createdAt))}</small>
     </button>
   `).join("") || `<p class="muted">Noch keine Tickets vorhanden.</p>`;
 
@@ -261,10 +309,15 @@ function adminGetFilteredTickets() {
       ticket.title,
       ticket.discordUsername,
       ticket.categoryLabel,
+      ticket.category,
       ticket.description,
       ticket.rank,
       ticket.applicationArea,
-      ticket.targetUser
+      ticket.targetUser,
+      ticket.proof,
+      ticket.reproduce,
+      ticket.closedReason,
+      ticket.closedByEmail
     ].join(" ").toLowerCase();
 
     const searchMatches = !search || searchable.includes(search);
@@ -276,14 +329,19 @@ function adminGetFilteredTickets() {
 function adminRenderTicketsList() {
   const tickets = adminGetFilteredTickets();
 
+  if (ticketListCount) {
+    ticketListCount.textContent = tickets.length;
+  }
+
   adminTicketsList.innerHTML = tickets.map((ticket) => `
     <button class="ticket-card ${adminSettings.selectedTicketId === ticket.id ? "active" : ""}" type="button" data-ticket-id="${adminEscape(ticket.id)}">
       <div class="ticket-card-row">
         <strong>${adminEscape(ticket.ticketNumber)}</strong>
         <span class="status-badge ${adminEscape(ticket.status)}">${adminEscape(adminStatusLabel(ticket.status))}</span>
       </div>
-      <small>${adminEscape(ticket.title)}</small>
-      <small>${adminEscape(ticket.discordUsername)} · ${adminEscape(adminFormatDate(ticket.createdAt))}</small>
+      <small>${adminEscape(ticket.title || "Ohne Titel")}</small>
+      <small>${adminEscape(ticket.discordUsername || "Unbekannt")} · ${adminEscape(adminCategoryLabel(ticket.category, ticket.categoryLabel))}</small>
+      <small>${adminEscape(adminFormatDate(ticket.lastMessageAt || ticket.updatedAt || ticket.createdAt))}</small>
     </button>
   `).join("") || `<div class="empty-detail">Keine Tickets gefunden.</div>`;
 
@@ -310,9 +368,9 @@ function adminRenderMessages(ticketId) {
   }
 
   return messages.map((message) => `
-    <div class="admin-message-bubble ${adminEscape(message.sender_type)}">
+    <div class="admin-message-bubble ${adminEscape(message.sender_type || "system")}">
       <div class="admin-message-top">
-        <span>${adminEscape(message.sender_name)}</span>
+        <span>${adminEscape(message.sender_name || "Unbekannt")}</span>
         <span>${adminEscape(adminFormatDate(message.created_at))}</span>
       </div>
       <p>${adminEscape(message.message_text)}</p>
@@ -324,7 +382,7 @@ function adminRenderNotes(ticketId) {
   const notes = adminSettings.notesByTicketId[ticketId] || [];
 
   if (!notes.length) {
-    return `<div class="note-list">Keine internen Notizen vorhanden.</div>`;
+    return `<div class="note-list"><p class="muted">Keine internen Notizen vorhanden.</p></div>`;
   }
 
   return `
@@ -339,26 +397,74 @@ function adminRenderNotes(ticketId) {
   `;
 }
 
+function adminCanReopenTickets() {
+  return adminReopenRoles.includes(adminSettings.profile?.role);
+}
+
+function adminRenderClosedReason(ticket) {
+  if (ticket.status !== "closed") {
+    return "";
+  }
+
+  return `
+    <div class="detail-box full closed-reason-box">
+      <strong>Schließgrund</strong>
+      <span>${adminEscape(ticket.closedReason || "Kein Grund angegeben.")}</span>
+    </div>
+
+    <div class="detail-box">
+      <strong>Geschlossen von</strong>
+      <span>${adminEscape(ticket.closedByEmail || "Unbekannt")}</span>
+    </div>
+
+    <div class="detail-box">
+      <strong>Geschlossen am</strong>
+      <span>${adminEscape(adminFormatDate(ticket.closedAt))}</span>
+    </div>
+  `;
+}
+
 function adminRenderTicketDetail(ticket) {
+  const isClosed = ticket.status === "closed";
+  const canReopen = adminCanReopenTickets();
+
   ticketDetailCard.innerHTML = `
     <div class="detail-top">
       <div>
         <span class="status-badge ${adminEscape(ticket.status)}">${adminEscape(adminStatusLabel(ticket.status))}</span>
-        <h2>${adminEscape(ticket.ticketNumber)} - ${adminEscape(ticket.title)}</h2>
-        <p>${adminEscape(ticket.discordUsername)} · ${adminEscape(adminFormatDate(ticket.createdAt))}</p>
+        <h2>${adminEscape(ticket.ticketNumber)} - ${adminEscape(ticket.title || "Ohne Titel")}</h2>
+        <p>
+          ${adminEscape(ticket.discordUsername || "Unbekannt")}
+          · Erstellt ${adminEscape(adminFormatDate(ticket.createdAt))}
+          · Letzte Aktivität ${adminEscape(adminFormatDate(ticket.lastMessageAt || ticket.updatedAt || ticket.createdAt))}
+        </p>
       </div>
 
-      <select class="status-select" id="ticketStatusSelect">
-        <option value="open" ${ticket.status === "open" ? "selected" : ""}>Offen</option>
-        <option value="in_progress" ${ticket.status === "in_progress" ? "selected" : ""}>In Bearbeitung</option>
-        <option value="closed" ${ticket.status === "closed" ? "selected" : ""}>Geschlossen</option>
-      </select>
+      <div class="detail-actions">
+        <select class="status-select" id="ticketStatusSelect" ${isClosed ? "disabled" : ""}>
+          <option value="open" ${ticket.status === "open" ? "selected" : ""}>Offen</option>
+          <option value="in_progress" ${ticket.status === "in_progress" ? "selected" : ""}>In Bearbeitung</option>
+          <option value="closed" ${ticket.status === "closed" ? "selected" : ""}>Geschlossen</option>
+        </select>
+
+        ${!isClosed ? `
+          <button class="danger-action" id="openCloseTicketModalButton" type="button">
+            Mit Grund schließen
+          </button>
+        ` : ""}
+
+        ${isClosed && canReopen ? `
+          <button class="small-button" id="reopenTicketButton" type="button">
+            Wieder öffnen
+          </button>
+        ` : ""}
+      </div>
     </div>
 
     <div class="detail-grid">
       <div class="detail-box">
         <strong>Kategorie</strong>
-        <span>${adminEscape(ticket.categoryLabel || ticket.category || "Nicht angegeben")}</span>
+        <span>${adminEscape(adminCategoryLabel(ticket.category, ticket.categoryLabel))}</span>
       </div>
 
       <div class="detail-box">
@@ -375,6 +481,8 @@ function adminRenderTicketDetail(ticket) {
         <strong>Status</strong>
         <span>${adminEscape(adminStatusLabel(ticket.status))}</span>
       </div>
+
+      ${adminRenderClosedReason(ticket)}
 
       <div class="detail-box full">
         <strong>Beschreibung</strong>
@@ -405,17 +513,21 @@ function adminRenderTicketDetail(ticket) {
     <div class="admin-chat">
       <div class="section-title-row">
         <h3>Ticket-Chat mit User</h3>
-        <button class="small-button" id="adminRefreshMessagesButton" type="button">Nachrichten aktualisieren</button>
+        <button class="small-button ghost" id="adminRefreshMessagesButton" type="button">Nachrichten aktualisieren</button>
       </div>
 
       <div class="admin-messages" id="adminMessages">
         ${adminRenderMessages(ticket.id)}
       </div>
 
-      <form class="chat-form" id="adminChatForm">
-        <textarea id="adminChatInput" placeholder="Antwort an den User schreiben..." required></textarea>
-        <button type="submit">Antwort senden</button>
-      </form>
+      ${!isClosed ? `
+        <form class="chat-form" id="adminChatForm">
+          <textarea id="adminChatInput" placeholder="Antwort an den User schreiben..." required></textarea>
+          <button type="submit">Antwort senden</button>
+        </form>
+      ` : `
+        <p class="muted">Dieses Ticket ist geschlossen. Antworten sind gesperrt.</p>
+      `}
     </div>
 
     <div class="note-box">
@@ -433,39 +545,72 @@ function adminRenderTicketDetail(ticket) {
   const adminChatForm = document.getElementById("adminChatForm");
   const adminNoteForm = document.getElementById("adminNoteForm");
   const adminRefreshMessagesButton = document.getElementById("adminRefreshMessagesButton");
+  const openCloseTicketModalButton = document.getElementById("openCloseTicketModalButton");
+  const reopenTicketButton = document.getElementById("reopenTicketButton");
 
-  statusSelect.addEventListener("change", async (event) => {
-    await adminUpdateTicketStatus(ticket.id, event.target.value);
-  });
+  if (statusSelect) {
+    statusSelect.addEventListener("change", async (event) => {
+      if (event.target.value === "closed") {
+        event.target.value = ticket.status;
+        adminOpenCloseModal(ticket.id);
+        return;
+      }
 
-  adminChatForm.addEventListener("submit", async (event) => {
-    event.preventDefault();
+      await adminUpdateTicketStatus(ticket.id, event.target.value);
+    });
+  }
 
-    const input = document.getElementById("adminChatInput");
-    const text = input.value.trim();
+  if (adminChatForm) {
+    adminChatForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
 
-    if (!text) return;
+      const input = document.getElementById("adminChatInput");
+      const text = input.value.trim();
 
-    await adminSendSupportMessage(ticket.id, text);
-    input.value = "";
-  });
+      if (!text) return;
 
-  adminNoteForm.addEventListener("submit", async (event) => {
-    event.preventDefault();
+      await adminSendSupportMessage(ticket.id, text);
+      input.value = "";
+    });
+  }
 
-    const input = document.getElementById("adminNoteInput");
-    const text = input.value.trim();
+  if (adminNoteForm) {
+    adminNoteForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
 
-    if (!text) return;
+      const input = document.getElementById("adminNoteInput");
+      const text = input.value.trim();
 
-    await adminSaveNote(ticket.id, text);
-    input.value = "";
-  });
+      if (!text) return;
 
-  adminRefreshMessagesButton.addEventListener("click", async () => {
-    await adminLoadMessages(ticket.id);
-    adminRenderTicketDetail(ticket);
-  });
+      await adminSaveNote(ticket.id, text);
+      input.value = "";
+    });
+  }
+
+  if (adminRefreshMessagesButton) {
+    adminRefreshMessagesButton.addEventListener("click", async () => {
+      await adminRefreshSelectedTicket();
+    });
+  }
+
+  if (openCloseTicketModalButton) {
+    openCloseTicketModalButton.addEventListener("click", () => {
+      adminOpenCloseModal(ticket.id);
+    });
+  }
+
+  if (reopenTicketButton) {
+    reopenTicketButton.addEventListener("click", async () => {
+      await adminReopenTicket(ticket.id);
+    });
+  }
+
+  const messagesContainer = document.getElementById("adminMessages");
+
+  if (messagesContainer) {
+    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+  }
 }
 
 async function adminSelectTicket(ticketId) {
@@ -482,6 +627,15 @@ async function adminSelectTicket(ticketId) {
   adminRenderTicketDetail(ticket);
 }
 
+async function adminRefreshSelectedTicket() {
+  if (!adminSettings.selectedTicketId) {
+    return;
+  }
+
+  await adminLoadTickets();
+  await adminSelectTicket(adminSettings.selectedTicketId);
+}
+
 async function adminUpdateTicketStatus(ticketId, status) {
   const { error } = await adminSupabaseClient
     .from("tickets")
@@ -493,18 +647,18 @@ async function adminUpdateTicketStatus(ticketId, status) {
     return;
   }
 
-  const ticket = adminSettings.tickets.find((item) => item.id === ticketId);
-
-  if (ticket) {
-    ticket.status = status;
-  }
-
-  adminRenderDashboard();
-  adminRenderTicketsList();
+  await adminLoadTickets();
   await adminSelectTicket(ticketId);
 }
 
 async function adminSendSupportMessage(ticketId, text) {
+  const ticket = adminSettings.tickets.find((item) => item.id === ticketId);
+
+  if (ticket?.status === "closed") {
+    alert("Dieses Ticket ist geschlossen. Antworten sind gesperrt.");
+    return;
+  }
+
   const senderName = `${adminSettings.profile.role} · ${adminSettings.profile.email}`;
 
   const { error } = await adminSupabaseClient
@@ -521,13 +675,7 @@ async function adminSendSupportMessage(ticketId, text) {
     return;
   }
 
-  await adminLoadMessages(ticketId);
-
-  const ticket = adminSettings.tickets.find((item) => item.id === ticketId);
-
-  if (ticket) {
-    adminRenderTicketDetail(ticket);
-  }
+  await adminRefreshSelectedTicket();
 }
 
 async function adminSaveNote(ticketId, text) {
@@ -551,6 +699,58 @@ async function adminSaveNote(ticketId, text) {
   if (ticket) {
     adminRenderTicketDetail(ticket);
   }
+}
+
+function adminOpenCloseModal(ticketId) {
+  adminSettings.pendingCloseTicketId = ticketId;
+  closeReasonInput.value = "";
+  adminSetCloseMessage("");
+  closeTicketModal.classList.remove("hidden");
+
+  setTimeout(() => {
+    closeReasonInput.focus();
+  }, 80);
+}
+
+function adminCloseCloseModal() {
+  adminSettings.pendingCloseTicketId = null;
+  closeReasonInput.value = "";
+  adminSetCloseMessage("");
+  closeTicketModal.classList.add("hidden");
+}
+
+async function adminCloseTicketWithReason(ticketId, reason) {
+  const { data, error } = await adminSupabaseClient.rpc("close_ticket_with_reason", {
+    p_ticket_id: ticketId,
+    p_reason: reason
+  });
+
+  if (error) {
+    throw new Error(error.message || "Ticket konnte nicht geschlossen werden.");
+  }
+
+  if (!data || data.success !== true) {
+    throw new Error(data?.error || "Ticket konnte nicht geschlossen werden.");
+  }
+}
+
+async function adminReopenTicket(ticketId) {
+  const { data, error } = await adminSupabaseClient.rpc("reopen_ticket", {
+    p_ticket_id: ticketId
+  });
+
+  if (error) {
+    alert(error.message || "Ticket konnte nicht geöffnet werden.");
+    return;
+  }
+
+  if (!data || data.success !== true) {
+    alert(data?.error || "Ticket konnte nicht geöffnet werden.");
+    return;
+  }
+
+  await adminLoadTickets();
+  await adminSelectTicket(ticketId);
 }
 
 function adminOpenView(viewName) {
@@ -592,6 +792,7 @@ adminLogoutButton.addEventListener("click", async () => {
   await adminSupabaseClient.auth.signOut();
 
   adminSettings.selectedTicketId = null;
+  adminSettings.pendingCloseTicketId = null;
   adminSettings.tickets = [];
   adminSettings.messagesByTicketId = {};
   adminSettings.notesByTicketId = {};
@@ -607,16 +808,79 @@ adminNavButtons.forEach((button) => {
   });
 });
 
+openTicketsViewButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    adminOpenView("tickets");
+  });
+});
+
 reloadTicketsButton.addEventListener("click", async () => {
   await adminLoadTickets();
+
+  if (adminSettings.selectedTicketId) {
+    await adminSelectTicket(adminSettings.selectedTicketId);
+  }
 });
 
 reloadTicketsButtonTwo.addEventListener("click", async () => {
   await adminLoadTickets();
+
+  if (adminSettings.selectedTicketId) {
+    await adminSelectTicket(adminSettings.selectedTicketId);
+  }
 });
 
 ticketSearchInput.addEventListener("input", adminRenderTicketsList);
 ticketStatusFilter.addEventListener("change", adminRenderTicketsList);
+
+closeModalCancel.addEventListener("click", adminCloseCloseModal);
+closeModalCancelTop.addEventListener("click", adminCloseCloseModal);
+
+closeTicketModal.addEventListener("click", (event) => {
+  if (event.target === closeTicketModal) {
+    adminCloseCloseModal();
+  }
+});
+
+closeTicketForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+
+  const ticketId = adminSettings.pendingCloseTicketId;
+  const reason = closeReasonInput.value.trim();
+
+  if (!ticketId) {
+    adminSetCloseMessage("Kein Ticket ausgewählt.", "error");
+    return;
+  }
+
+  if (reason.length < 5) {
+    adminSetCloseMessage("Bitte gib einen richtigen Schließgrund an.", "error");
+    return;
+  }
+
+  try {
+    adminSetCloseMessage("Ticket wird geschlossen...");
+
+    await adminCloseTicketWithReason(ticketId, reason);
+
+    adminSetCloseMessage("Ticket wurde geschlossen.", "success");
+
+    await adminLoadTickets();
+    await adminSelectTicket(ticketId);
+
+    setTimeout(() => {
+      adminCloseCloseModal();
+    }, 450);
+  } catch (error) {
+    adminSetCloseMessage(error.message, "error");
+  }
+});
+
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape" && !closeTicketModal.classList.contains("hidden")) {
+    adminCloseCloseModal();
+  }
+});
 
 (async function initAdmin() {
   try {
