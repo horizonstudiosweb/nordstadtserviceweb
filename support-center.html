@@ -32,8 +32,8 @@
         <span class="eyebrow">Nordstadt Roleplay</span>
         <h1>Support-Center</h1>
         <p>
-          Wähle die passende Kategorie, erstelle dein Ticket und verfolge Antworten später
-          direkt im Ticketportal.
+          Wähle die passende Kategorie, erstelle dein Ticket und schreibe direkt
+          hier im Support-Center mit dem Support.
         </p>
 
         <div class="hero-actions">
@@ -52,18 +52,18 @@
           <span></span>
           <div>
             <strong>Support aktiv</strong>
-            <small>Tickets werden automatisch weitergeleitet.</small>
+            <small>Tickets werden direkt im Support-Center geöffnet.</small>
           </div>
+        </div>
+
+        <div class="status-box">
+          <strong>Direkter Chat</strong>
+          <small>Keine Weiterleitung. Kein iframe. Der Chat erscheint direkt hier.</small>
         </div>
 
         <div class="status-box">
           <strong>4 Kategorien</strong>
           <small>Allgemein, Bewerbung, Report, Bug / Fehler</small>
-        </div>
-
-        <div class="status-box">
-          <strong>Cooldown-Schutz</strong>
-          <small>Schützt vor Spam und mehrfachen Tickets.</small>
         </div>
       </div>
     </section>
@@ -118,7 +118,7 @@
             <h2>Meine Tickets</h2>
             <p>
               Hier findest du Tickets, die du mit diesem Browser erstellt hast.
-              Geschlossene Tickets bleiben sichtbar und können weiterhin geöffnet werden.
+              Ein Klick auf „Öffnen“ zeigt den Chat direkt im Support-Center.
             </p>
           </div>
 
@@ -174,10 +174,10 @@
         </article>
 
         <article class="faq-card">
-          <span>Ticketportal</span>
+          <span>Tickets</span>
           <h3>Wo finde ich mein Ticket?</h3>
           <p>
-            Nach dem Absenden bekommst du eine Ticketnummer. Der Chat öffnet direkt hier im Support-Center.
+            Nach dem Absenden erscheint dein Ticket unter „Meine Tickets“ und kann direkt geöffnet werden.
           </p>
           <a href="#myTicketsSection">Meine Tickets öffnen</a>
         </article>
@@ -264,8 +264,8 @@
           </svg>
         </div>
 
-        <h3 id="successTitle">Ticket wurde weitergeleitet.</h3>
-        <p id="successText">Ein Support Agent wird sich um dein Anliegen kümmern.</p>
+        <h3 id="successTitle">Ticket wurde erstellt.</h3>
+        <p id="successText">Der Ticket-Chat kann direkt hier geöffnet werden.</p>
 
         <div class="ticket-number-box">
           <span>Ticketnummer</span>
@@ -282,18 +282,66 @@
           </button>
         </div>
 
-        <div id="embeddedTicketChatBox" class="embedded-ticket-chat-box hidden" style="margin-top: 22px;">
-          <iframe
-            id="embeddedTicketChatFrame"
-            title="Ticket-Chat"
-            style="
-              width: 100%;
-              min-height: 720px;
-              border: 1px solid rgba(145, 190, 255, 0.18);
-              border-radius: 24px;
-              background: #050d18;
-            "
-          ></iframe>
+        <div class="inline-ticket-chat hidden" id="inlineTicketChat">
+          <div class="inline-ticket-head">
+            <div>
+              <span class="eyebrow">Ticket-Chat</span>
+              <h3 id="inlineTicketTitle">Ticket</h3>
+              <p id="inlineTicketMeta">Wird geladen...</p>
+            </div>
+
+            <button class="secondary-btn" id="inlineRefreshTicketButton" type="button">
+              Aktualisieren
+            </button>
+          </div>
+
+          <div class="inline-ticket-info">
+            <div>
+              <span>Kategorie</span>
+              <strong id="inlineTicketCategory">-</strong>
+            </div>
+
+            <div>
+              <span>Status</span>
+              <strong id="inlineTicketStatus">-</strong>
+            </div>
+
+            <div>
+              <span>Discord</span>
+              <strong id="inlineTicketDiscord">-</strong>
+            </div>
+          </div>
+
+          <div class="inline-ticket-description">
+            <span>Beschreibung</span>
+            <p id="inlineTicketDescription">-</p>
+          </div>
+
+          <div class="inline-closed-reason hidden" id="inlineClosedReasonBox">
+            <span>Schließgrund</span>
+            <p id="inlineClosedReason">-</p>
+          </div>
+
+          <div class="inline-ticket-messages" id="inlineTicketMessages">
+            <div class="inline-ticket-message system">
+              <div class="inline-ticket-message-top">
+                <span>System</span>
+                <span>Jetzt</span>
+              </div>
+              <p>Ticket wird geladen...</p>
+            </div>
+          </div>
+
+          <div class="inline-closed-notice hidden" id="inlineClosedNotice">
+            Dieses Ticket wurde geschlossen. Du kannst den Verlauf lesen, aber nicht mehr antworten.
+          </div>
+
+          <form class="inline-reply-form" id="inlineReplyForm">
+            <textarea id="inlineReplyInput" placeholder="Schreibe deine Antwort..." required></textarea>
+            <button class="primary-btn" type="submit">Antwort senden</button>
+          </form>
+
+          <div id="inlineReplyMessage" class="form-message"></div>
         </div>
       </div>
     </section>
