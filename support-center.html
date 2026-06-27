@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Support-Center - Nordstadt Roleplay</title>
+  <link rel="stylesheet" href="support-center.css" />
+</head>
+<body>
+  <div class="support-bg">
+    <div class="orb orb-one"></div>
+    <div class="orb orb-two"></div>
+    <div class="orb orb-three"></div>
+  </div>
+
+  <header class="support-header">
+    <a class="brand" href="index.html">
+      <span>Nordstadt</span>
+      <strong>Support-Center</strong>
+    </a>
+
+    <nav class="top-actions">
+      <a href="tickets.html">Meine Tickets</a>
+      <a href="admin.html">Admin-Panel</a>
+      <a href="index.html">Website</a>
+    </nav>
+  </header>
+
+  <main class="support-page">
+    <section class="hero">
+      <div class="hero-content">
+        <span class="eyebrow">Nordstadt Roleplay</span>
+        <h1>Support-Center</h1>
+        <p>
+          Wähle die passende Kategorie, erstelle dein Ticket und verfolge Antworten später
+          direkt im Ticketportal.
+        </p>
+
+        <div class="hero-actions">
+          <button class="primary-btn" type="button" data-open-ticket="support">
+            Ticket erstellen
+          </button>
+
+          <a class="secondary-btn" href="tickets.html">
+            Ticket ansehen
+          </a>
+        </div>
+      </div>
+
+      <div class="hero-panel">
+        <div class="status-box live">
+          <span></span>
+          <div>
+            <strong>Support aktiv</strong>
+            <small>Tickets werden automatisch weitergeleitet.</small>
+          </div>
+        </div>
+
+        <div class="status-box">
+          <strong>4 Kategorien</strong>
+          <small>Allgemein, Bewerbung, Report, Bug / Fehler</small>
+        </div>
+
+        <div class="status-box">
+          <strong>Cooldown-Schutz</strong>
+          <small>Schützt vor Spam und mehrfachen Tickets.</small>
+        </div>
+      </div>
+    </section>
+
+    <section class="categories">
+      <div class="section-head">
+        <div>
+          <span class="eyebrow">Kategorie wählen</span>
+          <h2>Was möchtest du einreichen?</h2>
+        </div>
+
+        <p>Jede Kategorie hat eigene Felder und eigene Regeln.</p>
+      </div>
+
+      <div class="category-grid">
+        <button class="category-card support" type="button" data-open-ticket="support">
+          <span>01</span>
+          <h3>Allgemein</h3>
+          <p>Fragen, Hilfe, Probleme oder allgemeine Anliegen.</p>
+          <small>Nur ein offenes allgemeines Ticket gleichzeitig.</small>
+        </button>
+
+        <button class="category-card application" type="button" data-open-ticket="application">
+          <span>02</span>
+          <h3>Bewerbung</h3>
+          <p>Bewirb dich für Team, Leitung, Fraktionen oder andere Bereiche.</p>
+          <small>24 Stunden Cooldown und nur eine offene Bewerbung.</small>
+        </button>
+
+        <button class="category-card report" type="button" data-open-ticket="report">
+          <span>03</span>
+          <h3>Report</h3>
+          <p>Melde einen Spieler mit Beschreibung und Beweisen.</p>
+          <small>5 Minuten Cooldown gegen Spam.</small>
+        </button>
+
+        <button class="category-card bug" type="button" data-open-ticket="bug">
+          <span>04</span>
+          <h3>Bug / Fehler</h3>
+          <p>Melde technische Fehler mit Beschreibung und Dateien.</p>
+          <small>10 Minuten Cooldown gegen Spam.</small>
+        </button>
+      </div>
+    </section>
+
+    <section class="faq-section">
+      <div class="section-head">
+        <div>
+          <span class="eyebrow">Hilfe-Bereich</span>
+          <h2>Häufige Fragen</h2>
+        </div>
+
+        <p>Kurze Hilfe, bevor du ein Ticket eröffnest.</p>
+      </div>
+
+      <div class="faq-grid">
+        <article class="faq-card">
+          <span>Bewerbung</span>
+          <h3>Wie bewerbe ich mich?</h3>
+          <p>
+            Öffne die Kategorie Bewerbung, gib deinen Bereich an und schreibe deine Motivation ausführlich.
+          </p>
+          <button type="button" data-open-ticket="application">Bewerbung starten</button>
+        </article>
+
+        <article class="faq-card">
+          <span>Report</span>
+          <h3>Wie reporte ich einen Spieler?</h3>
+          <p>
+            Nutze die Kategorie Report, gib den gemeldeten User an und füge Beweise oder Links hinzu.
+          </p>
+          <button type="button" data-open-ticket="report">Report erstellen</button>
+        </article>
+
+        <article class="faq-card">
+          <span>Bug / Fehler</span>
+          <h3>Wie melde ich einen Bug?</h3>
+          <p>
+            Beschreibe den Fehler, die Schritte zum Reproduzieren und lade bei Bedarf Dateien hoch.
+          </p>
+          <button type="button" data-open-ticket="bug">Bug melden</button>
+        </article>
+
+        <article class="faq-card">
+          <span>Ticketportal</span>
+          <h3>Wo finde ich mein Ticket?</h3>
+          <p>
+            Nach dem Absenden bekommst du eine Ticketnummer und einen Link zum Ticketportal.
+          </p>
+          <a href="tickets.html">Meine Tickets öffnen</a>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <div class="modal-backdrop hidden" id="ticketModal">
+    <section class="ticket-modal">
+      <div class="modal-head">
+        <div>
+          <span class="eyebrow" id="modalCategoryEyebrow">Ticket</span>
+          <h2 id="modalTitle">Ticket erstellen</h2>
+          <p id="modalDescription">Fülle die benötigten Informationen aus.</p>
+        </div>
+
+        <button class="modal-close" id="ticketModalClose" type="button">×</button>
+      </div>
+
+      <form id="supportCenterForm" class="ticket-form">
+        <input id="ticketCategoryInput" type="hidden" value="support" />
+
+        <div class="form-grid">
+          <label>
+            Discord-Name
+            <input id="discordUsernameInput" type="text" placeholder="z. B. Max#1234" required />
+          </label>
+
+          <label id="rankField">
+            Rang / Rolle
+            <input id="rankInput" type="text" placeholder="z. B. Spieler, Moderator, Fraktion..." />
+          </label>
+
+          <label class="hidden" id="applicationAreaField">
+            Bewerbungsbereich
+            <input id="applicationAreaInput" type="text" placeholder="z. B. Team, Leitung, Bundespolizei..." />
+          </label>
+
+          <label class="hidden" id="targetUserField">
+            Gemeldeter User
+            <input id="targetUserInput" type="text" placeholder="Name des Users" />
+          </label>
+
+          <label class="full">
+            Titel
+            <input id="titleInput" type="text" placeholder="Kurzer Titel deines Anliegens" required />
+          </label>
+
+          <label class="full">
+            Beschreibung
+            <textarea id="descriptionInput" placeholder="Beschreibe dein Anliegen so genau wie möglich..." required></textarea>
+          </label>
+
+          <label class="full hidden" id="proofField">
+            Beweise / Links
+            <textarea id="proofInput" placeholder="Screenshots, Videos, Clips oder Beweise als Link..."></textarea>
+          </label>
+
+          <label class="full hidden" id="reproduceField">
+            Schritte zum Reproduzieren
+            <textarea id="reproduceInput" placeholder="Wie kann man den Fehler nachstellen?"></textarea>
+          </label>
+
+          <label class="full hidden" id="attachmentsField">
+            Dateien / Bilder
+            <input id="attachmentsInput" type="file" multiple accept="image/png,image/jpeg,image/webp,image/gif,application/pdf,text/plain" />
+            <small>Maximal 5 Dateien, jeweils bis 10 MB.</small>
+          </label>
+        </div>
+
+        <div class="modal-actions">
+          <button class="secondary-btn" id="ticketModalCancel" type="button">Abbrechen</button>
+          <button class="primary-btn" id="submitTicketButton" type="submit">Ticket eröffnen</button>
+        </div>
+
+        <div id="ticketFormMessage" class="form-message"></div>
+      </form>
+
+      <div class="success-view hidden" id="successView">
+        <div class="success-check">
+          <svg viewBox="0 0 52 52">
+            <circle cx="26" cy="26" r="24"></circle>
+            <path d="M15 27.5 22.5 35 38 18"></path>
+          </svg>
+        </div>
+
+        <h3 id="successTitle">Ticket wurde weitergeleitet.</h3>
+        <p id="successText">Ein Support Agent wird sich um dein Anliegen kümmern.</p>
+
+        <div class="ticket-number-box">
+          <span>Ticketnummer</span>
+          <strong id="successTicketNumber">-</strong>
+        </div>
+
+        <div class="success-actions">
+          <a class="primary-btn" id="successTicketLink" href="tickets.html">Ticket öffnen</a>
+          <button class="secondary-btn" id="successCloseButton" type="button">Schließen</button>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script src="support-center.js"></script>
+</body>
+</html>
