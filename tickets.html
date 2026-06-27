@@ -7,28 +7,56 @@
   <link rel="stylesheet" href="tickets.css" />
 </head>
 <body>
+  <div class="ticket-background">
+    <div class="ticket-orb ticket-orb-one"></div>
+    <div class="ticket-orb ticket-orb-two"></div>
+    <div class="ticket-orb ticket-orb-three"></div>
+  </div>
+
   <main class="tickets-page">
     <section class="tickets-hero">
-      <div class="tickets-badge">Nordstadt Support</div>
+      <div class="hero-content">
+        <span class="tickets-badge">Nordstadt Support</span>
 
-      <h1>Meine Tickets</h1>
+        <h1>Meine Tickets</h1>
 
-      <p>
-        Hier kannst du dein Ticket öffnen, Antworten lesen und dem Support schreiben.
-        Du brauchst dafür deine Ticketnummer und deinen Discord-Namen.
-      </p>
+        <p>
+          Öffne dein Ticket, lies Antworten vom Support und schreibe direkt weiter.
+          Du brauchst dafür deine Ticketnummer und deinen Discord-Namen.
+        </p>
 
-      <div class="tickets-actions">
-        <a href="index.html" class="ghost-link">Zurück zur Website</a>
-        <a href="admin.html" class="ghost-link">Admin-Panel</a>
+        <div class="tickets-actions">
+          <a href="index.html" class="ghost-link">Zurück zur Website</a>
+          <a href="admin.html" class="ghost-link">Admin-Panel</a>
+        </div>
+      </div>
+
+      <div class="hero-panel">
+        <div class="hero-panel-card">
+          <span>Live Support</span>
+          <strong>Ticket-Chat</strong>
+          <p>Antworten, Status und Schließgrund an einem Ort.</p>
+        </div>
+
+        <div class="hero-panel-card small">
+          <strong>Transparent</strong>
+          <p>Geschlossene Tickets zeigen dir den Grund.</p>
+        </div>
       </div>
     </section>
 
     <section class="lookup-card" id="lookupCard">
-      <h2>Ticket öffnen</h2>
+      <div class="section-head">
+        <div>
+          <span class="eyebrow">Ticket öffnen</span>
+          <h2>Zugang zum Ticket</h2>
+        </div>
+
+        <span class="mini-status">Sicher per Ticketnummer</span>
+      </div>
 
       <p>
-        Gib deine Ticketnummer und deinen Discord-Namen exakt so ein, wie du ihn beim Erstellen des Tickets angegeben hast.
+        Gib deine Ticketnummer und deinen Discord-Namen exakt so ein, wie du ihn beim Erstellen angegeben hast.
       </p>
 
       <form id="ticketLookupForm" class="ticket-form">
@@ -68,9 +96,15 @@
           <p id="ticketMeta"></p>
         </div>
 
-        <button id="changeTicketButton" class="small-button" type="button">
-          Anderes Ticket öffnen
-        </button>
+        <div class="ticket-header-actions">
+          <button id="refreshTicketButtonTop" class="small-button ghost" type="button">
+            Aktualisieren
+          </button>
+
+          <button id="changeTicketButton" class="small-button" type="button">
+            Anderes Ticket öffnen
+          </button>
+        </div>
       </div>
 
       <div class="ticket-details">
@@ -85,16 +119,29 @@
         </div>
 
         <div>
+          <strong>Status</strong>
+          <span id="ticketStatusText"></span>
+        </div>
+
+        <div class="full">
           <strong>Beschreibung</strong>
           <span id="ticketDescription"></span>
+        </div>
+
+        <div class="full hidden" id="closedReasonBox">
+          <strong>Schließgrund</strong>
+          <span id="ticketClosedReason"></span>
         </div>
       </div>
 
       <div class="chat-card">
         <div class="chat-title">
-          <h3>Nachrichten</h3>
+          <div>
+            <span class="eyebrow">Konversation</span>
+            <h3>Nachrichten</h3>
+          </div>
 
-          <button id="refreshTicketButton" class="small-button" type="button">
+          <button id="refreshTicketButton" class="small-button ghost" type="button">
             Aktualisieren
           </button>
         </div>
@@ -113,6 +160,10 @@
 
           <button type="submit">Antwort senden</button>
         </form>
+
+        <div id="closedNotice" class="closed-notice hidden">
+          Dieses Ticket ist geschlossen. Du kannst nicht mehr antworten.
+        </div>
 
         <div id="replyMessage" class="form-message"></div>
       </div>
