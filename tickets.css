@@ -78,7 +78,7 @@ select {
 }
 
 .tickets-hero p {
-  max-width: 700px;
+  max-width: 760px;
   margin: 0;
   color: var(--muted);
   font-size: 18px;
@@ -143,6 +143,7 @@ select {
 .lookup-card p {
   margin: 8px 0 22px;
   color: var(--muted);
+  line-height: 1.6;
 }
 
 .ticket-form {
@@ -153,7 +154,7 @@ select {
 }
 
 .ticket-form label,
-.reply-form {
+.reply-form label {
   display: grid;
   gap: 8px;
   color: var(--muted);
@@ -174,6 +175,11 @@ select {
   padding: 15px 16px;
 }
 
+.ticket-form input::placeholder,
+.reply-form textarea::placeholder {
+  color: rgba(243, 247, 255, 0.42);
+}
+
 .ticket-form input:focus,
 .reply-form textarea:focus {
   border-color: rgba(106, 183, 255, 0.55);
@@ -190,6 +196,7 @@ select {
   margin-top: 16px;
   color: var(--muted);
   font-weight: 800;
+  line-height: 1.6;
 }
 
 .form-message.error {
@@ -201,7 +208,7 @@ select {
 }
 
 .hidden {
-  display: none;
+  display: none !important;
 }
 
 .ticket-header {
@@ -218,6 +225,7 @@ select {
 .ticket-header p {
   margin: 8px 0 0;
   color: var(--muted);
+  line-height: 1.6;
 }
 
 .status-badge {
@@ -276,6 +284,7 @@ select {
 .ticket-details span {
   line-height: 1.6;
   word-break: break-word;
+  white-space: pre-wrap;
 }
 
 .chat-card {
@@ -300,6 +309,7 @@ select {
   max-height: 520px;
   overflow: auto;
   padding-right: 6px;
+  scroll-behavior: smooth;
 }
 
 .message {
@@ -346,6 +356,8 @@ select {
 }
 
 .reply-form {
+  display: grid;
+  gap: 12px;
   margin-top: 16px;
 }
 
@@ -377,7 +389,8 @@ select {
     grid-template-columns: 1fr;
   }
 
-  .ticket-header {
+  .ticket-header,
+  .chat-title {
     flex-direction: column;
   }
 
