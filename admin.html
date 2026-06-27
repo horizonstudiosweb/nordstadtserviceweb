@@ -7,106 +7,209 @@
   <link rel="stylesheet" href="admin.css" />
 </head>
 <body>
+  <div class="admin-background">
+    <div class="admin-orb admin-orb-one"></div>
+    <div class="admin-orb admin-orb-two"></div>
+    <div class="admin-orb admin-orb-three"></div>
+  </div>
+
   <section class="login-screen" id="adminLoginScreen">
-    <div class="login-card">
-      <div class="admin-badge">Nordstadt Roleplay</div>
-      <h1>Admin-Panel</h1>
-      <p>Melde dich mit deinem Supabase-Admin-Account an.</p>
+    <div class="login-shell">
+      <div class="login-brand">
+        <span>Nordstadt Roleplay</span>
+        <strong>Support Control</strong>
+      </div>
 
-      <form id="adminLoginForm">
-        <label>
-          E-Mail
-          <input id="adminEmail" type="email" autocomplete="email" required />
-        </label>
+      <div class="login-card">
+        <div class="admin-badge">Geschützter Bereich</div>
 
-        <label>
-          Passwort
-          <input id="adminPassword" type="password" autocomplete="current-password" required />
-        </label>
+        <h1>Admin-Panel</h1>
 
-        <button type="submit">Einloggen</button>
-      </form>
+        <p>
+          Melde dich mit deinem Supabase-Teamaccount an, um Tickets zu bearbeiten,
+          Antworten zu schreiben und Supportfälle sauber abzuschließen.
+        </p>
 
-      <div id="adminLoginMessage" class="admin-message"></div>
+        <form id="adminLoginForm" class="login-form">
+          <label>
+            E-Mail
+            <input id="adminEmail" type="email" autocomplete="email" placeholder="admin@example.com" required />
+          </label>
 
-      <a class="back-link" href="index.html">Zurück zur Website</a>
+          <label>
+            Passwort
+            <input id="adminPassword" type="password" autocomplete="current-password" placeholder="••••••••" required />
+          </label>
+
+          <button type="submit">Einloggen</button>
+        </form>
+
+        <div id="adminLoginMessage" class="admin-message"></div>
+
+        <a class="back-link" href="index.html">Zurück zur Website</a>
+      </div>
     </div>
   </section>
 
   <main class="admin-app hidden" id="adminApp">
     <aside class="admin-sidebar">
-      <div class="sidebar-brand">
-        <span>Nordstadt</span>
-        <strong>Admin</strong>
+      <div class="sidebar-top">
+        <div class="sidebar-brand">
+          <span>Nordstadt</span>
+          <strong>Admin</strong>
+        </div>
+
+        <nav class="admin-nav">
+          <button class="admin-nav-button active" type="button" data-admin-view="dashboard">
+            <span>Dashboard</span>
+            <small>Übersicht</small>
+          </button>
+
+          <button class="admin-nav-button" type="button" data-admin-view="tickets">
+            <span>Tickets</span>
+            <small>Supportfälle</small>
+          </button>
+
+          <button class="admin-nav-button" type="button" data-admin-view="settings">
+            <span>Einstellungen</span>
+            <small>System</small>
+          </button>
+        </nav>
       </div>
 
-      <nav class="admin-nav">
-        <button class="admin-nav-button active" type="button" data-admin-view="dashboard">Dashboard</button>
-        <button class="admin-nav-button" type="button" data-admin-view="tickets">Tickets</button>
-        <button class="admin-nav-button" type="button" data-admin-view="settings">Einstellungen</button>
-      </nav>
+      <div class="sidebar-bottom">
+        <div class="admin-user-card">
+          <span>Angemeldet als</span>
+          <strong id="adminUserEmail">-</strong>
+          <small id="adminUserRole">-</small>
+        </div>
 
-      <div class="admin-user-card">
-        <span id="adminUserEmail">-</span>
-        <strong id="adminUserRole">-</strong>
+        <button id="adminLogoutButton" class="logout-button" type="button">Abmelden</button>
       </div>
-
-      <button id="adminLogoutButton" class="logout-button" type="button">Abmelden</button>
     </aside>
 
     <section class="admin-content">
       <section class="admin-view active" id="view-dashboard">
         <div class="content-header">
           <div>
+            <span class="eyebrow">Support Übersicht</span>
             <h1>Dashboard</h1>
-            <p>Übersicht über Support, Tickets und offene Vorgänge.</p>
+            <p>
+              Behalte offene Tickets, aktuelle Fälle und den Supportstatus im Blick.
+            </p>
           </div>
 
-          <button id="reloadTicketsButton" class="admin-action" type="button">Aktualisieren</button>
+          <button id="reloadTicketsButton" class="admin-action" type="button">
+            Aktualisieren
+          </button>
         </div>
 
         <div class="stats-grid">
           <div class="stat-card">
             <span>Alle Tickets</span>
             <strong id="statAll">0</strong>
+            <small>Gesamt erfasst</small>
           </div>
 
           <div class="stat-card">
             <span>Offen</span>
             <strong id="statOpen">0</strong>
+            <small>Warten auf Bearbeitung</small>
           </div>
 
           <div class="stat-card">
             <span>In Bearbeitung</span>
             <strong id="statProgress">0</strong>
+            <small>Aktive Vorgänge</small>
           </div>
 
           <div class="stat-card">
             <span>Geschlossen</span>
             <strong id="statClosed">0</strong>
+            <small>Abgeschlossene Fälle</small>
           </div>
         </div>
 
-        <div class="panel-card">
-          <h2>Neueste Tickets</h2>
-          <div id="latestTickets" class="latest-list"></div>
+        <div class="dashboard-grid">
+          <div class="panel-card panel-large">
+            <div class="panel-title-row">
+              <div>
+                <h2>Neueste Tickets</h2>
+                <p>Die zuletzt eingegangenen Supportfälle.</p>
+              </div>
+
+              <button class="small-button ghost" type="button" data-open-tickets-view>
+                Alle anzeigen
+              </button>
+            </div>
+
+            <div id="latestTickets" class="latest-list"></div>
+          </div>
+
+          <div class="panel-card">
+            <div class="panel-title-row">
+              <div>
+                <h2>Workflow</h2>
+                <p>Empfohlener Ablauf für sauberen Support.</p>
+              </div>
+            </div>
+
+            <div class="workflow-list">
+              <div class="workflow-item">
+                <span>01</span>
+                <div>
+                  <strong>Ticket prüfen</strong>
+                  <small>Kategorie, Beschreibung und Beweise lesen.</small>
+                </div>
+              </div>
+
+              <div class="workflow-item">
+                <span>02</span>
+                <div>
+                  <strong>Status setzen</strong>
+                  <small>Bei aktiver Bearbeitung auf „In Bearbeitung“ stellen.</small>
+                </div>
+              </div>
+
+              <div class="workflow-item">
+                <span>03</span>
+                <div>
+                  <strong>Antwort schreiben</strong>
+                  <small>Der User sieht deine Nachricht im Ticketportal.</small>
+                </div>
+              </div>
+
+              <div class="workflow-item">
+                <span>04</span>
+                <div>
+                  <strong>Mit Grund schließen</strong>
+                  <small>Tickets werden nur mit sichtbarem Schließgrund beendet.</small>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </section>
 
       <section class="admin-view" id="view-tickets">
         <div class="content-header">
           <div>
+            <span class="eyebrow">Ticket Management</span>
             <h1>Tickets</h1>
-            <p>Bearbeite Tickets, ändere den Status und schreibe mit Usern.</p>
+            <p>
+              Bearbeite Supportfälle, schreibe mit Usern und schließe Tickets nur mit nachvollziehbarem Grund.
+            </p>
           </div>
 
-          <button id="reloadTicketsButtonTwo" class="admin-action" type="button">Aktualisieren</button>
+          <button id="reloadTicketsButtonTwo" class="admin-action" type="button">
+            Aktualisieren
+          </button>
         </div>
 
         <div class="tickets-layout">
           <div class="tickets-list-card">
             <div class="ticket-filter-row">
-              <input id="ticketSearchInput" type="text" placeholder="Ticket suchen..." />
+              <input id="ticketSearchInput" type="text" placeholder="Ticket, User, Titel suchen..." />
 
               <select id="ticketStatusFilter">
                 <option value="all">Alle</option>
@@ -116,12 +219,19 @@
               </select>
             </div>
 
+            <div class="ticket-list-head">
+              <span>Supportfälle</span>
+              <small id="ticketListCount">0</small>
+            </div>
+
             <div id="adminTicketsList" class="admin-tickets-list"></div>
           </div>
 
           <div class="ticket-detail-card" id="ticketDetailCard">
             <div class="empty-detail">
-              Wähle ein Ticket aus.
+              <div class="empty-icon"></div>
+              <strong>Kein Ticket ausgewählt</strong>
+              <span>Wähle links ein Ticket aus, um Details, Chat und Aktionen zu öffnen.</span>
             </div>
           </div>
         </div>
@@ -130,41 +240,83 @@
       <section class="admin-view" id="view-settings">
         <div class="content-header">
           <div>
+            <span class="eyebrow">System</span>
             <h1>Einstellungen</h1>
-            <p>Systemstatus und Admin-Informationen.</p>
+            <p>
+              Rollen, Hinweise und wichtige Systeminformationen für das Nordstadt Support-Team.
+            </p>
           </div>
         </div>
 
-        <div class="panel-card">
-          <h2>Admin-Rollen</h2>
-          <p>
-            Erlaubte Rollen für dieses Panel:
-            <strong>support</strong>,
-            <strong>admin</strong>,
-            <strong>leitung</strong>,
-            <strong>manager</strong>.
-          </p>
-        </div>
+        <div class="settings-grid">
+          <div class="panel-card">
+            <h2>Erlaubte Rollen</h2>
+            <p>
+              Dieses Panel erlaubt nur Accounts mit den Rollen
+              <strong>support</strong>, <strong>admin</strong>, <strong>leitung</strong> oder <strong>manager</strong>.
+            </p>
+          </div>
 
-        <div class="panel-card">
-          <h2>Neue Admins hinzufügen</h2>
-          <p>
-            Neue Teammitglieder erstellst du in Supabase unter
-            Authentication → Users. Danach setzt du die Rolle in der Tabelle
-            profiles oder per SQL.
-          </p>
-        </div>
+          <div class="panel-card">
+            <h2>Neue Teammitglieder</h2>
+            <p>
+              Neue Admins legst du in Supabase unter Authentication → Users an.
+              Danach setzt du die Rolle in der Tabelle <strong>profiles</strong>.
+            </p>
+          </div>
 
-        <div class="panel-card">
-          <h2>Hinweis</h2>
-          <p>
-            Interne Notizen sind nur für Support/Admin sichtbar. Nachrichten im
-            Ticket-Chat sind für den User auf der Seite „Meine Tickets“ sichtbar.
-          </p>
+          <div class="panel-card">
+            <h2>Interne Notizen</h2>
+            <p>
+              Interne Notizen sind nur im Admin-Panel sichtbar. Nachrichten im Ticket-Chat sind für User sichtbar.
+            </p>
+          </div>
+
+          <div class="panel-card">
+            <h2>Schließgrund</h2>
+            <p>
+              Geschlossene Tickets benötigen immer einen Grund. Dieser Grund wird dem User im Ticketportal angezeigt.
+            </p>
+          </div>
         </div>
       </section>
     </section>
   </main>
+
+  <div class="modal-backdrop hidden" id="closeTicketModal">
+    <div class="modal-card">
+      <div class="modal-head">
+        <div>
+          <span class="eyebrow">Ticket schließen</span>
+          <h2>Schließgrund angeben</h2>
+        </div>
+
+        <button class="modal-close" id="closeModalCancelTop" type="button">×</button>
+      </div>
+
+      <p>
+        Gib einen nachvollziehbaren Grund an. Der User sieht diesen Grund im Ticketportal.
+      </p>
+
+      <form id="closeTicketForm" class="close-form">
+        <label>
+          Grund
+          <textarea
+            id="closeReasonInput"
+            placeholder="z. B. Anliegen wurde geklärt, Regelverstoß wurde bearbeitet, Bewerbung wurde abgelehnt..."
+            required
+          ></textarea>
+        </label>
+
+        <div class="modal-actions">
+          <button type="button" class="small-button ghost" id="closeModalCancel">Abbrechen</button>
+          <button type="submit" class="danger-action">Ticket schließen</button>
+        </div>
+      </form>
+
+      <div id="closeTicketMessage" class="admin-message"></div>
+    </div>
+  </div>
 
   <script src="admin.js"></script>
 </body>
