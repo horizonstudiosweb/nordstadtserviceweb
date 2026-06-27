@@ -81,11 +81,15 @@ function ticketCategoryLabel(category, fallback) {
 }
 
 function setLookupMessage(text, type = "") {
+  if (!lookupMessage) return;
+
   lookupMessage.textContent = text || "";
   lookupMessage.className = `form-message ${type}`.trim();
 }
 
 function setReplyMessage(text, type = "") {
+  if (!replyMessage) return;
+
   replyMessage.textContent = text || "";
   replyMessage.className = `form-message ${type}`.trim();
 }
@@ -161,6 +165,8 @@ function updateUrl(ticketNumber, discordName) {
 }
 
 function renderMessages(messages) {
+  if (!ticketMessages) return;
+
   if (!messages.length) {
     ticketMessages.innerHTML = `
       <div class="message system">
@@ -180,7 +186,7 @@ function renderMessages(messages) {
         <span>${ticketEscape(message.sender_name || "Unbekannt")}</span>
         <span>${ticketEscape(ticketFormatDate(message.created_at))}</span>
       </div>
-      <p>${ticketEscape(message.message_text)}</p>
+      <p>${ticketEscape(message.message_text || message.content || message.message || "")}</p>
     </div>
   `).join("");
 
@@ -317,6 +323,42 @@ function resetTicketView() {
   ticketNumberInput.focus();
 }
 
+function normalizeTicketUrlParams() {
+  const params = new URLSearchParams(window.location.search);
+
+  const ticketNumber =
+    params.get("ticket") ||
+    params.get("ticket_number") ||
+    params.get("number") ||
+    "";
+
+  const discordName =
+    params.get("discord") ||
+    params.get("discord_username") ||
+    params.get("discordName") ||
+    "";
+
+  return {
+    ticketNumber: ticketNumber.trim(),
+    discordName: discordName.trim()
+  };
+}
+
+function showMissingDiscordMessage(ticketNumber) {
+  if (ticketNumberInput) {
+    ticketNumberInput.value = ticketNumber;
+  }
+
+  setLookupMessage(
+    "Ticket wurde erstellt. Bitte gib noch deinen Discord-Namen ein, dann wird der Chat geladen.",
+    "success"
+  );
+
+  if (discordNameInput) {
+    discordNameInput.focus();
+  }
+}
+
 ticketLookupForm.addEventListener("submit", async (event) => {
   event.preventDefault();
 
@@ -348,9 +390,7 @@ changeTicketButton.addEventListener("click", resetTicketView);
   try {
     await ticketSetupSupabase();
 
-    const params = new URLSearchParams(window.location.search);
-    const ticketNumber = params.get("ticket") || "";
-    const discordName = params.get("discord") || "";
+    const { ticketNumber, discordName } = normalizeTicketUrlParams();
 
     if (ticketNumber) {
       ticketNumberInput.value = ticketNumber;
@@ -362,6 +402,11 @@ changeTicketButton.addEventListener("click", resetTicketView);
 
     if (ticketNumber && discordName) {
       await loadTicket(ticketNumber, discordName);
+      return;
+    }
+
+    if (ticketNumber && !discordName) {
+      showMissingDiscordMessage(ticketNumber);
     }
   } catch (error) {
     setLookupMessage(error.message, "error");
