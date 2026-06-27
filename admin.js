@@ -1,6 +1,10 @@
 const adminSettings = {
-  ticketStorageKey: "nordstadt_support_demo_tickets",
-  selectedTicketId: null
+  supabaseJsUrl: "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+  selectedTicketId: null,
+  tickets: [],
+  notesByTicketId: {},
+  user: null,
+  profile: null
 };
 
 const adminStatusLabels = {
@@ -17,28 +21,77 @@ const adminCategoryLabels = {
   bug: "Bug melden"
 };
 
-function adminGetTickets() {
-  try {
-    const rawTickets = localStorage.getItem(adminSettings.ticketStorageKey);
+const adminAllowedRoles = ["support", "admin", "leitung", "manager"];
 
-    if (!rawTickets) {
-      return [];
+let adminSupabaseClient = null;
+
+function adminLoadScript(src) {
+  return new Promise((resolve, reject) => {
+    const existingScript = document.querySelector(`script[src="${src}"]`);
+
+    if (existingScript) {
+      resolve();
+      return;
     }
 
-    const tickets = JSON.parse(rawTickets);
+    const script = document.createElement("script");
+    script.src = src;
+    script.onload = resolve;
+    script.onerror = reject;
 
-    if (!Array.isArray(tickets)) {
-      return [];
-    }
-
-    return tickets;
-  } catch (error) {
-    return [];
-  }
+    document.head.appendChild(script);
+  });
 }
 
-function adminSaveTickets(tickets) {
-  localStorage.setItem(adminSettings.ticketStorageKey, JSON.stringify(tickets));
+async function adminSetupSupabase() {
+  await adminLoadScript("supabase-config.js");
+  await adminLoadScript(adminSettings.supabaseJsUrl);
+
+  if (!window.NordstadtSupabaseConfig || !window.NordstadtSupabaseConfig.getConfig) {
+    throw new Error("supabase-config.js wurde nicht gefunden.");
+  }
+
+  const config = window.NordstadtSupabaseConfig.getConfig();
+
+  if (!config.enabled || !config.url || !config.anonKey) {
+    throw new Error("Supabase ist in supabase-config.js nicht aktiviert.");
+  }
+
+  adminSupabaseClient = window.supabase.createClient(config.url, config.anonKey);
+}
+
+function adminShowLoginMessage(message) {
+  const box = document.getElementById("adminLoginMessage");
+
+  if (!box) return;
+
+  box.textContent = message;
+  box.classList.add("show");
+}
+
+function adminHideLoginMessage() {
+  const box = document.getElementById("adminLoginMessage");
+
+  if (!box) return;
+
+  box.textContent = "";
+  box.classList.remove("show");
+}
+
+function adminShowLogin() {
+  const login = document.getElementById("adminLoginScreen");
+  const app = document.getElementById("adminApp");
+
+  if (login) login.classList.remove("hidden");
+  if (app) app.classList.add("hidden");
+}
+
+function adminShowApp() {
+  const login = document.getElementById("adminLoginScreen");
+  const app = document.getElementById("adminApp");
+
+  if (login) login.classList.add("hidden");
+  if (app) app.classList.remove("hidden");
 }
 
 function adminEscape(value) {
@@ -55,15 +108,11 @@ function adminEscape(value) {
 }
 
 function adminFormatDate(dateString) {
-  if (!dateString) {
-    return "Unbekannt";
-  }
+  if (!dateString) return "Unbekannt";
 
   const date = new Date(dateString);
 
-  if (Number.isNaN(date.getTime())) {
-    return "Unbekannt";
-  }
+  if (Number.isNaN(date.getTime())) return "Unbekannt";
 
   return date.toLocaleString("de-DE", {
     day: "2-digit",
@@ -75,7 +124,7 @@ function adminFormatDate(dateString) {
 }
 
 function adminGetCategoryLabel(ticket) {
-  return ticket.categoryLabel || adminCategoryLabels[ticket.category] || "Support";
+  return ticket.category_label || adminCategoryLabels[ticket.category] || "Support";
 }
 
 function adminGetStatusLabel(status) {
@@ -84,6 +133,27 @@ function adminGetStatusLabel(status) {
 
 function adminCreateEmptyMessage(text) {
   return `<div class="admin-empty">${text}</div>`;
+}
+
+function adminNormalizeTicket(row) {
+  return {
+    id: row.id,
+    ticketNumber: row.ticket_number,
+    category: row.category,
+    categoryLabel: row.category_label,
+    discordUsername: row.discord_username,
+    rank: row.rank,
+    title: row.title,
+    description: row.description,
+    applicationArea: row.application_area,
+    targetUser: row.target_user,
+    proof: row.proof,
+    reproduce: row.reproduce,
+    status: row.status,
+    createdAt: row.created_at,
+    updatedAt: row.updated_at,
+    raw: row
+  };
 }
 
 function adminSwitchView(viewName) {
@@ -113,8 +183,101 @@ function adminSwitchView(viewName) {
   }
 }
 
+async function adminLoadProfile() {
+  const { data: sessionData, error: sessionError } = await adminSupabaseClient.auth.getSession();
+
+  if (sessionError) {
+    throw sessionError;
+  }
+
+  const session = sessionData.session;
+
+  if (!session || !session.user) {
+    adminSettings.user = null;
+    adminSettings.profile = null;
+    return false;
+  }
+
+  adminSettings.user = session.user;
+
+  const { data: profile, error } = await adminSupabaseClient
+    .from("profiles")
+    .select("id,email,role,created_at")
+    .eq("id", session.user.id)
+    .single();
+
+  if (error) {
+    throw error;
+  }
+
+  adminSettings.profile = profile;
+
+  return adminAllowedRoles.includes(profile.role);
+}
+
+function adminUpdateUserDisplay() {
+  const role = document.getElementById("adminUserRole");
+  const email = document.getElementById("adminUserEmail");
+  const connection = document.getElementById("adminConnectionStatus");
+
+  if (role) {
+    role.textContent = `Rolle: ${adminSettings.profile?.role || "unbekannt"}`;
+  }
+
+  if (email) {
+    email.textContent = adminSettings.user?.email || "Nicht angemeldet";
+  }
+
+  if (connection) {
+    connection.textContent = "Admin-Panel ist mit Supabase verbunden.";
+  }
+}
+
+async function adminLoadTickets() {
+  const { data, error } = await adminSupabaseClient
+    .from("tickets")
+    .select("*")
+    .order("created_at", {
+      ascending: false
+    });
+
+  if (error) {
+    throw error;
+  }
+
+  adminSettings.tickets = (data || []).map(adminNormalizeTicket);
+}
+
+async function adminLoadNotesForTicket(ticketId) {
+  if (!ticketId) return;
+
+  const { data, error } = await adminSupabaseClient
+    .from("ticket_notes")
+    .select("id,ticket_id,admin_user_id,note_text,created_at")
+    .eq("ticket_id", ticketId)
+    .order("created_at", {
+      ascending: false
+    });
+
+  if (error) {
+    throw error;
+  }
+
+  adminSettings.notesByTicketId[ticketId] = data || [];
+}
+
+async function adminRefreshData() {
+  await adminLoadTickets();
+  adminRenderAll();
+
+  if (adminSettings.selectedTicketId) {
+    await adminLoadNotesForTicket(adminSettings.selectedTicketId);
+    adminShowTicketDetail(adminSettings.selectedTicketId);
+  }
+}
+
 function adminUpdateStats() {
-  const tickets = adminGetTickets();
+  const tickets = adminSettings.tickets;
 
   const openCount = tickets.filter((ticket) => ticket.status === "open").length;
   const progressCount = tickets.filter((ticket) => ticket.status === "progress").length;
@@ -133,14 +296,12 @@ function adminUpdateStats() {
 
 function adminRenderLatestTickets() {
   const container = document.getElementById("latestTickets");
-  const tickets = adminGetTickets().slice(0, 5);
+  const tickets = adminSettings.tickets.slice(0, 5);
 
   if (!container) return;
 
   if (tickets.length === 0) {
-    container.innerHTML = adminCreateEmptyMessage(
-      "Noch keine Tickets vorhanden. Erstelle testweise ein Ticket über das Support-Fenster auf der Website."
-    );
+    container.innerHTML = adminCreateEmptyMessage("Noch keine Tickets in Supabase vorhanden.");
     return;
   }
 
@@ -149,7 +310,7 @@ function adminRenderLatestTickets() {
       return `
         <div class="admin-mini-ticket">
           <strong>${adminEscape(ticket.title)}</strong>
-          <span>${adminEscape(adminGetCategoryLabel(ticket))} · ${adminFormatDate(ticket.createdAt)}</span>
+          <span>${adminEscape(ticket.categoryLabel)} · ${adminFormatDate(ticket.createdAt)}</span>
           <div class="ticket-meta-row">
             <span class="ticket-badge ${adminEscape(ticket.status || "open")}">${adminGetStatusLabel(ticket.status || "open")}</span>
           </div>
@@ -162,7 +323,7 @@ function adminRenderLatestTickets() {
 function adminRenderTicketList() {
   const container = document.getElementById("ticketList");
   const filter = document.getElementById("ticketFilter");
-  const tickets = adminGetTickets();
+  const tickets = adminSettings.tickets;
 
   if (!container) return;
 
@@ -185,10 +346,10 @@ function adminRenderTicketList() {
       return `
         <button class="admin-ticket-item ${isActive}" data-ticket-id="${adminEscape(ticket.id)}">
           <strong>${adminEscape(ticket.title)}</strong>
-          <span>${adminEscape(ticket.discordUsername)} · ${adminFormatDate(ticket.createdAt)}</span>
+          <span>${adminEscape(ticket.ticketNumber)} · ${adminEscape(ticket.discordUsername)} · ${adminFormatDate(ticket.createdAt)}</span>
 
           <div class="ticket-meta-row">
-            <span class="ticket-badge category">${adminEscape(adminGetCategoryLabel(ticket))}</span>
+            <span class="ticket-badge category">${adminEscape(ticket.categoryLabel)}</span>
             <span class="ticket-badge ${adminEscape(ticket.status || "open")}">${adminGetStatusLabel(ticket.status || "open")}</span>
           </div>
         </button>
@@ -197,8 +358,9 @@ function adminRenderTicketList() {
     .join("");
 
   document.querySelectorAll(".admin-ticket-item").forEach((button) => {
-    button.addEventListener("click", () => {
+    button.addEventListener("click", async () => {
       adminSettings.selectedTicketId = button.dataset.ticketId;
+      await adminLoadNotesForTicket(adminSettings.selectedTicketId);
       adminRenderAll();
       adminShowTicketDetail(adminSettings.selectedTicketId);
     });
@@ -207,7 +369,7 @@ function adminRenderTicketList() {
 
 function adminRenderCategoryList(category, containerId, emptyText) {
   const container = document.getElementById(containerId);
-  const tickets = adminGetTickets().filter((ticket) => ticket.category === category);
+  const tickets = adminSettings.tickets.filter((ticket) => ticket.category === category);
 
   if (!container) return;
 
@@ -221,7 +383,7 @@ function adminRenderCategoryList(category, containerId, emptyText) {
       return `
         <button class="admin-category-ticket" data-ticket-id="${adminEscape(ticket.id)}">
           <strong>${adminEscape(ticket.title)}</strong>
-          <span>${adminEscape(ticket.discordUsername)} · ${adminFormatDate(ticket.createdAt)}</span>
+          <span>${adminEscape(ticket.ticketNumber)} · ${adminEscape(ticket.discordUsername)} · ${adminFormatDate(ticket.createdAt)}</span>
 
           <div class="ticket-meta-row">
             <span class="ticket-badge ${adminEscape(ticket.status || "open")}">${adminGetStatusLabel(ticket.status || "open")}</span>
@@ -232,8 +394,9 @@ function adminRenderCategoryList(category, containerId, emptyText) {
     .join("");
 
   container.querySelectorAll(".admin-category-ticket").forEach((button) => {
-    button.addEventListener("click", () => {
+    button.addEventListener("click", async () => {
       adminSettings.selectedTicketId = button.dataset.ticketId;
+      await adminLoadNotesForTicket(adminSettings.selectedTicketId);
       adminSwitchView("tickets");
       adminRenderAll();
       adminShowTicketDetail(adminSettings.selectedTicketId);
@@ -244,8 +407,7 @@ function adminRenderCategoryList(category, containerId, emptyText) {
 function adminShowTicketDetail(ticketId) {
   const empty = document.getElementById("ticketDetailEmpty");
   const detail = document.getElementById("ticketDetail");
-  const tickets = adminGetTickets();
-  const ticket = tickets.find((item) => item.id === ticketId);
+  const ticket = adminSettings.tickets.find((item) => item.id === ticketId);
 
   if (!empty || !detail) return;
 
@@ -263,10 +425,10 @@ function adminShowTicketDetail(ticketId) {
     <div class="admin-detail-header">
       <div>
         <h2>${adminEscape(ticket.title)}</h2>
-        <div class="admin-detail-id">${adminEscape(ticket.id)} · ${adminFormatDate(ticket.createdAt)}</div>
+        <div class="admin-detail-id">${adminEscape(ticket.ticketNumber)} · ${adminFormatDate(ticket.createdAt)}</div>
 
         <div class="ticket-meta-row">
-          <span class="ticket-badge category">${adminEscape(adminGetCategoryLabel(ticket))}</span>
+          <span class="ticket-badge category">${adminEscape(ticket.categoryLabel)}</span>
           <span class="ticket-badge ${adminEscape(ticket.status || "open")}">${adminGetStatusLabel(ticket.status || "open")}</span>
         </div>
       </div>
@@ -324,14 +486,14 @@ function adminShowTicketDetail(ticketId) {
       </div>
 
       <div class="admin-message-box">
-        <textarea id="adminReplyText" class="admin-textarea" placeholder="Interne Antwort oder Notiz schreiben. Im Demo-Modus wird sie lokal am Ticket gespeichert."></textarea>
+        <textarea id="adminReplyText" class="admin-textarea" placeholder="Interne Antwort oder Notiz schreiben."></textarea>
         <button class="admin-action-button" id="saveReplyButton">Notiz speichern</button>
       </div>
     </div>
 
     <div class="admin-description-box">
       <span>Interne Notizen</span>
-      <p>${adminRenderNotes(ticket)}</p>
+      <p>${adminRenderNotes(ticket.id)}</p>
     </div>
   `;
 
@@ -342,102 +504,91 @@ function adminShowTicketDetail(ticketId) {
   const saveReplyButton = document.getElementById("saveReplyButton");
 
   if (detailStatusSelect) {
-    detailStatusSelect.addEventListener("change", () => {
-      adminUpdateTicketStatus(ticket.id, detailStatusSelect.value);
+    detailStatusSelect.addEventListener("change", async () => {
+      await adminUpdateTicketStatus(ticket.id, detailStatusSelect.value);
     });
   }
 
   if (setProgressButton) {
-    setProgressButton.addEventListener("click", () => {
-      adminUpdateTicketStatus(ticket.id, "progress");
+    setProgressButton.addEventListener("click", async () => {
+      await adminUpdateTicketStatus(ticket.id, "progress");
     });
   }
 
   if (setWaitingButton) {
-    setWaitingButton.addEventListener("click", () => {
-      adminUpdateTicketStatus(ticket.id, "waiting");
+    setWaitingButton.addEventListener("click", async () => {
+      await adminUpdateTicketStatus(ticket.id, "waiting");
     });
   }
 
   if (setClosedButton) {
-    setClosedButton.addEventListener("click", () => {
-      adminUpdateTicketStatus(ticket.id, "closed");
+    setClosedButton.addEventListener("click", async () => {
+      await adminUpdateTicketStatus(ticket.id, "closed");
     });
   }
 
   if (saveReplyButton) {
-    saveReplyButton.addEventListener("click", () => {
-      adminSaveTicketNote(ticket.id);
+    saveReplyButton.addEventListener("click", async () => {
+      await adminSaveTicketNote(ticket.id);
     });
   }
 }
 
-function adminRenderNotes(ticket) {
-  if (!ticket.notes || !Array.isArray(ticket.notes) || ticket.notes.length === 0) {
+function adminRenderNotes(ticketId) {
+  const notes = adminSettings.notesByTicketId[ticketId] || [];
+
+  if (notes.length === 0) {
     return "Noch keine internen Notizen vorhanden.";
   }
 
-  return ticket.notes
+  return notes
     .map((note) => {
-      return `${adminFormatDate(note.createdAt)} — ${adminEscape(note.text)}`;
+      return `${adminFormatDate(note.created_at)} — ${adminEscape(note.note_text)}`;
     })
     .join("\n\n");
 }
 
-function adminUpdateTicketStatus(ticketId, status) {
-  const tickets = adminGetTickets();
-
-  const updatedTickets = tickets.map((ticket) => {
-    if (ticket.id !== ticketId) {
-      return ticket;
-    }
-
-    return {
-      ...ticket,
+async function adminUpdateTicketStatus(ticketId, status) {
+  const { error } = await adminSupabaseClient
+    .from("tickets")
+    .update({
       status
-    };
-  });
+    })
+    .eq("id", ticketId);
 
-  adminSaveTickets(updatedTickets);
-  adminRenderAll();
+  if (error) {
+    alert("Status konnte nicht gespeichert werden.");
+    return;
+  }
+
+  await adminRefreshData();
   adminShowTicketDetail(ticketId);
 }
 
-function adminSaveTicketNote(ticketId) {
+async function adminSaveTicketNote(ticketId) {
   const textarea = document.getElementById("adminReplyText");
 
   if (!textarea) return;
 
   const text = textarea.value.trim();
 
-  if (!text) {
+  if (!text) return;
+
+  const { error } = await adminSupabaseClient
+    .from("ticket_notes")
+    .insert({
+      ticket_id: ticketId,
+      admin_user_id: adminSettings.user.id,
+      note_text: text
+    });
+
+  if (error) {
+    alert("Notiz konnte nicht gespeichert werden.");
     return;
   }
 
-  const tickets = adminGetTickets();
-
-  const updatedTickets = tickets.map((ticket) => {
-    if (ticket.id !== ticketId) {
-      return ticket;
-    }
-
-    const notes = Array.isArray(ticket.notes) ? ticket.notes : [];
-
-    return {
-      ...ticket,
-      notes: [
-        {
-          text,
-          createdAt: new Date().toISOString()
-        },
-        ...notes
-      ]
-    };
-  });
-
-  adminSaveTickets(updatedTickets);
   textarea.value = "";
-  adminRenderAll();
+  await adminLoadNotesForTicket(ticketId);
   adminShowTicketDetail(ticketId);
 }
 
@@ -485,37 +636,100 @@ function adminSetupFilters() {
 
 function adminSetupActions() {
   const refreshButton = document.getElementById("adminRefreshButton");
-  const clearDemoTickets = document.getElementById("clearDemoTickets");
+  const logoutButton = document.getElementById("adminLogoutButton");
 
   if (refreshButton) {
-    refreshButton.addEventListener("click", () => {
-      adminRenderAll();
-
-      if (adminSettings.selectedTicketId) {
-        adminShowTicketDetail(adminSettings.selectedTicketId);
-      }
+    refreshButton.addEventListener("click", async () => {
+      await adminRefreshData();
     });
   }
 
-  if (clearDemoTickets) {
-    clearDemoTickets.addEventListener("click", () => {
-      const confirmed = confirm("Möchtest du wirklich alle lokalen Demo-Tickets löschen?");
-
-      if (!confirmed) return;
-
-      localStorage.removeItem(adminSettings.ticketStorageKey);
+  if (logoutButton) {
+    logoutButton.addEventListener("click", async () => {
+      await adminSupabaseClient.auth.signOut();
+      adminSettings.user = null;
+      adminSettings.profile = null;
+      adminSettings.tickets = [];
       adminSettings.selectedTicketId = null;
-      adminRenderAll();
-      adminShowTicketDetail(null);
+      adminShowLogin();
     });
   }
 }
 
-function adminInit() {
+function adminSetupLogin() {
+  const form = document.getElementById("adminLoginForm");
+
+  if (!form) return;
+
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    adminHideLoginMessage();
+
+    const email = document.getElementById("adminEmail")?.value.trim();
+    const password = document.getElementById("adminPassword")?.value;
+
+    if (!email || !password) {
+      adminShowLoginMessage("Bitte E-Mail und Passwort eingeben.");
+      return;
+    }
+
+    const { error } = await adminSupabaseClient.auth.signInWithPassword({
+      email,
+      password
+    });
+
+    if (error) {
+      adminShowLoginMessage("Login fehlgeschlagen. Prüfe E-Mail und Passwort.");
+      return;
+    }
+
+    try {
+      const allowed = await adminLoadProfile();
+
+      if (!allowed) {
+        await adminSupabaseClient.auth.signOut();
+        adminShowLoginMessage("Dieser Account hat keine Admin-Berechtigung.");
+        return;
+      }
+
+      adminShowApp();
+      adminUpdateUserDisplay();
+      await adminRefreshData();
+    } catch (profileError) {
+      adminShowLoginMessage("Profil konnte nicht geladen werden. Prüfe die Rolle in Supabase.");
+    }
+  });
+}
+
+async function adminInit() {
+  try {
+    await adminSetupSupabase();
+  } catch (error) {
+    adminShowLoginMessage(error.message || "Supabase konnte nicht geladen werden.");
+    adminShowLogin();
+    return;
+  }
+
   adminSetupNavigation();
   adminSetupFilters();
   adminSetupActions();
-  adminRenderAll();
+  adminSetupLogin();
+
+  try {
+    const allowed = await adminLoadProfile();
+
+    if (!allowed) {
+      adminShowLogin();
+      return;
+    }
+
+    adminShowApp();
+    adminUpdateUserDisplay();
+    await adminRefreshData();
+  } catch (error) {
+    adminShowLogin();
+  }
 }
 
 document.addEventListener("DOMContentLoaded", adminInit);
