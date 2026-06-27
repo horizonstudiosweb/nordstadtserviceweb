@@ -276,6 +276,15 @@ setupDownloads();
     return;
   }
 
+  const headerContainer =
+    targetNav.closest("header") ||
+    targetNav.closest(".navbar") ||
+    targetNav.closest(".nav") ||
+    targetNav.closest(".navigation") ||
+    targetNav;
+
+  headerContainer.classList.add("nav-expanded-safe");
+
   const actions = document.createElement("div");
   actions.className = "nav-right-actions";
 
@@ -289,5 +298,5 @@ setupDownloads();
     </a>
   `;
 
-  targetNav.appendChild(actions);
+  headerContainer.appendChild(actions);
 })();
