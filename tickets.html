@@ -7,59 +7,69 @@
   <link rel="stylesheet" href="tickets.css" />
 </head>
 <body>
-  <div class="ticket-background">
-    <div class="ticket-orb ticket-orb-one"></div>
-    <div class="ticket-orb ticket-orb-two"></div>
-    <div class="ticket-orb ticket-orb-three"></div>
+  <div class="ticket-bg">
+    <div class="orb orb-one"></div>
+    <div class="orb orb-two"></div>
+    <div class="orb orb-three"></div>
   </div>
 
-  <main class="tickets-page">
-    <section class="tickets-hero">
-      <div class="hero-content">
-        <span class="tickets-badge">Nordstadt Support</span>
+  <header class="ticket-header">
+    <a class="brand" href="support-center.html">
+      <span>Nordstadt</span>
+      <strong>Tickets</strong>
+    </a>
 
+    <nav class="top-actions">
+      <a href="support-center.html">Support-Center</a>
+      <a href="admin.html">Admin-Panel</a>
+      <a href="index.html">Website</a>
+    </nav>
+  </header>
+
+  <main class="ticket-page">
+    <section class="ticket-hero">
+      <div class="ticket-hero-content">
+        <span class="eyebrow">Ticketportal</span>
         <h1>Meine Tickets</h1>
-
         <p>
           Öffne dein Ticket, lies Antworten vom Support und schreibe direkt weiter.
           Du brauchst dafür deine Ticketnummer und deinen Discord-Namen.
         </p>
 
-        <div class="tickets-actions">
-          <a href="index.html" class="ghost-link">Zurück zur Website</a>
-          <a href="admin.html" class="ghost-link">Admin-Panel</a>
+        <div class="hero-actions">
+          <a class="secondary-btn" href="support-center.html">Zurück zur Website</a>
+          <a class="secondary-btn" href="admin.html">Admin-Panel</a>
         </div>
       </div>
 
-      <div class="hero-panel">
-        <div class="hero-panel-card">
-          <span>Live Support</span>
+      <div class="ticket-hero-panel">
+        <div class="info-box">
           <strong>Ticket-Chat</strong>
-          <p>Antworten, Status und Schließgrund an einem Ort.</p>
+          <small>Antworten, Status und Schließgrund an einem Ort.</small>
         </div>
 
-        <div class="hero-panel-card small">
+        <div class="info-box">
           <strong>Transparent</strong>
-          <p>Geschlossene Tickets zeigen dir den Grund.</p>
+          <small>Geschlossene Tickets zeigen dir weiterhin den Verlauf.</small>
         </div>
       </div>
     </section>
 
     <section class="lookup-card" id="lookupCard">
-      <div class="section-head">
+      <div class="lookup-head">
         <div>
           <span class="eyebrow">Ticket öffnen</span>
           <h2>Zugang zum Ticket</h2>
+          <p>
+            Gib deine Ticketnummer und deinen Discord-Namen exakt so ein,
+            wie du ihn beim Erstellen angegeben hast.
+          </p>
         </div>
 
-        <span class="mini-status">Sicher per Ticketnummer</span>
+        <span class="safe-badge">Sicher per Ticketnummer</span>
       </div>
 
-      <p>
-        Gib deine Ticketnummer und deinen Discord-Namen exakt so ein, wie du ihn beim Erstellen angegeben hast.
-      </p>
-
-      <form id="ticketLookupForm" class="ticket-form">
+      <form class="lookup-form" id="ticketLookupForm">
         <label>
           Ticketnummer
           <input
@@ -82,91 +92,101 @@
           />
         </label>
 
-        <button type="submit">Ticket laden</button>
+        <button class="primary-btn" type="submit">
+          Ticket laden
+        </button>
       </form>
 
       <div id="lookupMessage" class="form-message"></div>
     </section>
 
     <section class="ticket-view hidden" id="ticketView">
-      <div class="ticket-header">
+      <div class="ticket-view-head">
         <div>
-          <span id="ticketStatusBadge" class="status-badge">Offen</span>
+          <span class="eyebrow">Ticket geöffnet</span>
           <h2 id="ticketTitle">Ticket</h2>
-          <p id="ticketMeta"></p>
+          <p id="ticketMeta">Wird geladen...</p>
         </div>
 
-        <div class="ticket-header-actions">
-          <button id="refreshTicketButtonTop" class="small-button ghost" type="button">
+        <div class="ticket-view-actions">
+          <span class="status-badge open" id="ticketStatusBadge">Offen</span>
+          <button class="secondary-btn" id="refreshTicketButtonTop" type="button">
             Aktualisieren
           </button>
-
-          <button id="changeTicketButton" class="small-button" type="button">
-            Anderes Ticket öffnen
+          <button class="secondary-btn" id="changeTicketButton" type="button">
+            Anderes Ticket
           </button>
         </div>
       </div>
 
-      <div class="ticket-details">
-        <div>
-          <strong>Kategorie</strong>
-          <span id="ticketCategory"></span>
-        </div>
+      <div class="ticket-detail-grid">
+        <article class="detail-box">
+          <span>Kategorie</span>
+          <strong id="ticketCategory">-</strong>
+        </article>
 
-        <div>
-          <strong>Discord</strong>
-          <span id="ticketDiscord"></span>
-        </div>
+        <article class="detail-box">
+          <span>Discord</span>
+          <strong id="ticketDiscord">-</strong>
+        </article>
 
-        <div>
-          <strong>Status</strong>
-          <span id="ticketStatusText"></span>
-        </div>
+        <article class="detail-box">
+          <span>Status</span>
+          <strong id="ticketStatusText">-</strong>
+        </article>
 
-        <div class="full">
-          <strong>Beschreibung</strong>
-          <span id="ticketDescription"></span>
-        </div>
+        <article class="detail-box full">
+          <span>Beschreibung</span>
+          <p id="ticketDescription">-</p>
+        </article>
 
-        <div class="full hidden" id="closedReasonBox">
-          <strong>Schließgrund</strong>
-          <span id="ticketClosedReason"></span>
-        </div>
+        <article class="detail-box full hidden" id="closedReasonBox">
+          <span>Schließgrund</span>
+          <p id="ticketClosedReason">-</p>
+        </article>
       </div>
 
-      <div class="chat-card">
-        <div class="chat-title">
+      <section class="chat-card">
+        <div class="chat-head">
           <div>
-            <span class="eyebrow">Konversation</span>
-            <h3>Nachrichten</h3>
+            <h3>Ticket-Chat</h3>
+            <p>Hier erscheinen Nachrichten von dir und vom Support-Team.</p>
           </div>
 
-          <button id="refreshTicketButton" class="small-button ghost" type="button">
+          <button class="secondary-btn" id="refreshTicketButton" type="button">
             Aktualisieren
           </button>
         </div>
 
-        <div id="ticketMessages" class="messages-list"></div>
-
-        <form id="ticketReplyForm" class="reply-form">
-          <label>
-            Antwort
-            <textarea
-              id="ticketReplyInput"
-              placeholder="Antwort an den Support schreiben..."
-              required
-            ></textarea>
-          </label>
-
-          <button type="submit">Antwort senden</button>
-        </form>
-
-        <div id="closedNotice" class="closed-notice hidden">
-          Dieses Ticket ist geschlossen. Du kannst nicht mehr antworten.
+        <div class="ticket-messages" id="ticketMessages">
+          <div class="message system">
+            <div class="message-top">
+              <span>System</span>
+              <span>Jetzt</span>
+            </div>
+            <p>Ticket wird geladen...</p>
+          </div>
         </div>
 
+        <div class="closed-notice hidden" id="closedNotice">
+          Dieses Ticket wurde geschlossen. Du kannst den Verlauf weiterhin lesen,
+          aber nicht mehr antworten.
+        </div>
+
+        <form class="reply-form" id="ticketReplyForm">
+          <textarea
+            id="ticketReplyInput"
+            placeholder="Schreibe deine Antwort..."
+            required
+          ></textarea>
+
+          <button class="primary-btn" type="submit">
+            Antwort senden
+          </button>
+        </form>
+
         <div id="replyMessage" class="form-message"></div>
-      </div>
+      </section>
     </section>
   </main>
 
