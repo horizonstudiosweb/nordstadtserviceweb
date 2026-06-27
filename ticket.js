@@ -37,6 +37,7 @@ function portalEscape(value) {
 
 function portalFormatDate(value) {
   if (!value) return "Unbekannt";
+
   return new Date(value).toLocaleString("de-DE", {
     day: "2-digit",
     month: "2-digit",
@@ -57,6 +58,8 @@ function portalStatusLabel(status) {
 }
 
 function portalSetMessage(element, text, type = "") {
+  if (!element) return;
+
   element.textContent = text || "";
   element.className = `form-message ${type}`.trim();
 }
@@ -73,7 +76,7 @@ function portalLoadScript(src) {
     const script = document.createElement("script");
     script.src = src;
     script.onload = resolve;
-    script.onerror = reject;
+    script.onerror = () => reject(new Error(`${src} konnte nicht geladen werden.`));
     document.head.appendChild(script);
   });
 }
@@ -96,8 +99,13 @@ function portalReadUrlParams() {
   const ticket = params.get("ticket");
   const discord = params.get("discord");
 
-  if (ticket) ticketNumberInput.value = ticket;
-  if (discord) discordNameInput.value = discord;
+  if (ticket) {
+    ticketNumberInput.value = ticket;
+  }
+
+  if (discord) {
+    discordNameInput.value = discord;
+  }
 }
 
 async function portalLoadTicket(ticketNumber, discordName) {
@@ -165,6 +173,10 @@ async function portalOpenTicket(ticketNumber, discordName) {
   activeTicketNumber = ticketNumber.trim();
   activeDiscordName = discordName.trim();
 
+  if (!activeTicketNumber || !activeDiscordName) {
+    throw new Error("Bitte Ticketnummer und Discord-Name eingeben.");
+  }
+
   portalSetMessage(lookupMessage, "Ticket wird geladen...");
 
   const data = await portalLoadTicket(activeTicketNumber, activeDiscordName);
@@ -216,7 +228,9 @@ ticketReplyForm.addEventListener("submit", async (event) => {
 
   try {
     portalSetMessage(replyMessage, "Antwort wird gesendet...");
+
     await portalSendReply(text);
+
     ticketReplyInput.value = "";
 
     const data = await portalLoadTicket(activeTicketNumber, activeDiscordName);
@@ -232,6 +246,7 @@ refreshTicketButton.addEventListener("click", async () => {
   try {
     const data = await portalLoadTicket(activeTicketNumber, activeDiscordName);
     portalRenderTicket(data);
+
     portalSetMessage(replyMessage, "Aktualisiert.", "success");
   } catch (error) {
     portalSetMessage(replyMessage, error.message, "error");
@@ -241,6 +256,10 @@ refreshTicketButton.addEventListener("click", async () => {
 changeTicketButton.addEventListener("click", () => {
   ticketView.classList.add("hidden");
   lookupCard.classList.remove("hidden");
+
+  activeTicketNumber = "";
+  activeDiscordName = "";
+
   portalSetMessage(lookupMessage, "");
   portalSetMessage(replyMessage, "");
 
