@@ -1221,3 +1221,119 @@ main {
     min-height: 46px;
   }
 }
+
+/* Alten normalen Admin-Tab aus der Hauptnavigation ausblenden */
+.nav-link[data-tab="admin"],
+.nav-link[data-tab-open="admin"],
+button[data-tab="admin"],
+button[data-tab-open="admin"],
+a[data-tab="admin"],
+a[data-tab-open="admin"] {
+  display: none !important;
+}
+
+/* Navbar sauber flexibel machen */
+.navbar,
+.nav,
+.navigation,
+header nav,
+.nav-expanded-safe {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 14px;
+  overflow: visible;
+}
+
+/* Normale Navigation darf Platz abgeben */
+.nav-links {
+  display: flex;
+  align-items: center;
+  flex-wrap: nowrap;
+  gap: 12px;
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow: hidden;
+}
+
+/* Normale Nav-Links etwas kompakter */
+.nav-link {
+  white-space: nowrap;
+  flex: 0 0 auto;
+}
+
+/* Neue Buttons rechts sauber fixieren */
+.nav-right-actions {
+  display: flex !important;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 14px;
+  margin-left: auto;
+  flex: 0 0 auto;
+  position: relative;
+  z-index: 5;
+}
+
+.nav-action-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 0 24px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.78);
+  background: linear-gradient(135deg, #ffffff, #dcecff);
+  color: #07111f;
+  font-size: 13px;
+  font-weight: 900;
+  text-decoration: none;
+  white-space: nowrap;
+  box-shadow:
+    0 14px 34px rgba(0, 0, 0, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.75);
+}
+
+/* Tablet: Leiste darf zweizeilig werden */
+@media (max-width: 1200px) {
+  .navbar,
+  .nav,
+  .navigation,
+  header nav,
+  .nav-expanded-safe {
+    flex-wrap: wrap;
+    row-gap: 12px;
+  }
+
+  .nav-links {
+    order: 2;
+    width: 100%;
+    flex: 1 1 100%;
+    overflow-x: auto;
+    padding-bottom: 4px;
+  }
+
+  .nav-right-actions {
+    order: 1;
+    margin-left: auto;
+  }
+}
+
+/* Handy: Buttons untereinander */
+@media (max-width: 700px) {
+  .nav-right-actions {
+    width: 100%;
+    display: grid !important;
+    grid-template-columns: 1fr;
+    gap: 10px;
+    margin-left: 0;
+  }
+
+  .nav-action-button {
+    width: 100%;
+    min-height: 46px;
+  }
+
+  .nav-links {
+    width: 100%;
+  }
+}
