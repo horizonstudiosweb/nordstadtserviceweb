@@ -1,14 +1,30 @@
 const supportSettings = {
-  enabled: true,
-  storageKey: "nordstadt_support_demo_tickets",
   supabaseJsUrl: "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+  ticketPortalPath: "tickets.html",
+  adminPath: "admin.html",
   discordFunctionName: "notify-discord-ticket",
-  adminPanelPath: "admin.html",
-  ticketPortalPath: "tickets.html"
+  categories: {
+    support: {
+      label: "Allgemeiner Support",
+      description: "Fragen, Hilfe, Probleme oder sonstige Anliegen."
+    },
+    application: {
+      label: "Bewerbung",
+      description: "Bewerbungen für Team, Leitung oder Fraktionen."
+    },
+    report: {
+      label: "Spieler melden",
+      description: "Melde Regelverstöße mit Beweisen."
+    },
+    bug: {
+      label: "Bug melden",
+      description: "Technische Fehler, Bugs oder Probleme im Spiel."
+    }
+  }
 };
 
 let supportSupabaseClient = null;
-let supportBackendReady = false;
+let supportSupabaseReady = false;
 
 function supportEscape(value) {
   return String(value || "")
@@ -19,21 +35,15 @@ function supportEscape(value) {
     .replaceAll("'", "&#039;");
 }
 
-function supportIcon(name) {
-  const icons = {
-    chat: `
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M4.75 5.75A3 3 0 0 1 7.75 2.75h8.5a3 3 0 0 1 3 3v6.5a3 3 0 0 1-3 3H10.2l-4.1 3.35a.85.85 0 0 1-1.35-.66v-3.02a3 3 0 0 1-2-2.82V5.75Z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
-      </svg>
-    `,
-    close: `
-      <svg viewBox="0 0 24 24" aria-hidden="true">
-        <path d="M6.5 6.5 17.5 17.5M17.5 6.5 6.5 17.5" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
-      </svg>
-    `
-  };
-
-  return icons[name] || icons.chat;
+function supportCreateIcon() {
+  return `
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path
+        fill="currentColor"
+        d="M12 2a8.5 8.5 0 0 0-8.5 8.5v3.35A3.15 3.15 0 0 0 6.65 17H8a1 1 0 0 0 1-1v-5a1 1 0 0 0-1-1H6.65c-.39 0-.76.07-1.1.2A6.5 6.5 0 0 1 18.45 10.2c-.34-.13-.71-.2-1.1-.2H16a1 1 0 0 0-1 1v5a1 1 0 0 0 1 1h1.35c.2 0 .4-.02.58-.06-.5 1.18-1.65 2.06-3.43 2.06H13.8a2 2 0 0 0-1.8-1.1h-1.1a2 2 0 1 0 0 4h1.1a2 2 0 0 0 1.72-.98h.78c3.35 0 5.5-2.1 5.95-5.1A3.14 3.14 0 0 0 20.5 13.85V10.5A8.5 8.5 0 0 0 12 2Z"
+      ></path>
+    </svg>
+  `;
 }
 
 function supportLoadScript(src) {
@@ -54,6 +64,10 @@ function supportLoadScript(src) {
 }
 
 async function supportSetupSupabase() {
+  if (supportSupabaseReady) {
+    return true;
+  }
+
   try {
     await supportLoadScript("supabase-config.js");
     await supportLoadScript(supportSettings.supabaseJsUrl);
@@ -61,166 +75,89 @@ async function supportSetupSupabase() {
     const config = window.NordstadtSupabaseConfig?.getConfig?.();
 
     if (!config || !config.enabled || !config.url || !config.anonKey) {
-      supportBackendReady = false;
-      return;
+      return false;
     }
 
     supportSupabaseClient = window.supabase.createClient(config.url, config.anonKey);
-    supportBackendReady = true;
+    supportSupabaseReady = true;
+
+    return true;
   } catch (error) {
-    console.warn("Support Supabase konnte nicht geladen werden:", error);
-    supportBackendReady = false;
+    console.warn("Supabase konnte nicht geladen werden:", error);
+    return false;
   }
 }
 
-function supportCreateTicketNumber() {
-  const timePart = Date.now().toString().slice(-6);
-  const randomPart = Math.floor(Math.random() * 90 + 10);
+function supportGenerateTicketNumber() {
+  const randomPart = Math.random().toString(36).slice(2, 8).toUpperCase();
+  const timePart = Date.now().toString(36).slice(-4).toUpperCase();
 
   return `NRP-${timePart}${randomPart}`;
 }
 
-function supportGetTicketPortalUrl(ticketNumber, discordName) {
+function supportGetCategoryLabel(category) {
+  return supportSettings.categories[category]?.label || "Support";
+}
+
+function supportGetTicketPortalUrl(ticketNumber, discordUsername) {
   const url = new URL(supportSettings.ticketPortalPath, window.location.href);
+
   url.searchParams.set("ticket", ticketNumber);
-  url.searchParams.set("discord", discordName);
-  return url.href;
+  url.searchParams.set("discord", discordUsername);
+
+  return url.toString();
 }
 
-function supportGetAdminUrl(ticketNumber) {
-  const url = new URL(supportSettings.adminPanelPath, window.location.href);
+function supportGetAdminTicketUrl(ticketNumber) {
+  const url = new URL(supportSettings.adminPath, window.location.href);
+
   url.searchParams.set("ticket", ticketNumber);
-  return url.href;
+
+  return url.toString();
 }
 
-function supportSaveDemoTicket(ticket) {
-  const savedTickets = JSON.parse(localStorage.getItem(supportSettings.storageKey) || "[]");
-  savedTickets.unshift(ticket);
-  localStorage.setItem(supportSettings.storageKey, JSON.stringify(savedTickets));
-}
-
-async function supportSaveSupabaseTicket(ticket) {
-  const supabaseTicket = {
-    ticket_number: ticket.id,
-    category: ticket.category,
-    category_label: ticket.categoryLabel,
-    discord_username: ticket.discordUsername,
-    rank: ticket.rank || null,
-    title: ticket.title,
-    description: ticket.description,
-    application_area: ticket.applicationArea || null,
-    target_user: ticket.targetUser || null,
-    proof: ticket.proof || null,
-    reproduce: ticket.reproduce || null,
-    status: "open"
-  };
-
-  const { error: ticketError } = await supportSupabaseClient
-    .from("tickets")
-    .insert(supabaseTicket);
-
-  if (ticketError) {
-    throw new Error(ticketError.message || "Ticket konnte nicht gespeichert werden.");
-  }
-
-  const { data: messageData, error: messageError } = await supportSupabaseClient.rpc("send_public_ticket_message", {
-    p_ticket_number: ticket.id,
-    p_discord_username: ticket.discordUsername,
-    p_message_text: ticket.description
-  });
-
-  if (messageError) {
-    console.warn("Startnachricht konnte nicht gespeichert werden:", messageError);
-    return;
-  }
-
-  if (messageData && messageData.success !== true) {
-    console.warn("Startnachricht wurde nicht bestätigt:", messageData);
-  }
-}
-
-async function supportNotifyDiscord(ticket) {
-  if (!supportSupabaseClient) {
-    return false;
-  }
-
-  const payload = {
-    ticket_number: ticket.id,
-    category: ticket.category,
-    category_label: ticket.categoryLabel,
-    discord_username: ticket.discordUsername,
-    title: ticket.title,
-    description: ticket.description,
-    admin_url: supportGetAdminUrl(ticket.id)
-  };
-
-  const { data, error } = await supportSupabaseClient.functions.invoke(
-    supportSettings.discordFunctionName,
-    {
-      body: payload
-    }
-  );
-
-  if (error) {
-    console.warn("Discord-Benachrichtigung fehlgeschlagen:", error);
-    return false;
-  }
-
-  if (data && data.success === false) {
-    console.warn("Discord-Benachrichtigung nicht erfolgreich:", data);
-    return false;
-  }
-
-  return true;
-}
-
-function supportBuildWidget() {
-  const oldWidget = document.querySelector(".support-widget-root");
-
-  if (oldWidget) {
-    oldWidget.remove();
-  }
-
+function supportCreateWidget() {
   const root = document.createElement("div");
   root.className = "support-widget-root";
-
   root.innerHTML = `
-    <button class="support-launcher" id="supportLauncher" type="button">
-      <span class="support-launcher-icon">${supportIcon("chat")}</span>
+    <button class="support-launcher" id="supportLauncher" type="button" aria-label="Support öffnen">
+      <span class="support-launcher-icon">${supportCreateIcon()}</span>
       <span>
-        <strong>Brauchst du Hilfe?</strong>
-        <small>Support & Meldungen</small>
+        <strong>Support</strong>
+        <small>Ticket erstellen</small>
       </span>
     </button>
 
-    <div class="support-panel" id="supportPanel">
+    <section class="support-panel" id="supportPanel" aria-label="Support Ticket">
       <div class="support-panel-header">
         <div class="support-panel-title">
-          <span>${supportIcon("chat")}</span>
+          <span>${supportCreateIcon()}</span>
           <div>
             <h3>Nordstadt Support</h3>
-            <p>FAQ, Tickets, Bewerbungen, Reports und Bugmeldungen.</p>
+            <p>Erstelle ein Ticket. Antworten findest du danach im Ticketportal.</p>
           </div>
         </div>
 
         <button class="support-close" id="supportClose" type="button" aria-label="Support schließen">
-          ${supportIcon("close")}
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path fill="currentColor" d="M18.3 5.7a1 1 0 0 0-1.4 0L12 10.6 7.1 5.7a1 1 0 0 0-1.4 1.4l4.9 4.9-4.9 4.9a1 1 0 1 0 1.4 1.4l4.9-4.9 4.9 4.9a1 1 0 0 0 1.4-1.4L13.4 12l4.9-4.9a1 1 0 0 0 0-1.4Z"></path>
+          </svg>
         </button>
       </div>
 
       <div class="support-quick-links">
-        <a href="tickets.html">Meine Tickets</a>
-        <a href="admin.html">Admin</a>
+        <a href="${supportEscape(supportSettings.ticketPortalPath)}">Meine Tickets</a>
+        <a href="${supportEscape(supportSettings.adminPath)}">Admin</a>
       </div>
 
       <form class="support-form" id="supportForm">
         <label>
           Kategorie
           <select id="supportCategory" required>
-            <option value="support" data-label="Allgemeiner Support">Allgemeiner Support</option>
-            <option value="application" data-label="Bewerbung">Bewerbung</option>
-            <option value="report" data-label="Spieler melden">Spieler melden</option>
-            <option value="bug" data-label="Bug melden">Bug melden</option>
+            <option value="support">Allgemeiner Support</option>
+            <option value="application">Bewerbung</option>
+            <option value="report">Spieler melden</option>
+            <option value="bug">Bug melden</option>
           </select>
         </label>
 
@@ -231,139 +168,123 @@ function supportBuildWidget() {
 
         <label>
           Rang / Rolle
-          <input id="supportRank" type="text" placeholder="z. B. Spieler, Tester, Supporter" autocomplete="off" />
+          <input id="supportRank" type="text" placeholder="z. B. Spieler, Moderator, Fraktion..." autocomplete="off" />
         </label>
 
         <label>
           Titel
-          <input id="supportTitle" type="text" placeholder="Kurzer Betreff" autocomplete="off" required />
-        </label>
-
-        <label class="support-field application-field hidden">
-          Bewerbungsbereich
-          <input id="supportApplicationArea" type="text" placeholder="z. B. Administrator, Leitung, Support" autocomplete="off" />
-        </label>
-
-        <label class="support-field report-field hidden">
-          Gemeldeter User
-          <input id="supportTargetUser" type="text" placeholder="Name des Spielers" autocomplete="off" />
-        </label>
-
-        <label class="support-field report-field bug-field hidden">
-          Beweise / Link
-          <input id="supportProof" type="text" placeholder="Screenshot, Video oder Link" autocomplete="off" />
-        </label>
-
-        <label class="support-field bug-field hidden">
-          Schritte zum Reproduzieren
-          <input id="supportReproduce" type="text" placeholder="Was muss man tun, damit der Fehler passiert?" autocomplete="off" />
+          <input id="supportTitle" type="text" placeholder="Kurzer Titel deines Anliegens" autocomplete="off" required />
         </label>
 
         <label>
           Beschreibung
-          <textarea id="supportDescription" placeholder="Beschreibe dein Anliegen genau..." required></textarea>
+          <textarea id="supportDescription" placeholder="Beschreibe dein Anliegen so genau wie möglich..." required></textarea>
+        </label>
+
+        <label class="support-field hidden" id="applicationAreaField">
+          Bewerbungsbereich
+          <input id="supportApplicationArea" type="text" placeholder="z. B. Team, Leitung, Bundespolizei..." autocomplete="off" />
+        </label>
+
+        <label class="support-field hidden" id="targetUserField">
+          Gemeldeter User
+          <input id="supportTargetUser" type="text" placeholder="Name des Users" autocomplete="off" />
+        </label>
+
+        <label class="support-field hidden" id="proofField">
+          Beweise / Links
+          <textarea id="supportProof" placeholder="Screenshots, Videos, Clips oder sonstige Beweise..."></textarea>
+        </label>
+
+        <label class="support-field hidden" id="reproduceField">
+          Schritte zum Reproduzieren
+          <textarea id="supportReproduce" placeholder="Wie kann man den Bug nachstellen?"></textarea>
         </label>
 
         <div class="support-buttons">
           <button type="submit">Ticket erstellen</button>
-          <button type="button" id="supportCancel">Abbrechen</button>
+          <button type="button" id="supportReset">Zurücksetzen</button>
         </div>
 
-        <div class="support-message" id="supportMessage"></div>
+        <div id="supportMessage" class="support-message"></div>
       </form>
-    </div>
+    </section>
   `;
 
   document.body.appendChild(root);
+
+  return root;
 }
 
-function supportSetMessage(text, type = "") {
-  const message = document.getElementById("supportMessage");
-
-  if (!message) {
-    return;
-  }
-
-  message.className = `support-message ${type}`.trim();
-  message.innerHTML = text || "";
+function supportSetMessage(messageElement, text, type = "") {
+  messageElement.innerHTML = text || "";
+  messageElement.className = `support-message ${type}`.trim();
 }
 
-function supportToggleFields() {
-  const category = document.getElementById("supportCategory")?.value || "support";
+function supportUpdateCategoryFields(root) {
+  const category = root.querySelector("#supportCategory").value;
 
-  document.querySelectorAll(".application-field").forEach((field) => {
-    field.classList.toggle("hidden", category !== "application");
-  });
+  const applicationAreaField = root.querySelector("#applicationAreaField");
+  const targetUserField = root.querySelector("#targetUserField");
+  const proofField = root.querySelector("#proofField");
+  const reproduceField = root.querySelector("#reproduceField");
 
-  document.querySelectorAll(".report-field").forEach((field) => {
-    field.classList.toggle("hidden", category !== "report");
-  });
-
-  document.querySelectorAll(".bug-field").forEach((field) => {
-    field.classList.toggle("hidden", category !== "bug");
-  });
+  applicationAreaField.classList.toggle("hidden", category !== "application");
+  targetUserField.classList.toggle("hidden", category !== "report");
+  proofField.classList.toggle("hidden", category !== "report");
+  reproduceField.classList.toggle("hidden", category !== "bug");
 }
 
-function supportOpenPanel() {
-  const panel = document.getElementById("supportPanel");
-
-  if (panel) {
-    panel.classList.add("open");
-  }
-}
-
-function supportClosePanel() {
-  const panel = document.getElementById("supportPanel");
-
-  if (panel) {
-    panel.classList.remove("open");
-  }
-}
-
-function supportCollectTicketData() {
-  const category = document.getElementById("supportCategory");
-  const selectedOption = category.options[category.selectedIndex];
+function supportReadForm(root) {
+  const category = root.querySelector("#supportCategory").value.trim();
+  const discordUsername = root.querySelector("#supportDiscord").value.trim();
+  const rank = root.querySelector("#supportRank").value.trim();
+  const title = root.querySelector("#supportTitle").value.trim();
+  const description = root.querySelector("#supportDescription").value.trim();
+  const applicationArea = root.querySelector("#supportApplicationArea").value.trim();
+  const targetUser = root.querySelector("#supportTargetUser").value.trim();
+  const proof = root.querySelector("#supportProof").value.trim();
+  const reproduce = root.querySelector("#supportReproduce").value.trim();
 
   return {
-    id: supportCreateTicketNumber(),
-    category: category.value,
-    categoryLabel: selectedOption.dataset.label || selectedOption.textContent,
-    discordUsername: document.getElementById("supportDiscord").value.trim(),
-    rank: document.getElementById("supportRank").value.trim(),
-    title: document.getElementById("supportTitle").value.trim(),
-    applicationArea: document.getElementById("supportApplicationArea").value.trim(),
-    targetUser: document.getElementById("supportTargetUser").value.trim(),
-    proof: document.getElementById("supportProof").value.trim(),
-    reproduce: document.getElementById("supportReproduce").value.trim(),
-    description: document.getElementById("supportDescription").value.trim(),
-    createdAt: new Date().toISOString(),
+    ticket_number: supportGenerateTicketNumber(),
+    category,
+    category_label: supportGetCategoryLabel(category),
+    discord_username: discordUsername,
+    rank,
+    title,
+    description,
+    application_area: applicationArea,
+    target_user: targetUser,
+    proof,
+    reproduce,
     status: "open"
   };
 }
 
 function supportValidateTicket(ticket) {
-  if (!ticket.discordUsername) {
-    return "Bitte gib deinen Discord-Namen ein.";
+  if (!ticket.discord_username) {
+    return "Bitte gib deinen Discord-Namen an.";
   }
 
-  if (!ticket.title) {
-    return "Bitte gib einen Titel ein.";
+  if (!ticket.title || ticket.title.length < 3) {
+    return "Bitte gib einen richtigen Titel an.";
   }
 
-  if (!ticket.description) {
-    return "Bitte beschreibe dein Anliegen.";
+  if (!ticket.description || ticket.description.length < 10) {
+    return "Bitte beschreibe dein Anliegen genauer.";
   }
 
-  if (ticket.description.length < 5) {
-    return "Die Beschreibung ist zu kurz.";
+  if (ticket.category === "application" && !ticket.application_area) {
+    return "Bitte gib an, für welchen Bereich du dich bewirbst.";
   }
 
-  if (ticket.category === "application" && !ticket.applicationArea) {
-    return "Bitte gib den Bewerbungsbereich an.";
+  if (ticket.category === "report" && !ticket.target_user) {
+    return "Bitte gib an, welchen User du melden möchtest.";
   }
 
-  if (ticket.category === "report" && !ticket.targetUser) {
-    return "Bitte gib den gemeldeten User an.";
+  if (ticket.category === "report" && !ticket.proof) {
+    return "Bitte gib Beweise oder Links zur Meldung an.";
   }
 
   if (ticket.category === "bug" && !ticket.reproduce) {
@@ -373,88 +294,207 @@ function supportValidateTicket(ticket) {
   return "";
 }
 
-async function supportHandleSubmit(event) {
-  event.preventDefault();
-
-  const form = document.getElementById("supportForm");
-  const ticket = supportCollectTicketData();
-  const validationError = supportValidateTicket(ticket);
-
-  if (validationError) {
-    supportSetMessage(validationError, "error");
+async function supportCreateInitialMessage(ticket) {
+  if (!supportSupabaseClient) {
     return;
   }
 
-  supportSetMessage("Ticket wird erstellt...");
+  const { data, error } = await supportSupabaseClient.rpc("send_public_ticket_message", {
+    p_ticket_number: ticket.ticket_number,
+    p_discord_username: ticket.discord_username,
+    p_message_text: ticket.description
+  });
 
-  try {
-    let discordSent = false;
-
-    if (supportBackendReady) {
-      await supportSaveSupabaseTicket(ticket);
-      discordSent = await supportNotifyDiscord(ticket);
-    } else {
-      supportSaveDemoTicket(ticket);
-    }
-
-    const portalUrl = supportGetTicketPortalUrl(ticket.id, ticket.discordUsername);
-
-    form.reset();
-    supportToggleFields();
-
-    supportSetMessage(`
-      <strong>Ticket erstellt.</strong><br>
-      Deine Ticketnummer: <strong>${supportEscape(ticket.id)}</strong><br>
-      <a href="${supportEscape(portalUrl)}">Ticket öffnen und Antworten lesen</a>
-      ${supportBackendReady ? "<br>Ticket wurde in Supabase gespeichert." : "<br>Demo-Modus: Ticket wurde lokal gespeichert."}
-      ${discordSent ? "<br>Discord wurde benachrichtigt." : "<br>Discord-Benachrichtigung konnte nicht bestätigt werden."}
-    `, "success");
-  } catch (error) {
-    supportSetMessage(`Ticket konnte nicht vollständig verarbeitet werden: ${supportEscape(error.message)}`, "error");
+  if (error || !data || data.success !== true) {
+    console.warn("Initiale Ticket-Nachricht konnte nicht erstellt werden:", error || data);
   }
 }
 
-function supportSetupEvents() {
-  const launcher = document.getElementById("supportLauncher");
-  const close = document.getElementById("supportClose");
-  const cancel = document.getElementById("supportCancel");
-  const form = document.getElementById("supportForm");
-  const category = document.getElementById("supportCategory");
-
-  if (launcher) {
-    launcher.addEventListener("click", supportOpenPanel);
+async function supportSaveSupabaseTicket(ticket) {
+  if (!supportSupabaseClient) {
+    throw new Error("Supabase ist nicht verbunden.");
   }
 
-  if (close) {
-    close.addEventListener("click", supportClosePanel);
+  const { data, error } = await supportSupabaseClient
+    .from("tickets")
+    .insert(ticket)
+    .select("id,ticket_number")
+    .single();
+
+  if (error) {
+    throw new Error(error.message || "Ticket konnte nicht gespeichert werden.");
   }
 
-  if (cancel) {
-    cancel.addEventListener("click", supportClosePanel);
+  await supportCreateInitialMessage(ticket);
+
+  return data;
+}
+
+async function supportNotifyDiscord(ticket) {
+  if (!supportSupabaseClient) {
+    return {
+      success: false,
+      skipped: true
+    };
   }
 
-  if (category) {
-    category.addEventListener("change", supportToggleFields);
+  const adminUrl = supportGetAdminTicketUrl(ticket.ticket_number);
+  const portalUrl = supportGetTicketPortalUrl(ticket.ticket_number, ticket.discord_username);
+
+  try {
+    const { data, error } = await supportSupabaseClient.functions.invoke(
+      supportSettings.discordFunctionName,
+      {
+        body: {
+          ticket_number: ticket.ticket_number,
+          category: ticket.category,
+          category_label: ticket.category_label,
+          discord_username: ticket.discord_username,
+          rank: ticket.rank,
+          title: ticket.title,
+          description: ticket.description,
+          application_area: ticket.application_area,
+          target_user: ticket.target_user,
+          proof: ticket.proof,
+          reproduce: ticket.reproduce,
+          admin_url: adminUrl,
+          portal_url: portalUrl
+        }
+      }
+    );
+
+    if (error) {
+      return {
+        success: false,
+        error
+      };
+    }
+
+    return data || {
+      success: true
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error
+    };
+  }
+}
+
+function supportResetForm(root) {
+  const form = root.querySelector("#supportForm");
+
+  form.reset();
+  supportUpdateCategoryFields(root);
+
+  const messageElement = root.querySelector("#supportMessage");
+  supportSetMessage(messageElement, "");
+}
+
+async function supportHandleSubmit(root, event) {
+  event.preventDefault();
+
+  const messageElement = root.querySelector("#supportMessage");
+  const submitButton = root.querySelector('button[type="submit"]');
+
+  const isReady = await supportSetupSupabase();
+
+  if (!isReady) {
+    supportSetMessage(
+      messageElement,
+      "Supabase ist nicht aktiv. Prüfe supabase-config.js.",
+      "error"
+    );
+    return;
   }
 
-  if (form) {
-    form.addEventListener("submit", supportHandleSubmit);
+  const ticket = supportReadForm(root);
+  const validationError = supportValidateTicket(ticket);
+
+  if (validationError) {
+    supportSetMessage(messageElement, validationError, "error");
+    return;
   }
+
+  try {
+    submitButton.disabled = true;
+    submitButton.textContent = "Ticket wird erstellt...";
+
+    const savedTicket = await supportSaveSupabaseTicket(ticket);
+    const discordResult = await supportNotifyDiscord(ticket);
+
+    const portalUrl = supportGetTicketPortalUrl(ticket.ticket_number, ticket.discord_username);
+
+    let discordNotice = "";
+
+    if (!discordResult || discordResult.success !== true) {
+      discordNotice = "<br>Discord-Benachrichtigung konnte nicht bestätigt werden. Das Ticket wurde trotzdem gespeichert.";
+    }
+
+    supportSetMessage(
+      messageElement,
+      `
+        Ticket wurde erstellt.<br>
+        <strong>Ticketnummer:</strong> ${supportEscape(savedTicket.ticket_number || ticket.ticket_number)}<br>
+        <a href="${supportEscape(portalUrl)}">Ticket öffnen und Antworten lesen</a>
+        ${discordNotice}
+      `,
+      "success"
+    );
+
+    root.querySelector("#supportTitle").value = "";
+    root.querySelector("#supportDescription").value = "";
+    root.querySelector("#supportApplicationArea").value = "";
+    root.querySelector("#supportTargetUser").value = "";
+    root.querySelector("#supportProof").value = "";
+    root.querySelector("#supportReproduce").value = "";
+  } catch (error) {
+    supportSetMessage(messageElement, error.message, "error");
+  } finally {
+    submitButton.disabled = false;
+    submitButton.textContent = "Ticket erstellen";
+  }
+}
+
+function supportBindWidget(root) {
+  const launcher = root.querySelector("#supportLauncher");
+  const panel = root.querySelector("#supportPanel");
+  const closeButton = root.querySelector("#supportClose");
+  const form = root.querySelector("#supportForm");
+  const category = root.querySelector("#supportCategory");
+  const resetButton = root.querySelector("#supportReset");
+
+  launcher.addEventListener("click", () => {
+    panel.classList.toggle("open");
+  });
+
+  closeButton.addEventListener("click", () => {
+    panel.classList.remove("open");
+  });
+
+  category.addEventListener("change", () => {
+    supportUpdateCategoryFields(root);
+  });
+
+  resetButton.addEventListener("click", () => {
+    supportResetForm(root);
+  });
+
+  form.addEventListener("submit", async (event) => {
+    await supportHandleSubmit(root, event);
+  });
 
   document.addEventListener("keydown", (event) => {
     if (event.key === "Escape") {
-      supportClosePanel();
+      panel.classList.remove("open");
     }
   });
 }
 
 (async function initSupportWidget() {
-  if (!supportSettings.enabled) {
-    return;
-  }
+  const root = supportCreateWidget();
 
-  supportBuildWidget();
-  supportSetupEvents();
-  supportToggleFields();
+  supportBindWidget(root);
+  supportUpdateCategoryFields(root);
   await supportSetupSupabase();
 })();
