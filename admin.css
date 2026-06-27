@@ -392,12 +392,28 @@ button {
   background:
     linear-gradient(180deg, rgba(7, 17, 31, 0.86), rgba(5, 13, 24, 0.72));
   backdrop-filter: blur(30px);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.admin-sidebar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.admin-sidebar::-webkit-scrollbar-thumb {
+  border: 2px solid rgba(8, 18, 32, 0.9);
+  border-radius: 999px;
+  background: rgba(170, 205, 240, 0.28);
 }
 
 .sidebar-top,
 .sidebar-bottom {
   display: grid;
   gap: 18px;
+}
+
+.sidebar-bottom {
+  padding-bottom: 4px;
 }
 
 .sidebar-brand {
@@ -1606,16 +1622,84 @@ button {
   }
 
   .admin-app {
-    grid-template-columns: 1fr;
+    display: block;
+    min-height: 100vh;
   }
 
   .admin-sidebar {
     position: relative;
+    top: auto;
     height: auto;
+    min-height: auto;
+    max-height: none;
+    overflow: visible;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+    padding: 14px;
+    border-right: 0;
+    border-bottom: 1px solid rgba(145, 190, 255, 0.14);
+  }
+
+  .sidebar-top,
+  .sidebar-bottom {
+    display: grid;
+    gap: 12px;
+    width: 100%;
+  }
+
+  .sidebar-brand {
+    padding: 16px;
+    border-radius: 22px;
+  }
+
+  .sidebar-brand strong {
+    font-size: 34px;
+    line-height: 0.95;
+  }
+
+  .admin-nav {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+  }
+
+  .admin-nav-button {
+    min-height: 72px;
+    padding: 13px 14px;
+    border-radius: 20px;
+  }
+
+  .connection-card,
+  .admin-user-card {
+    padding: 15px;
+    border-radius: 22px;
+  }
+
+  .admin-user-card strong,
+  .connection-card strong {
+    font-size: 14px;
+    line-height: 1.35;
+    word-break: break-word;
+  }
+
+  .admin-user-card small,
+  .connection-card small {
+    max-width: 100%;
+    white-space: normal;
+    line-height: 1.35;
+  }
+
+  .logout-button {
+    min-height: 50px;
+    display: block;
+    width: 100%;
+    margin-top: 0;
   }
 
   .admin-content {
-    padding: 28px 20px 52px;
+    padding: 26px 14px 52px;
+    width: 100%;
   }
 
   .stats-grid,
@@ -1700,5 +1784,32 @@ button {
     width: 100%;
     justify-content: center;
     text-align: center;
+  }
+}
+
+@media (max-width: 520px) {
+  .admin-sidebar {
+    padding: 12px;
+  }
+
+  .admin-nav {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-nav-button {
+    min-height: 64px;
+  }
+
+  .sidebar-brand strong {
+    font-size: 30px;
+  }
+
+  .connection-card,
+  .admin-user-card {
+    padding: 14px;
+  }
+
+  .admin-content {
+    padding: 22px 12px 48px;
   }
 }
