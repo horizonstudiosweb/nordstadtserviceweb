@@ -505,28 +505,27 @@ a {
 /* Meine Tickets */
 
 .my-tickets-section {
-  scroll-margin-top: 120px;
+  scroll-margin-top: 130px;
 }
 
 .my-tickets-card {
-  padding: 30px;
-}
-
-.my-tickets-head,
-.my-tickets-list {
-  position: relative;
+  min-height: auto !important;
+  justify-content: flex-start !important;
+  padding: clamp(26px, 5vw, 42px) !important;
 }
 
 .my-tickets-head {
+  position: relative;
   display: flex;
   justify-content: space-between;
-  gap: 22px;
   align-items: flex-start;
+  gap: 22px;
+  margin-top: 22px;
   margin-bottom: 22px;
 }
 
 .my-tickets-head h2 {
-  margin: 14px 0 0;
+  margin: 0;
   color: var(--text);
   font-size: clamp(38px, 5vw, 72px);
   line-height: 0.9;
@@ -544,29 +543,13 @@ a {
 }
 
 .my-tickets-clear {
-  position: relative;
-  min-height: 44px;
-  padding: 0 18px;
-  border: 1px solid rgba(145, 190, 255, 0.18);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.06);
-  color: var(--text);
-  cursor: pointer;
-  font-weight: 920;
+  width: auto !important;
+  flex: 0 0 auto;
   white-space: nowrap;
-  transition:
-    transform 0.18s ease,
-    border-color 0.18s ease,
-    background 0.18s ease;
-}
-
-.my-tickets-clear:hover {
-  transform: translateY(-2px);
-  border-color: rgba(117, 197, 255, 0.35);
-  background: rgba(117, 197, 255, 0.11);
 }
 
 .my-tickets-list {
+  position: relative;
   display: grid;
   gap: 12px;
 }
@@ -935,16 +918,11 @@ a {
   }
 
   .my-tickets-clear {
-    width: 100%;
+    width: 100% !important;
   }
 }
 
 @media (max-width: 700px) {
-  .my-tickets-card {
-    padding: 22px;
-    border-radius: 24px;
-  }
-
   .my-ticket-item {
     grid-template-columns: 1fr;
   }
