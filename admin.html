@@ -3,275 +3,165 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <title>Nordstadt Admin Panel</title>
-
+  <title>Nordstadt Admin</title>
   <link rel="stylesheet" href="admin.css" />
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Montserrat:wght@600;700;800;900&display=swap" rel="stylesheet">
 </head>
-
 <body>
-  <div class="admin-bg"></div>
+  <section class="login-screen" id="adminLoginScreen">
+    <div class="login-card">
+      <div class="admin-badge">Nordstadt Roleplay</div>
+      <h1>Admin-Panel</h1>
+      <p>Melde dich mit deinem Supabase-Admin-Account an.</p>
 
-  <section id="adminLoginScreen" class="admin-login-screen">
-    <div class="admin-login-card">
-      <div class="admin-brand login-brand">
-        <div class="admin-brand-icon">N</div>
-
-        <div>
-          <strong>Nordstadt</strong>
-          <span>Admin Login</span>
-        </div>
-      </div>
-
-      <p class="admin-eyebrow">Supabase Auth</p>
-      <h1>Einloggen</h1>
-
-      <p class="admin-login-text">
-        Melde dich mit deinem Supabase-Admin-Account an. Zugriff erhalten nur Accounts mit
-        der Rolle Support, Admin, Leitung oder Manager.
-      </p>
-
-      <form id="adminLoginForm" class="admin-login-form">
+      <form id="adminLoginForm">
         <label>
           E-Mail
-          <input id="adminEmail" type="email" placeholder="admin@example.com" autocomplete="email" required>
+          <input id="adminEmail" type="email" autocomplete="email" required />
         </label>
 
         <label>
           Passwort
-          <input id="adminPassword" type="password" placeholder="Passwort" autocomplete="current-password" required>
+          <input id="adminPassword" type="password" autocomplete="current-password" required />
         </label>
 
         <button type="submit">Einloggen</button>
       </form>
 
-      <div id="adminLoginMessage" class="admin-login-message"></div>
+      <div id="adminLoginMessage" class="admin-message"></div>
 
-      <a href="index.html" class="admin-login-back">Zur Website</a>
+      <a class="back-link" href="index.html">Zurück zur Website</a>
     </div>
   </section>
 
-  <main id="adminApp" class="admin-app hidden">
+  <main class="admin-app hidden" id="adminApp">
     <aside class="admin-sidebar">
-      <div class="admin-brand">
-        <div class="admin-brand-icon">N</div>
-
-        <div>
-          <strong>Nordstadt</strong>
-          <span>Admin Panel</span>
-        </div>
+      <div class="sidebar-brand">
+        <span>Nordstadt</span>
+        <strong>Admin</strong>
       </div>
 
       <nav class="admin-nav">
-        <button class="admin-nav-button active" data-admin-view="dashboard">Übersicht</button>
-        <button class="admin-nav-button" data-admin-view="tickets">Tickets</button>
-        <button class="admin-nav-button" data-admin-view="applications">Bewerbungen</button>
-        <button class="admin-nav-button" data-admin-view="reports">Reports</button>
-        <button class="admin-nav-button" data-admin-view="bugs">Bugs</button>
-        <button class="admin-nav-button" data-admin-view="settings">Einstellungen</button>
+        <button class="admin-nav-button active" type="button" data-admin-view="dashboard">Dashboard</button>
+        <button class="admin-nav-button" type="button" data-admin-view="tickets">Tickets</button>
+        <button class="admin-nav-button" type="button" data-admin-view="settings">Einstellungen</button>
       </nav>
 
-      <div class="admin-sidebar-footer">
-        <p id="adminUserRole">Nicht verbunden</p>
-        <span id="adminUserEmail">Supabase wird geladen.</span>
+      <div class="admin-user-card">
+        <span id="adminUserEmail">-</span>
+        <strong id="adminUserRole">-</strong>
       </div>
+
+      <button id="adminLogoutButton" class="logout-button" type="button">Abmelden</button>
     </aside>
 
-    <section class="admin-main">
-      <header class="admin-topbar">
-        <div>
-          <p class="admin-eyebrow">Management</p>
-          <h1 id="adminPageTitle">Übersicht</h1>
+    <section class="admin-content">
+      <section class="admin-view active" id="view-dashboard">
+        <div class="content-header">
+          <div>
+            <h1>Dashboard</h1>
+            <p>Übersicht über Support, Tickets und offene Vorgänge.</p>
+          </div>
+
+          <button id="reloadTicketsButton" class="admin-action" type="button">Aktualisieren</button>
         </div>
 
-        <div class="admin-top-actions">
-          <a href="index.html" class="admin-small-button">Website öffnen</a>
-          <button id="adminRefreshButton" class="admin-small-button">Aktualisieren</button>
-          <button id="adminLogoutButton" class="admin-small-button danger">Abmelden</button>
-        </div>
-      </header>
+        <div class="stats-grid">
+          <div class="stat-card">
+            <span>Alle Tickets</span>
+            <strong id="statAll">0</strong>
+          </div>
 
-      <section class="admin-warning-card">
-        <strong>Live verbunden</strong>
-        <p>
-          Dieses Admin-Panel ist mit Supabase verbunden. Tickets werden aus der Datenbank geladen,
-          Statusänderungen werden gespeichert und interne Notizen werden in Supabase abgelegt.
-        </p>
-      </section>
-
-      <section class="admin-view active" data-admin-view-panel="dashboard">
-        <div class="admin-stat-grid">
-          <article class="admin-stat-card">
+          <div class="stat-card">
             <span>Offen</span>
             <strong id="statOpen">0</strong>
-            <p>Tickets, die noch nicht abgeschlossen sind.</p>
-          </article>
+          </div>
 
-          <article class="admin-stat-card">
+          <div class="stat-card">
             <span>In Bearbeitung</span>
             <strong id="statProgress">0</strong>
-            <p>Tickets, die aktuell vom Team bearbeitet werden.</p>
-          </article>
+          </div>
 
-          <article class="admin-stat-card">
+          <div class="stat-card">
             <span>Geschlossen</span>
             <strong id="statClosed">0</strong>
-            <p>Tickets, die bereits erledigt wurden.</p>
-          </article>
-
-          <article class="admin-stat-card">
-            <span>Gesamt</span>
-            <strong id="statTotal">0</strong>
-            <p>Alle gespeicherten Supabase-Tickets.</p>
-          </article>
+          </div>
         </div>
 
-        <div class="admin-content-grid">
-          <article class="admin-panel-card">
-            <div class="admin-card-header">
-              <div>
-                <p class="admin-eyebrow">Aktuell</p>
-                <h2>Neue Tickets</h2>
-              </div>
-            </div>
-
-            <div id="latestTickets" class="admin-mini-list"></div>
-          </article>
-
-          <article class="admin-panel-card">
-            <div class="admin-card-header">
-              <div>
-                <p class="admin-eyebrow">System</p>
-                <h2>Status</h2>
-              </div>
-            </div>
-
-            <div class="admin-step-list">
-              <div>
-                <strong>Supabase</strong>
-                <span id="adminConnectionStatus">Verbindung wird geprüft.</span>
-              </div>
-
-              <div>
-                <strong>Discord</strong>
-                <span>Benachrichtigungen laufen über die Supabase Edge Function.</span>
-              </div>
-
-              <div>
-                <strong>Rollen</strong>
-                <span>Zugriff nur für Support, Admin, Leitung und Manager.</span>
-              </div>
-            </div>
-          </article>
+        <div class="panel-card">
+          <h2>Neueste Tickets</h2>
+          <div id="latestTickets" class="latest-list"></div>
         </div>
       </section>
 
-      <section class="admin-view" data-admin-view-panel="tickets">
-        <div class="admin-ticket-layout">
-          <article class="admin-panel-card admin-ticket-list-card">
-            <div class="admin-card-header">
-              <div>
-                <p class="admin-eyebrow">Tickets</p>
-                <h2>Alle Tickets</h2>
-              </div>
+      <section class="admin-view" id="view-tickets">
+        <div class="content-header">
+          <div>
+            <h1>Tickets</h1>
+            <p>Bearbeite Tickets, ändere den Status und schreibe mit Usern.</p>
+          </div>
 
-              <select id="ticketFilter" class="admin-select">
+          <button id="reloadTicketsButtonTwo" class="admin-action" type="button">Aktualisieren</button>
+        </div>
+
+        <div class="tickets-layout">
+          <div class="tickets-list-card">
+            <div class="ticket-filter-row">
+              <input id="ticketSearchInput" type="text" placeholder="Ticket suchen..." />
+
+              <select id="ticketStatusFilter">
                 <option value="all">Alle</option>
                 <option value="open">Offen</option>
-                <option value="progress">In Bearbeitung</option>
-                <option value="waiting">Wartet auf User</option>
+                <option value="in_progress">In Bearbeitung</option>
                 <option value="closed">Geschlossen</option>
               </select>
             </div>
 
-            <div id="ticketList" class="admin-ticket-list"></div>
-          </article>
+            <div id="adminTicketsList" class="admin-tickets-list"></div>
+          </div>
 
-          <article class="admin-panel-card admin-ticket-detail-card">
-            <div id="ticketDetailEmpty" class="admin-empty-detail">
-              <strong>Kein Ticket ausgewählt</strong>
-              <p>Wähle links ein Ticket aus, um Details, Status und Verlauf zu sehen.</p>
+          <div class="ticket-detail-card" id="ticketDetailCard">
+            <div class="empty-detail">
+              Wähle ein Ticket aus.
             </div>
-
-            <div id="ticketDetail" class="admin-ticket-detail"></div>
-          </article>
+          </div>
         </div>
       </section>
 
-      <section class="admin-view" data-admin-view-panel="applications">
-        <article class="admin-panel-card">
-          <div class="admin-card-header">
-            <div>
-              <p class="admin-eyebrow">Bewerbungen</p>
-              <h2>Bewerbungs-Tickets</h2>
-            </div>
+      <section class="admin-view" id="view-settings">
+        <div class="content-header">
+          <div>
+            <h1>Einstellungen</h1>
+            <p>Systemstatus und Admin-Informationen.</p>
           </div>
+        </div>
 
-          <div id="applicationTickets" class="admin-category-list"></div>
-        </article>
-      </section>
+        <div class="panel-card">
+          <h2>Admin-Rollen</h2>
+          <p>
+            Erlaubte Rollen für dieses Panel:
+            <strong>support</strong>,
+            <strong>admin</strong>,
+            <strong>leitung</strong>,
+            <strong>manager</strong>.
+          </p>
+        </div>
 
-      <section class="admin-view" data-admin-view-panel="reports">
-        <article class="admin-panel-card">
-          <div class="admin-card-header">
-            <div>
-              <p class="admin-eyebrow">Reports</p>
-              <h2>Spieler-Meldungen</h2>
-            </div>
-          </div>
+        <div class="panel-card">
+          <h2>Neue Admins hinzufügen</h2>
+          <p>
+            Neue Teammitglieder erstellst du in Supabase unter
+            Authentication → Users. Danach setzt du die Rolle in der Tabelle
+            profiles oder per SQL.
+          </p>
+        </div>
 
-          <div id="reportTickets" class="admin-category-list"></div>
-        </article>
-      </section>
-
-      <section class="admin-view" data-admin-view-panel="bugs">
-        <article class="admin-panel-card">
-          <div class="admin-card-header">
-            <div>
-              <p class="admin-eyebrow">Bugs</p>
-              <h2>Bugmeldungen</h2>
-            </div>
-          </div>
-
-          <div id="bugTickets" class="admin-category-list"></div>
-        </article>
-      </section>
-
-      <section class="admin-view" data-admin-view-panel="settings">
-        <article class="admin-panel-card">
-          <div class="admin-card-header">
-            <div>
-              <p class="admin-eyebrow">Einstellungen</p>
-              <h2>Admin-System</h2>
-            </div>
-          </div>
-
-          <div class="admin-settings-grid">
-            <div class="admin-setting-box">
-              <strong>Login</strong>
-              <p>Aktiv über Supabase Auth.</p>
-            </div>
-
-            <div class="admin-setting-box">
-              <strong>Rollen</strong>
-              <p>Aktiv über die Tabelle profiles.</p>
-            </div>
-
-            <div class="admin-setting-box">
-              <strong>Discord</strong>
-              <p>Aktiv über Edge Function und Discord Webhook Secret.</p>
-            </div>
-
-            <div class="admin-setting-box">
-              <strong>Datenbank</strong>
-              <p>Tickets und Notizen werden in Supabase gespeichert.</p>
-            </div>
-          </div>
-        </article>
+        <div class="panel-card">
+          <h2>Hinweis</h2>
+          <p>
+            Interne Notizen sind nur für Support/Admin sichtbar. Nachrichten im
+            Ticket-Chat sind für den User auf der Seite „Meine Tickets“ sichtbar.
+          </p>
+        </div>
       </section>
     </section>
   </main>
