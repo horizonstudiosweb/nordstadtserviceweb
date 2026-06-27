@@ -1,32 +1,42 @@
 const ticketPortalSettings = {
-  supabaseJsUrl: "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"
+  supabaseJsUrl: "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
+  currentTicketNumber: "",
+  currentDiscordName: "",
+  currentTicket: null,
+  currentMessages: []
 };
 
 let ticketSupabaseClient = null;
-let activeTicketNumber = "";
-let activeDiscordName = "";
 
-const lookupCard = document.getElementById("lookupCard");
-const ticketView = document.getElementById("ticketView");
 const ticketLookupForm = document.getElementById("ticketLookupForm");
 const ticketNumberInput = document.getElementById("ticketNumberInput");
 const discordNameInput = document.getElementById("discordNameInput");
 const lookupMessage = document.getElementById("lookupMessage");
+
+const lookupCard = document.getElementById("lookupCard");
+const ticketView = document.getElementById("ticketView");
 
 const ticketStatusBadge = document.getElementById("ticketStatusBadge");
 const ticketTitle = document.getElementById("ticketTitle");
 const ticketMeta = document.getElementById("ticketMeta");
 const ticketCategory = document.getElementById("ticketCategory");
 const ticketDiscord = document.getElementById("ticketDiscord");
+const ticketStatusText = document.getElementById("ticketStatusText");
 const ticketDescription = document.getElementById("ticketDescription");
+const closedReasonBox = document.getElementById("closedReasonBox");
+const ticketClosedReason = document.getElementById("ticketClosedReason");
+
 const ticketMessages = document.getElementById("ticketMessages");
 const ticketReplyForm = document.getElementById("ticketReplyForm");
 const ticketReplyInput = document.getElementById("ticketReplyInput");
 const replyMessage = document.getElementById("replyMessage");
+const closedNotice = document.getElementById("closedNotice");
+
 const refreshTicketButton = document.getElementById("refreshTicketButton");
+const refreshTicketButtonTop = document.getElementById("refreshTicketButtonTop");
 const changeTicketButton = document.getElementById("changeTicketButton");
 
-function portalEscape(value) {
+function ticketEscape(value) {
   return String(value || "")
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
@@ -35,7 +45,7 @@ function portalEscape(value) {
     .replaceAll("'", "&#039;");
 }
 
-function portalFormatDate(value) {
+function ticketFormatDate(value) {
   if (!value) {
     return "Unbekannt";
   }
@@ -49,7 +59,7 @@ function portalFormatDate(value) {
   });
 }
 
-function portalStatusLabel(status) {
+function ticketStatusLabel(status) {
   const labels = {
     open: "Offen",
     in_progress: "In Bearbeitung",
@@ -59,16 +69,28 @@ function portalStatusLabel(status) {
   return labels[status] || status || "Unbekannt";
 }
 
-function portalSetMessage(element, text, type = "") {
-  if (!element) {
-    return;
-  }
+function ticketCategoryLabel(category, fallback) {
+  const labels = {
+    support: "Allgemeiner Support",
+    application: "Bewerbung",
+    report: "Spieler melden",
+    bug: "Bug melden"
+  };
 
-  element.textContent = text || "";
-  element.className = `form-message ${type}`.trim();
+  return fallback || labels[category] || category || "Support";
 }
 
-function portalLoadScript(src) {
+function setLookupMessage(text, type = "") {
+  lookupMessage.textContent = text || "";
+  lookupMessage.className = `form-message ${type}`.trim();
+}
+
+function setReplyMessage(text, type = "") {
+  replyMessage.textContent = text || "";
+  replyMessage.className = `form-message ${type}`.trim();
+}
+
+function ticketLoadScript(src) {
   return new Promise((resolve, reject) => {
     const existingScript = document.querySelector(`script[src="${src}"]`);
 
@@ -85,9 +107,9 @@ function portalLoadScript(src) {
   });
 }
 
-async function portalSetupSupabase() {
-  await portalLoadScript("supabase-config.js");
-  await portalLoadScript(ticketPortalSettings.supabaseJsUrl);
+async function ticketSetupSupabase() {
+  await ticketLoadScript("supabase-config.js");
+  await ticketLoadScript(ticketPortalSettings.supabaseJsUrl);
 
   const config = window.NordstadtSupabaseConfig?.getConfig?.();
 
@@ -98,35 +120,13 @@ async function portalSetupSupabase() {
   ticketSupabaseClient = window.supabase.createClient(config.url, config.anonKey);
 }
 
-function portalReadUrlParams() {
-  const params = new URLSearchParams(window.location.search);
-  const ticket = params.get("ticket");
-  const discord = params.get("discord");
+async function loadTicket(ticketNumber, discordName, options = {}) {
+  const shouldShowLoading = options.showLoading !== false;
 
-  if (ticket) {
-    ticketNumberInput.value = ticket;
+  if (shouldShowLoading) {
+    setLookupMessage("Ticket wird geladen...");
   }
 
-  if (discord) {
-    discordNameInput.value = discord;
-  }
-}
-
-function portalWriteUrlParams(ticketNumber, discordName) {
-  const url = new URL(window.location.href);
-  url.searchParams.set("ticket", ticketNumber);
-  url.searchParams.set("discord", discordName);
-  window.history.replaceState({}, "", url.toString());
-}
-
-function portalClearUrlParams() {
-  const url = new URL(window.location.href);
-  url.searchParams.delete("ticket");
-  url.searchParams.delete("discord");
-  window.history.replaceState({}, "", url.toString());
-}
-
-async function portalLoadTicket(ticketNumber, discordName) {
   const { data, error } = await ticketSupabaseClient.rpc("get_public_ticket_with_messages", {
     p_ticket_number: ticketNumber,
     p_discord_username: discordName
@@ -140,32 +140,28 @@ async function portalLoadTicket(ticketNumber, discordName) {
     throw new Error(data?.error || "Ticket nicht gefunden.");
   }
 
-  return data;
+  ticketPortalSettings.currentTicketNumber = ticketNumber;
+  ticketPortalSettings.currentDiscordName = discordName;
+  ticketPortalSettings.currentTicket = data.ticket;
+  ticketPortalSettings.currentMessages = data.messages || [];
+
+  renderTicket(data.ticket, data.messages || []);
+  updateUrl(ticketNumber, discordName);
+
+  setLookupMessage("");
 }
 
-async function portalSendReply(text) {
-  const { data, error } = await ticketSupabaseClient.rpc("send_public_ticket_message", {
-    p_ticket_number: activeTicketNumber,
-    p_discord_username: activeDiscordName,
-    p_message_text: text
-  });
+function updateUrl(ticketNumber, discordName) {
+  const url = new URL(window.location.href);
 
-  if (error) {
-    throw new Error(error.message || "Antwort konnte nicht gesendet werden.");
-  }
+  url.searchParams.set("ticket", ticketNumber);
+  url.searchParams.set("discord", discordName);
 
-  if (!data || data.success !== true) {
-    throw new Error(data?.error || "Antwort konnte nicht gesendet werden.");
-  }
+  window.history.replaceState({}, "", url.toString());
 }
 
-function portalRenderStatus(status) {
-  ticketStatusBadge.textContent = portalStatusLabel(status);
-  ticketStatusBadge.className = `status-badge ${status || "open"}`;
-}
-
-function portalRenderMessages(messages) {
-  if (!messages || !messages.length) {
+function renderMessages(messages) {
+  if (!messages.length) {
     ticketMessages.innerHTML = `
       <div class="message system">
         <div class="message-top">
@@ -178,147 +174,196 @@ function portalRenderMessages(messages) {
     return;
   }
 
-  ticketMessages.innerHTML = messages.map((message) => {
-    const type = message.sender_type || "system";
-
-    return `
-      <div class="message ${portalEscape(type)}">
-        <div class="message-top">
-          <span>${portalEscape(message.sender_name || type)}</span>
-          <span>${portalEscape(portalFormatDate(message.created_at))}</span>
-        </div>
-        <p>${portalEscape(message.message_text)}</p>
+  ticketMessages.innerHTML = messages.map((message) => `
+    <div class="message ${ticketEscape(message.sender_type || "system")}">
+      <div class="message-top">
+        <span>${ticketEscape(message.sender_name || "Unbekannt")}</span>
+        <span>${ticketEscape(ticketFormatDate(message.created_at))}</span>
       </div>
-    `;
-  }).join("");
+      <p>${ticketEscape(message.message_text)}</p>
+    </div>
+  `).join("");
 
   ticketMessages.scrollTop = ticketMessages.scrollHeight;
 }
 
-function portalRenderTicket(data) {
-  const ticket = data.ticket;
-  const messages = data.messages || [];
-
-  portalRenderStatus(ticket.status);
-
-  ticketTitle.textContent = `${ticket.ticket_number} - ${ticket.title || "Ticket"}`;
-  ticketMeta.textContent = `Erstellt am ${portalFormatDate(ticket.created_at)} · Letztes Update ${portalFormatDate(ticket.updated_at)}`;
-
-  ticketCategory.textContent = ticket.category_label || ticket.category || "Support";
-  ticketDiscord.textContent = ticket.discord_username || "Nicht angegeben";
-  ticketDescription.textContent = ticket.description || "Keine Beschreibung";
-
-  portalRenderMessages(messages);
+function renderTicket(ticket, messages) {
+  const status = ticket.status || "open";
+  const isClosed = status === "closed";
 
   lookupCard.classList.add("hidden");
   ticketView.classList.remove("hidden");
-}
 
-async function portalOpenTicket(ticketNumber, discordName) {
-  activeTicketNumber = ticketNumber.trim();
-  activeDiscordName = discordName.trim();
+  ticketStatusBadge.textContent = ticketStatusLabel(status);
+  ticketStatusBadge.className = `status-badge ${ticketEscape(status)}`;
 
-  if (!activeTicketNumber || !activeDiscordName) {
-    throw new Error("Bitte Ticketnummer und Discord-Name eingeben.");
+  ticketTitle.textContent = `${ticket.ticket_number || "Ticket"} - ${ticket.title || "Ohne Titel"}`;
+
+  ticketMeta.textContent = [
+    `Erstellt ${ticketFormatDate(ticket.created_at)}`,
+    `Letzte Aktivität ${ticketFormatDate(ticket.last_message_at || ticket.updated_at || ticket.created_at)}`
+  ].join(" · ");
+
+  ticketCategory.textContent = ticketCategoryLabel(ticket.category, ticket.category_label);
+  ticketDiscord.textContent = ticket.discord_username || "Nicht angegeben";
+  ticketStatusText.textContent = ticketStatusLabel(status);
+  ticketDescription.textContent = ticket.description || "Keine Beschreibung vorhanden.";
+
+  if (isClosed) {
+    closedReasonBox.classList.remove("hidden");
+    ticketClosedReason.textContent = ticket.closed_reason || "Kein Grund angegeben.";
+    ticketReplyForm.classList.add("hidden");
+    closedNotice.classList.remove("hidden");
+  } else {
+    closedReasonBox.classList.add("hidden");
+    ticketClosedReason.textContent = "";
+    ticketReplyForm.classList.remove("hidden");
+    closedNotice.classList.add("hidden");
   }
 
-  portalSetMessage(lookupMessage, "Ticket wird geladen...");
-
-  const data = await portalLoadTicket(activeTicketNumber, activeDiscordName);
-
-  portalRenderTicket(data);
-  portalWriteUrlParams(activeTicketNumber, activeDiscordName);
-
-  portalSetMessage(lookupMessage, "");
+  renderMessages(messages);
 }
 
-async function portalRefreshActiveTicket(showMessage = true) {
-  if (!activeTicketNumber || !activeDiscordName) {
+async function refreshCurrentTicket() {
+  if (!ticketPortalSettings.currentTicketNumber || !ticketPortalSettings.currentDiscordName) {
     return;
   }
 
-  const data = await portalLoadTicket(activeTicketNumber, activeDiscordName);
+  setReplyMessage("Ticket wird aktualisiert...");
 
-  portalRenderTicket(data);
+  try {
+    await loadTicket(
+      ticketPortalSettings.currentTicketNumber,
+      ticketPortalSettings.currentDiscordName,
+      { showLoading: false }
+    );
 
-  if (showMessage) {
-    portalSetMessage(replyMessage, "Aktualisiert.", "success");
+    setReplyMessage("Aktualisiert.", "success");
+
+    setTimeout(() => {
+      setReplyMessage("");
+    }, 1400);
+  } catch (error) {
+    setReplyMessage(error.message, "error");
   }
 }
 
-function portalResetView() {
-  activeTicketNumber = "";
-  activeDiscordName = "";
+async function sendReply() {
+  const text = ticketReplyInput.value.trim();
+
+  if (!text) {
+    return;
+  }
+
+  if (!ticketPortalSettings.currentTicketNumber || !ticketPortalSettings.currentDiscordName) {
+    setReplyMessage("Kein Ticket geladen.", "error");
+    return;
+  }
+
+  if (ticketPortalSettings.currentTicket?.status === "closed") {
+    setReplyMessage("Dieses Ticket ist geschlossen. Du kannst nicht mehr antworten.", "error");
+    return;
+  }
+
+  setReplyMessage("Antwort wird gesendet...");
+
+  const { data, error } = await ticketSupabaseClient.rpc("send_public_ticket_message", {
+    p_ticket_number: ticketPortalSettings.currentTicketNumber,
+    p_discord_username: ticketPortalSettings.currentDiscordName,
+    p_message_text: text
+  });
+
+  if (error) {
+    setReplyMessage(error.message || "Antwort konnte nicht gesendet werden.", "error");
+    return;
+  }
+
+  if (!data || data.success !== true) {
+    setReplyMessage(data?.error || "Antwort konnte nicht gesendet werden.", "error");
+    return;
+  }
+
+  ticketReplyInput.value = "";
+  setReplyMessage("Antwort wurde gesendet.", "success");
+
+  await loadTicket(
+    ticketPortalSettings.currentTicketNumber,
+    ticketPortalSettings.currentDiscordName,
+    { showLoading: false }
+  );
+
+  setTimeout(() => {
+    setReplyMessage("");
+  }, 1600);
+}
+
+function resetTicketView() {
+  ticketPortalSettings.currentTicketNumber = "";
+  ticketPortalSettings.currentDiscordName = "";
+  ticketPortalSettings.currentTicket = null;
+  ticketPortalSettings.currentMessages = [];
 
   ticketView.classList.add("hidden");
   lookupCard.classList.remove("hidden");
 
-  ticketNumberInput.value = "";
-  discordNameInput.value = "";
-  ticketReplyInput.value = "";
+  setLookupMessage("");
+  setReplyMessage("");
 
-  portalSetMessage(lookupMessage, "");
-  portalSetMessage(replyMessage, "");
+  const url = new URL(window.location.href);
+  url.searchParams.delete("ticket");
+  url.searchParams.delete("discord");
+  window.history.replaceState({}, "", url.toString());
 
-  portalClearUrlParams();
+  ticketNumberInput.focus();
 }
 
 ticketLookupForm.addEventListener("submit", async (event) => {
   event.preventDefault();
 
+  const ticketNumber = ticketNumberInput.value.trim();
+  const discordName = discordNameInput.value.trim();
+
+  if (!ticketNumber || !discordName) {
+    setLookupMessage("Bitte Ticketnummer und Discord-Namen eingeben.", "error");
+    return;
+  }
+
   try {
-    await portalOpenTicket(ticketNumberInput.value, discordNameInput.value);
+    await loadTicket(ticketNumber, discordName);
   } catch (error) {
-    portalSetMessage(lookupMessage, error.message, "error");
+    setLookupMessage(error.message, "error");
   }
 });
 
 ticketReplyForm.addEventListener("submit", async (event) => {
   event.preventDefault();
-
-  const text = ticketReplyInput.value.trim();
-
-  if (text.length < 2) {
-    portalSetMessage(replyMessage, "Bitte schreibe eine längere Nachricht.", "error");
-    return;
-  }
-
-  try {
-    portalSetMessage(replyMessage, "Antwort wird gesendet...");
-
-    await portalSendReply(text);
-
-    ticketReplyInput.value = "";
-
-    await portalRefreshActiveTicket(false);
-
-    portalSetMessage(replyMessage, "Antwort wurde gesendet.", "success");
-  } catch (error) {
-    portalSetMessage(replyMessage, error.message, "error");
-  }
+  await sendReply();
 });
 
-refreshTicketButton.addEventListener("click", async () => {
-  try {
-    await portalRefreshActiveTicket(true);
-  } catch (error) {
-    portalSetMessage(replyMessage, error.message, "error");
-  }
-});
-
-changeTicketButton.addEventListener("click", () => {
-  portalResetView();
-});
+refreshTicketButton.addEventListener("click", refreshCurrentTicket);
+refreshTicketButtonTop.addEventListener("click", refreshCurrentTicket);
+changeTicketButton.addEventListener("click", resetTicketView);
 
 (async function initTicketPortal() {
   try {
-    await portalSetupSupabase();
-    portalReadUrlParams();
+    await ticketSetupSupabase();
 
-    if (ticketNumberInput.value && discordNameInput.value) {
-      await portalOpenTicket(ticketNumberInput.value, discordNameInput.value);
+    const params = new URLSearchParams(window.location.search);
+    const ticketNumber = params.get("ticket") || "";
+    const discordName = params.get("discord") || "";
+
+    if (ticketNumber) {
+      ticketNumberInput.value = ticketNumber;
+    }
+
+    if (discordName) {
+      discordNameInput.value = discordName;
+    }
+
+    if (ticketNumber && discordName) {
+      await loadTicket(ticketNumber, discordName);
     }
   } catch (error) {
-    portalSetMessage(lookupMessage, error.message, "error");
+    setLookupMessage(error.message, "error");
   }
 })();
