@@ -36,7 +36,9 @@ function portalEscape(value) {
 }
 
 function portalFormatDate(value) {
-  if (!value) return "Unbekannt";
+  if (!value) {
+    return "Unbekannt";
+  }
 
   return new Date(value).toLocaleString("de-DE", {
     day: "2-digit",
@@ -58,7 +60,9 @@ function portalStatusLabel(status) {
 }
 
 function portalSetMessage(element, text, type = "") {
-  if (!element) return;
+  if (!element) {
+    return;
+  }
 
   element.textContent = text || "";
   element.className = `form-message ${type}`.trim();
@@ -66,9 +70,9 @@ function portalSetMessage(element, text, type = "") {
 
 function portalLoadScript(src) {
   return new Promise((resolve, reject) => {
-    const existing = document.querySelector(`script[src="${src}"]`);
+    const existingScript = document.querySelector(`script[src="${src}"]`);
 
-    if (existing) {
+    if (existingScript) {
       resolve();
       return;
     }
@@ -108,6 +112,20 @@ function portalReadUrlParams() {
   }
 }
 
+function portalWriteUrlParams(ticketNumber, discordName) {
+  const url = new URL(window.location.href);
+  url.searchParams.set("ticket", ticketNumber);
+  url.searchParams.set("discord", discordName);
+  window.history.replaceState({}, "", url.toString());
+}
+
+function portalClearUrlParams() {
+  const url = new URL(window.location.href);
+  url.searchParams.delete("ticket");
+  url.searchParams.delete("discord");
+  window.history.replaceState({}, "", url.toString());
+}
+
 async function portalLoadTicket(ticketNumber, discordName) {
   const { data, error } = await ticketSupabaseClient.rpc("get_public_ticket_with_messages", {
     p_ticket_number: ticketNumber,
@@ -125,21 +143,29 @@ async function portalLoadTicket(ticketNumber, discordName) {
   return data;
 }
 
-function portalRenderTicket(data) {
-  const ticket = data.ticket;
-  const messages = data.messages || [];
+async function portalSendReply(text) {
+  const { data, error } = await ticketSupabaseClient.rpc("send_public_ticket_message", {
+    p_ticket_number: activeTicketNumber,
+    p_discord_username: activeDiscordName,
+    p_message_text: text
+  });
 
-  ticketStatusBadge.textContent = portalStatusLabel(ticket.status);
-  ticketStatusBadge.className = `status-badge ${ticket.status || "open"}`;
+  if (error) {
+    throw new Error(error.message || "Antwort konnte nicht gesendet werden.");
+  }
 
-  ticketTitle.textContent = `${ticket.ticket_number} - ${ticket.title || "Ticket"}`;
-  ticketMeta.textContent = `Erstellt am ${portalFormatDate(ticket.created_at)} · Letztes Update ${portalFormatDate(ticket.updated_at)}`;
+  if (!data || data.success !== true) {
+    throw new Error(data?.error || "Antwort konnte nicht gesendet werden.");
+  }
+}
 
-  ticketCategory.textContent = ticket.category_label || ticket.category || "Support";
-  ticketDiscord.textContent = ticket.discord_username || "Nicht angegeben";
-  ticketDescription.textContent = ticket.description || "Keine Beschreibung";
+function portalRenderStatus(status) {
+  ticketStatusBadge.textContent = portalStatusLabel(status);
+  ticketStatusBadge.className = `status-badge ${status || "open"}`;
+}
 
-  if (!messages.length) {
+function portalRenderMessages(messages) {
+  if (!messages || !messages.length) {
     ticketMessages.innerHTML = `
       <div class="message system">
         <div class="message-top">
@@ -149,21 +175,40 @@ function portalRenderTicket(data) {
         <p>Noch keine Nachrichten vorhanden.</p>
       </div>
     `;
-  } else {
-    ticketMessages.innerHTML = messages.map((message) => {
-      const type = message.sender_type || "system";
-
-      return `
-        <div class="message ${portalEscape(type)}">
-          <div class="message-top">
-            <span>${portalEscape(message.sender_name || type)}</span>
-            <span>${portalEscape(portalFormatDate(message.created_at))}</span>
-          </div>
-          <p>${portalEscape(message.message_text)}</p>
-        </div>
-      `;
-    }).join("");
+    return;
   }
+
+  ticketMessages.innerHTML = messages.map((message) => {
+    const type = message.sender_type || "system";
+
+    return `
+      <div class="message ${portalEscape(type)}">
+        <div class="message-top">
+          <span>${portalEscape(message.sender_name || type)}</span>
+          <span>${portalEscape(portalFormatDate(message.created_at))}</span>
+        </div>
+        <p>${portalEscape(message.message_text)}</p>
+      </div>
+    `;
+  }).join("");
+
+  ticketMessages.scrollTop = ticketMessages.scrollHeight;
+}
+
+function portalRenderTicket(data) {
+  const ticket = data.ticket;
+  const messages = data.messages || [];
+
+  portalRenderStatus(ticket.status);
+
+  ticketTitle.textContent = `${ticket.ticket_number} - ${ticket.title || "Ticket"}`;
+  ticketMeta.textContent = `Erstellt am ${portalFormatDate(ticket.created_at)} · Letztes Update ${portalFormatDate(ticket.updated_at)}`;
+
+  ticketCategory.textContent = ticket.category_label || ticket.category || "Support";
+  ticketDiscord.textContent = ticket.discord_username || "Nicht angegeben";
+  ticketDescription.textContent = ticket.description || "Keine Beschreibung";
+
+  portalRenderMessages(messages);
 
   lookupCard.classList.add("hidden");
   ticketView.classList.remove("hidden");
@@ -180,30 +225,42 @@ async function portalOpenTicket(ticketNumber, discordName) {
   portalSetMessage(lookupMessage, "Ticket wird geladen...");
 
   const data = await portalLoadTicket(activeTicketNumber, activeDiscordName);
-  portalRenderTicket(data);
 
-  const url = new URL(window.location.href);
-  url.searchParams.set("ticket", activeTicketNumber);
-  url.searchParams.set("discord", activeDiscordName);
-  window.history.replaceState({}, "", url.toString());
+  portalRenderTicket(data);
+  portalWriteUrlParams(activeTicketNumber, activeDiscordName);
 
   portalSetMessage(lookupMessage, "");
 }
 
-async function portalSendReply(text) {
-  const { data, error } = await ticketSupabaseClient.rpc("send_public_ticket_message", {
-    p_ticket_number: activeTicketNumber,
-    p_discord_username: activeDiscordName,
-    p_message_text: text
-  });
-
-  if (error) {
-    throw new Error(error.message || "Antwort konnte nicht gesendet werden.");
+async function portalRefreshActiveTicket(showMessage = true) {
+  if (!activeTicketNumber || !activeDiscordName) {
+    return;
   }
 
-  if (!data || data.success !== true) {
-    throw new Error(data?.error || "Antwort konnte nicht gesendet werden.");
+  const data = await portalLoadTicket(activeTicketNumber, activeDiscordName);
+
+  portalRenderTicket(data);
+
+  if (showMessage) {
+    portalSetMessage(replyMessage, "Aktualisiert.", "success");
   }
+}
+
+function portalResetView() {
+  activeTicketNumber = "";
+  activeDiscordName = "";
+
+  ticketView.classList.add("hidden");
+  lookupCard.classList.remove("hidden");
+
+  ticketNumberInput.value = "";
+  discordNameInput.value = "";
+  ticketReplyInput.value = "";
+
+  portalSetMessage(lookupMessage, "");
+  portalSetMessage(replyMessage, "");
+
+  portalClearUrlParams();
 }
 
 ticketLookupForm.addEventListener("submit", async (event) => {
@@ -233,8 +290,7 @@ ticketReplyForm.addEventListener("submit", async (event) => {
 
     ticketReplyInput.value = "";
 
-    const data = await portalLoadTicket(activeTicketNumber, activeDiscordName);
-    portalRenderTicket(data);
+    await portalRefreshActiveTicket(false);
 
     portalSetMessage(replyMessage, "Antwort wurde gesendet.", "success");
   } catch (error) {
@@ -244,29 +300,14 @@ ticketReplyForm.addEventListener("submit", async (event) => {
 
 refreshTicketButton.addEventListener("click", async () => {
   try {
-    const data = await portalLoadTicket(activeTicketNumber, activeDiscordName);
-    portalRenderTicket(data);
-
-    portalSetMessage(replyMessage, "Aktualisiert.", "success");
+    await portalRefreshActiveTicket(true);
   } catch (error) {
     portalSetMessage(replyMessage, error.message, "error");
   }
 });
 
 changeTicketButton.addEventListener("click", () => {
-  ticketView.classList.add("hidden");
-  lookupCard.classList.remove("hidden");
-
-  activeTicketNumber = "";
-  activeDiscordName = "";
-
-  portalSetMessage(lookupMessage, "");
-  portalSetMessage(replyMessage, "");
-
-  const url = new URL(window.location.href);
-  url.searchParams.delete("ticket");
-  url.searchParams.delete("discord");
-  window.history.replaceState({}, "", url.toString());
+  portalResetView();
 });
 
 (async function initTicketPortal() {
