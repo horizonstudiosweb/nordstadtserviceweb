@@ -1,1 +1,89 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Meine Tickets - Nordstadt Roleplay</title>
+  <link rel="stylesheet" href="tickets.css" />
+</head>
+<body>
+  <main class="tickets-page">
+    <section class="tickets-hero">
+      <div class="tickets-badge">Nordstadt Support</div>
+      <h1>Meine Tickets</h1>
+      <p>Hier kannst du dein Ticket öffnen, Antworten lesen und dem Support schreiben.</p>
 
+      <div class="tickets-actions">
+        <a href="index.html" class="ghost-link">Zurück zur Website</a>
+        <a href="admin.html" class="ghost-link">Admin-Panel</a>
+      </div>
+    </section>
+
+    <section class="lookup-card" id="lookupCard">
+      <h2>Ticket öffnen</h2>
+      <p>Gib deine Ticketnummer und deinen Discord-Namen ein.</p>
+
+      <form id="ticketLookupForm" class="ticket-form">
+        <label>
+          Ticketnummer
+          <input id="ticketNumberInput" type="text" placeholder="z. B. NRP-123456" required />
+        </label>
+
+        <label>
+          Discord-Name
+          <input id="discordNameInput" type="text" placeholder="z. B. deinname#0000" required />
+        </label>
+
+        <button type="submit">Ticket laden</button>
+      </form>
+
+      <div id="lookupMessage" class="form-message"></div>
+    </section>
+
+    <section class="ticket-view hidden" id="ticketView">
+      <div class="ticket-header">
+        <div>
+          <span id="ticketStatusBadge" class="status-badge">Offen</span>
+          <h2 id="ticketTitle">Ticket</h2>
+          <p id="ticketMeta"></p>
+        </div>
+
+        <button id="changeTicketButton" class="small-button">Anderes Ticket öffnen</button>
+      </div>
+
+      <div class="ticket-details">
+        <div>
+          <strong>Kategorie</strong>
+          <span id="ticketCategory"></span>
+        </div>
+        <div>
+          <strong>Discord</strong>
+          <span id="ticketDiscord"></span>
+        </div>
+        <div>
+          <strong>Beschreibung</strong>
+          <span id="ticketDescription"></span>
+        </div>
+      </div>
+
+      <div class="chat-card">
+        <div class="chat-title">
+          <h3>Nachrichten</h3>
+          <button id="refreshTicketButton" class="small-button">Aktualisieren</button>
+        </div>
+
+        <div id="ticketMessages" class="messages-list"></div>
+
+        <form id="ticketReplyForm" class="reply-form">
+          <textarea id="ticketReplyInput" placeholder="Antwort schreiben..." required></textarea>
+          <button type="submit">Antwort senden</button>
+        </form>
+
+        <div id="replyMessage" class="form-message"></div>
+      </div>
+    </section>
+  </main>
+
+  <script src="tickets.js"></script>
+</body>
+</html>
