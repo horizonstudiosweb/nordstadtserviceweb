@@ -244,3 +244,50 @@ applyLinks();
 setupIntro();
 setupRecruitmentPopup();
 setupDownloads();
+
+(function addNordstadtNavActions() {
+  const existingActions = document.querySelector(".nav-right-actions");
+
+  if (existingActions) {
+    return;
+  }
+
+  const possibleNavSelectors = [
+    ".navbar",
+    ".nav",
+    ".navigation",
+    ".nav-links",
+    "header nav",
+    "nav"
+  ];
+
+  let targetNav = null;
+
+  for (const selector of possibleNavSelectors) {
+    const element = document.querySelector(selector);
+
+    if (element) {
+      targetNav = element;
+      break;
+    }
+  }
+
+  if (!targetNav) {
+    return;
+  }
+
+  const actions = document.createElement("div");
+  actions.className = "nav-right-actions";
+
+  actions.innerHTML = `
+    <a class="nav-action-button support-center" href="support-center.html">
+      Support-Center
+    </a>
+
+    <a class="nav-action-button admin" href="admin.html">
+      Admin-Panel
+    </a>
+  `;
+
+  targetNav.appendChild(actions);
+})();
