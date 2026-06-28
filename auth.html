@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+  <title>Kundenkonto - Nordstadt Roleplay</title>
+
+  <meta
+    name="description"
+    content="Kundenkonto für das Nordstadt Roleplay Support-Center. Einloggen, registrieren und Support-Tickets verwalten."
+  />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+    rel="stylesheet"
+  />
+
+  <link rel="stylesheet" href="auth.css" />
+</head>
+
+<body>
+  <div class="auth-background">
+    <div class="auth-orb auth-orb-one"></div>
+    <div class="auth-orb auth-orb-two"></div>
+    <div class="auth-orb auth-orb-three"></div>
+  </div>
+
+  <main class="auth-page">
+    <section class="auth-hero">
+      <a class="auth-brand" href="index.html">
+        <span>Nordstadt Roleplay</span>
+        <strong>Kundenkonto</strong>
+      </a>
+
+      <div class="auth-hero-content">
+        <span class="eyebrow">Support Login</span>
+
+        <h1>Dein Support-Konto</h1>
+
+        <p>
+          Melde dich an oder registriere dich, um später deine Tickets geräteübergreifend
+          zu verwalten, Antworten zu erhalten und dein Support-Center sicher zu nutzen.
+        </p>
+
+        <div class="auth-info-grid">
+          <article>
+            <strong>E-Mail bestätigen</strong>
+            <span>Neue Accounts werden über Supabase Auth per E-Mail bestätigt.</span>
+          </article>
+
+          <article>
+            <strong>Tickets speichern</strong>
+            <span>Später werden Tickets direkt deinem Kundenkonto zugeordnet.</span>
+          </article>
+
+          <article>
+            <strong>Anti-Troll Schutz</strong>
+            <span>Manager können problematische Kundenkonten später sperren.</span>
+          </article>
+        </div>
+
+        <div class="auth-links">
+          <a href="support-center.html">Support-Center</a>
+          <a href="index.html">Zur Website</a>
+        </div>
+      </div>
+    </section>
+
+    <section class="auth-panel">
+      <div class="auth-tabs">
+        <button class="auth-tab active" type="button" data-auth-tab="login">
+          Einloggen
+        </button>
+
+        <button class="auth-tab" type="button" data-auth-tab="register">
+          Registrieren
+        </button>
+      </div>
+
+      <div class="auth-view active" id="authLoginView">
+        <div class="auth-head">
+          <span class="eyebrow">Willkommen zurück</span>
+          <h2>Einloggen</h2>
+          <p>
+            Melde dich mit deinem bestätigten Kundenkonto an.
+          </p>
+        </div>
+
+        <form class="auth-form" id="loginForm">
+          <label>
+            E-Mail
+            <input
+              id="loginEmail"
+              type="email"
+              autocomplete="email"
+              placeholder="deine@email.de"
+              required
+            />
+          </label>
+
+          <label>
+            Passwort
+            <input
+              id="loginPassword"
+              type="password"
+              autocomplete="current-password"
+              placeholder="••••••••"
+              required
+            />
+          </label>
+
+          <button type="submit" id="loginButton">
+            Einloggen
+          </button>
+        </form>
+
+        <div id="loginMessage" class="auth-message"></div>
+      </div>
+
+      <div class="auth-view" id="authRegisterView">
+        <div class="auth-head">
+          <span class="eyebrow">Neues Konto</span>
+          <h2>Registrieren</h2>
+          <p>
+            Erstelle ein Kundenkonto. Danach musst du deine E-Mail bestätigen.
+          </p>
+        </div>
+
+        <form class="auth-form" id="registerForm">
+          <label>
+            Anzeigename
+            <input
+              id="registerDisplayName"
+              type="text"
+              autocomplete="name"
+              placeholder="z. B. Max"
+              required
+            />
+          </label>
+
+          <label>
+            E-Mail
+            <input
+              id="registerEmail"
+              type="email"
+              autocomplete="email"
+              placeholder="deine@email.de"
+              required
+            />
+          </label>
+
+          <label>
+            Passwort
+            <input
+              id="registerPassword"
+              type="password"
+              autocomplete="new-password"
+              placeholder="Mindestens 6 Zeichen"
+              required
+            />
+          </label>
+
+          <label>
+            Passwort bestätigen
+            <input
+              id="registerPasswordConfirm"
+              type="password"
+              autocomplete="new-password"
+              placeholder="Passwort wiederholen"
+              required
+            />
+          </label>
+
+          <button type="submit" id="registerButton">
+            Konto erstellen
+          </button>
+        </form>
+
+        <div id="registerMessage" class="auth-message"></div>
+      </div>
+
+      <div class="auth-session hidden" id="authSessionBox">
+        <span class="eyebrow">Angemeldet</span>
+
+        <h2>Konto aktiv</h2>
+
+        <p id="authSessionText">
+          Du bist angemeldet.
+        </p>
+
+        <div class="auth-session-actions">
+          <a class="primary-link" href="support-center.html">
+            Zum Support-Center
+          </a>
+
+          <button class="secondary-button" type="button" id="logoutButton">
+            Abmelden
+          </button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script src="supabase-config.js"></script>
+  <script src="auth.js"></script>
+</body>
+</html>
