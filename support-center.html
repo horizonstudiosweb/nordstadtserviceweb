@@ -3,9 +3,25 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <title>Support-Center - Nordstadt Roleplay</title>
+
+  <meta
+    name="description"
+    content="Support-Center für Nordstadt Roleplay. Erstelle Tickets, sieh deine Tickets ein und schreibe direkt mit dem Support."
+  />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+    rel="stylesheet"
+  />
+
   <link rel="stylesheet" href="support-center.css" />
 </head>
+
 <body>
   <div class="support-bg">
     <div class="orb orb-one"></div>
@@ -14,12 +30,12 @@
   </div>
 
   <header class="support-header">
-    <a class="brand" href="index.html">
+    <a class="brand" href="index.html" aria-label="Zur Nordstadt Website">
       <span>Nordstadt</span>
       <strong>Support-Center</strong>
     </a>
 
-    <nav class="top-actions">
+    <nav class="top-actions" aria-label="Support Navigation">
       <a href="#myTicketsSection">Meine Tickets</a>
       <a href="admin.html">Admin-Panel</a>
       <a href="index.html">Website</a>
@@ -30,7 +46,9 @@
     <section class="hero">
       <div class="hero-content">
         <span class="eyebrow">Nordstadt Roleplay</span>
+
         <h1>Support-Center</h1>
+
         <p>
           Wähle die passende Kategorie, erstelle dein Ticket und schreibe direkt
           hier im Support-Center mit dem Support.
@@ -47,9 +65,10 @@
         </div>
       </div>
 
-      <div class="hero-panel">
+      <aside class="hero-panel">
         <div class="status-box live">
           <span></span>
+
           <div>
             <strong>Support aktiv</strong>
             <small>Tickets werden direkt im Support-Center geöffnet.</small>
@@ -65,7 +84,38 @@
           <strong>4 Kategorien</strong>
           <small>Allgemein, Bewerbung, Report, Bug / Fehler</small>
         </div>
+      </aside>
+    </section>
+
+    <section class="account-card hidden" id="accountInfoCard">
+      <span class="account-pill">Kundenkonto</span>
+
+      <div>
+        <h2>Angemeldet</h2>
+        <p id="accountInfoText">
+          Dein Kundenkonto ist aktiv. Deine Tickets werden deinem Konto zugeordnet.
+        </p>
       </div>
+
+      <button class="auth-btn logout-btn" id="logoutButton" type="button">
+        Abmelden
+      </button>
+    </section>
+
+    <section class="auth-gate hidden" id="authGate">
+      <span class="account-pill">Login erforderlich</span>
+
+      <div>
+        <h2>Kundenkonto benötigt</h2>
+        <p>
+          Für das Support-Center wird später ein bestätigtes Kundenkonto benötigt.
+          Damit können deine Tickets sicher deinem Account zugeordnet werden.
+        </p>
+      </div>
+
+      <a class="auth-btn" href="auth.html">
+        Zum Login
+      </a>
     </section>
 
     <section class="categories">
@@ -75,7 +125,9 @@
           <h2>Was möchtest du einreichen?</h2>
         </div>
 
-        <p>Jede Kategorie hat eigene Felder und eigene Regeln.</p>
+        <p>
+          Jede Kategorie hat eigene Felder und eigene Regeln.
+        </p>
       </div>
 
       <div class="category-grid">
@@ -116,6 +168,7 @@
         <div class="my-tickets-head">
           <div>
             <h2>Meine Tickets</h2>
+
             <p>
               Hier findest du Tickets, die du mit diesem Browser erstellt hast.
               Ein Klick auf „Öffnen“ zeigt den Chat direkt im Support-Center.
@@ -129,7 +182,8 @@
 
         <div class="my-tickets-list" id="myTicketsList">
           <div class="my-tickets-empty">
-            Noch keine Tickets vorhanden. Sobald du ein Ticket erstellst, erscheint es hier automatisch.
+            Noch keine Tickets vorhanden. Sobald du ein Ticket erstellst,
+            erscheint es hier automatisch.
           </div>
         </div>
       </div>
@@ -142,59 +196,91 @@
           <h2>Häufige Fragen</h2>
         </div>
 
-        <p>Kurze Hilfe, bevor du ein Ticket eröffnest.</p>
+        <p>
+          Kurze Hilfe, bevor du ein Ticket eröffnest.
+        </p>
       </div>
 
       <div class="faq-grid">
         <article class="faq-card">
           <span>Bewerbung</span>
+
           <h3>Wie bewerbe ich mich?</h3>
+
           <p>
-            Öffne die Kategorie Bewerbung, gib deinen Bereich an und schreibe deine Motivation ausführlich.
+            Öffne die Kategorie Bewerbung, gib deinen Bereich an und schreibe
+            deine Motivation ausführlich.
           </p>
-          <button type="button" data-open-ticket="application">Bewerbung starten</button>
+
+          <button type="button" data-open-ticket="application">
+            Bewerbung starten
+          </button>
         </article>
 
         <article class="faq-card">
           <span>Report</span>
+
           <h3>Wie reporte ich einen Spieler?</h3>
+
           <p>
-            Nutze die Kategorie Report, gib den gemeldeten User an und füge Beweise oder Links hinzu.
+            Nutze die Kategorie Report, gib den gemeldeten User an und füge
+            Beweise oder Links hinzu.
           </p>
-          <button type="button" data-open-ticket="report">Report erstellen</button>
+
+          <button type="button" data-open-ticket="report">
+            Report erstellen
+          </button>
         </article>
 
         <article class="faq-card">
           <span>Bug / Fehler</span>
+
           <h3>Wie melde ich einen Bug?</h3>
+
           <p>
-            Beschreibe den Fehler, die Schritte zum Reproduzieren und lade bei Bedarf Dateien hoch.
+            Beschreibe den Fehler, die Schritte zum Reproduzieren und lade bei
+            Bedarf Dateien hoch.
           </p>
-          <button type="button" data-open-ticket="bug">Bug melden</button>
+
+          <button type="button" data-open-ticket="bug">
+            Bug melden
+          </button>
         </article>
 
         <article class="faq-card">
           <span>Tickets</span>
+
           <h3>Wo finde ich mein Ticket?</h3>
+
           <p>
-            Nach dem Absenden erscheint dein Ticket unter „Meine Tickets“ und kann direkt geöffnet werden.
+            Nach dem Absenden erscheint dein Ticket unter „Meine Tickets“ und
+            kann direkt geöffnet werden.
           </p>
-          <a href="#myTicketsSection">Meine Tickets öffnen</a>
+
+          <a href="#myTicketsSection">
+            Meine Tickets öffnen
+          </a>
         </article>
       </div>
     </section>
   </main>
 
   <div class="modal-backdrop hidden" id="ticketModal">
-    <section class="ticket-modal">
+    <section class="ticket-modal" aria-labelledby="modalTitle">
       <div class="modal-head">
         <div>
           <span class="eyebrow" id="modalCategoryEyebrow">Ticket</span>
+
           <h2 id="modalTitle">Ticket erstellen</h2>
-          <p id="modalDescription">Fülle die benötigten Informationen aus.</p>
+
+          <p id="modalDescription">
+            Fülle die benötigten Informationen aus.
+          </p>
         </div>
 
-        <button class="modal-close" id="ticketModalClose" type="button">×</button>
+        <button class="modal-close" id="ticketModalClose" type="button" aria-label="Ticket-Fenster schließen">
+          ×
+        </button>
       </div>
 
       <form id="supportCenterForm" class="ticket-form">
@@ -203,54 +289,101 @@
         <div class="form-grid">
           <label>
             Discord-Name
-            <input id="discordUsernameInput" type="text" placeholder="z. B. Max#1234" required />
+            <input
+              id="discordUsernameInput"
+              type="text"
+              placeholder="z. B. Max#1234"
+              autocomplete="off"
+              required
+            />
           </label>
 
           <label id="rankField">
             Rang / Rolle
-            <input id="rankInput" type="text" placeholder="z. B. Spieler, Moderator, Fraktion..." />
+            <input
+              id="rankInput"
+              type="text"
+              placeholder="z. B. Spieler, Moderator, Fraktion..."
+              autocomplete="off"
+            />
           </label>
 
           <label class="hidden" id="applicationAreaField">
             Bewerbungsbereich
-            <input id="applicationAreaInput" type="text" placeholder="z. B. Team, Leitung, Bundespolizei..." />
+            <input
+              id="applicationAreaInput"
+              type="text"
+              placeholder="z. B. Team, Leitung, Bundespolizei..."
+              autocomplete="off"
+            />
           </label>
 
           <label class="hidden" id="targetUserField">
             Gemeldeter User
-            <input id="targetUserInput" type="text" placeholder="Name des Users" />
+            <input
+              id="targetUserInput"
+              type="text"
+              placeholder="Name des Users"
+              autocomplete="off"
+            />
           </label>
 
           <label class="full">
             Titel
-            <input id="titleInput" type="text" placeholder="Kurzer Titel deines Anliegens" required />
+            <input
+              id="titleInput"
+              type="text"
+              placeholder="Kurzer Titel deines Anliegens"
+              autocomplete="off"
+              required
+            />
           </label>
 
           <label class="full">
             Beschreibung
-            <textarea id="descriptionInput" placeholder="Beschreibe dein Anliegen so genau wie möglich..." required></textarea>
+            <textarea
+              id="descriptionInput"
+              placeholder="Beschreibe dein Anliegen so genau wie möglich..."
+              required
+            ></textarea>
           </label>
 
           <label class="full hidden" id="proofField">
             Beweise / Links
-            <textarea id="proofInput" placeholder="Screenshots, Videos, Clips oder Beweise als Link..."></textarea>
+            <textarea
+              id="proofInput"
+              placeholder="Screenshots, Videos, Clips oder Beweise als Link..."
+            ></textarea>
           </label>
 
           <label class="full hidden" id="reproduceField">
             Schritte zum Reproduzieren
-            <textarea id="reproduceInput" placeholder="Wie kann man den Fehler nachstellen?"></textarea>
+            <textarea
+              id="reproduceInput"
+              placeholder="Wie kann man den Fehler nachstellen?"
+            ></textarea>
           </label>
 
           <label class="full hidden" id="attachmentsField">
             Dateien / Bilder
-            <input id="attachmentsInput" type="file" multiple accept="image/png,image/jpeg,image/webp,image/gif,application/pdf,text/plain" />
+            <input
+              id="attachmentsInput"
+              type="file"
+              multiple
+              accept="image/png,image/jpeg,image/webp,image/gif,application/pdf,text/plain"
+            />
             <small>Maximal 5 Dateien, jeweils bis 10 MB.</small>
           </label>
         </div>
 
         <div class="modal-actions">
-          <button class="secondary-btn" id="ticketModalCancel" type="button">Abbrechen</button>
-          <button class="primary-btn" id="submitTicketButton" type="submit">Ticket eröffnen</button>
+          <button class="secondary-btn" id="ticketModalCancel" type="button">
+            Abbrechen
+          </button>
+
+          <button class="primary-btn" id="submitTicketButton" type="submit">
+            Ticket eröffnen
+          </button>
         </div>
 
         <div id="ticketFormMessage" class="form-message"></div>
@@ -258,14 +391,17 @@
 
       <div class="success-view hidden" id="successView">
         <div class="success-check">
-          <svg viewBox="0 0 52 52">
+          <svg viewBox="0 0 52 52" aria-hidden="true">
             <circle cx="26" cy="26" r="24"></circle>
             <path d="M15 27.5 22.5 35 38 18"></path>
           </svg>
         </div>
 
         <h3 id="successTitle">Ticket wurde erstellt.</h3>
-        <p id="successText">Der Ticket-Chat kann direkt hier geöffnet werden.</p>
+
+        <p id="successText">
+          Der Ticket-Chat kann direkt hier geöffnet werden.
+        </p>
 
         <div class="ticket-number-box">
           <span>Ticketnummer</span>
@@ -286,8 +422,12 @@
           <div class="inline-ticket-head">
             <div>
               <span class="eyebrow">Ticket-Chat</span>
+
               <h3 id="inlineTicketTitle">Ticket</h3>
-              <p id="inlineTicketMeta">Wird geladen...</p>
+
+              <p id="inlineTicketMeta">
+                Wird geladen...
+              </p>
             </div>
 
             <button class="secondary-btn" id="inlineRefreshTicketButton" type="button">
@@ -328,17 +468,26 @@
                 <span>System</span>
                 <span>Jetzt</span>
               </div>
+
               <p>Ticket wird geladen...</p>
             </div>
           </div>
 
           <div class="inline-closed-notice hidden" id="inlineClosedNotice">
-            Dieses Ticket wurde geschlossen. Du kannst den Verlauf lesen, aber nicht mehr antworten.
+            Dieses Ticket wurde geschlossen. Du kannst den Verlauf lesen,
+            aber nicht mehr antworten.
           </div>
 
           <form class="inline-reply-form" id="inlineReplyForm">
-            <textarea id="inlineReplyInput" placeholder="Schreibe deine Antwort..." required></textarea>
-            <button class="primary-btn" type="submit">Antwort senden</button>
+            <textarea
+              id="inlineReplyInput"
+              placeholder="Schreibe deine Antwort..."
+              required
+            ></textarea>
+
+            <button class="primary-btn" type="submit">
+              Antwort senden
+            </button>
           </form>
 
           <div id="inlineReplyMessage" class="form-message"></div>
@@ -347,6 +496,7 @@
     </section>
   </div>
 
+  <script src="supabase-config.js"></script>
   <script src="support-center.js"></script>
 </body>
 </html>
