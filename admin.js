@@ -9,8 +9,10 @@ const adminSettings = {
   notesByTicketId: {},
   attachmentsByTicketId: {},
   ipBans: [],
+  customerAccounts: [],
   user: null,
-  profile: null
+  profile: null,
+  customerAccountSystemEnabled: false
 };
 
 const adminAllowedRoles = ["support", "admin", "leitung", "manager"];
@@ -145,31 +147,50 @@ function adminCategoryLabel(category, fallback) {
   return fallback || labels[category] || category || "Allgemein";
 }
 
+function adminPriorityLabel(priority) {
+  const labels = {
+    low: "Niedrig",
+    normal: "Normal",
+    high: "Hoch",
+    urgent: "Dringend"
+  };
+
+  return labels[priority] || priority || "Normal";
+}
+
 function adminSetLoginMessage(text, type = "") {
+  if (!adminLoginMessage) return;
+
   adminLoginMessage.textContent = text || "";
   adminLoginMessage.className = `admin-message ${type}`.trim();
 }
 
 function adminSetCloseMessage(text, type = "") {
+  if (!closeTicketMessage) return;
+
   closeTicketMessage.textContent = text || "";
   closeTicketMessage.className = `admin-message ${type}`.trim();
 }
 
 function adminSetBanMessage(text, type = "") {
+  if (!banIpMessage) return;
+
   banIpMessage.textContent = text || "";
   banIpMessage.className = `admin-message ${type}`.trim();
 }
 
 function adminSetManualBanMessage(text, type = "") {
+  if (!manualBanMessage) return;
+
   manualBanMessage.textContent = text || "";
   manualBanMessage.className = `admin-message ${type}`.trim();
 }
 
 function adminSetConnectionStatus(status, text) {
-  if (!adminConnectionStatus) return;
-
-  adminConnectionStatus.textContent = text;
-  adminConnectionStatus.className = status;
+  if (adminConnectionStatus) {
+    adminConnectionStatus.textContent = text;
+    adminConnectionStatus.className = status;
+  }
 
   if (systemSupabaseText) {
     systemSupabaseText.textContent = text;
@@ -186,24 +207,48 @@ function adminSetSessionStatus(text) {
   }
 }
 
+function adminSetButtonLoading(button, isLoading, loadingText, defaultText) {
+  if (!button) return;
+
+  button.disabled = isLoading;
+  button.textContent = isLoading ? loadingText : defaultText;
+}
+
 function adminLoadScript(src) {
   return new Promise((resolve, reject) => {
     const existingScript = document.querySelector(`script[src="${src}"]`);
 
     if (existingScript) {
-      resolve();
+      if (existingScript.dataset.loaded === "true" || existingScript.src.includes(src)) {
+        resolve();
+        return;
+      }
+
+      existingScript.addEventListener("load", resolve, { once: true });
+      existingScript.addEventListener(
+        "error",
+        () => reject(new Error(`${src} konnte nicht geladen werden.`)),
+        { once: true }
+      );
       return;
     }
 
     const script = document.createElement("script");
     script.src = src;
-    script.onload = resolve;
+    script.onload = () => {
+      script.dataset.loaded = "true";
+      resolve();
+    };
     script.onerror = () => reject(new Error(`${src} konnte nicht geladen werden.`));
     document.head.appendChild(script);
   });
 }
 
 async function adminSetupSupabase() {
+  if (adminSupabaseClient) {
+    return;
+  }
+
   await adminLoadScript("supabase-config.js");
   await adminLoadScript(adminSettings.supabaseJsUrl);
 
@@ -218,19 +263,50 @@ async function adminSetupSupabase() {
 }
 
 function adminShowApp() {
-  adminLoginScreen.classList.add("hidden");
-  adminApp.classList.remove("hidden");
+  if (adminLoginScreen) {
+    adminLoginScreen.classList.add("hidden");
+  }
 
-  adminUserEmail.textContent = adminSettings.profile?.email || adminSettings.user?.email || "-";
-  adminUserRole.textContent = adminSettings.profile?.role || "-";
+  if (adminApp) {
+    adminApp.classList.remove("hidden");
+  }
+
+  if (adminUserEmail) {
+    adminUserEmail.textContent = adminSettings.profile?.email || adminSettings.user?.email || "-";
+  }
+
+  if (adminUserRole) {
+    adminUserRole.textContent = adminSettings.profile?.role || "-";
+  }
 
   adminSetSessionStatus(`Angemeldet als ${adminSettings.profile?.role || "-"}`);
 }
 
 function adminShowLogin() {
-  adminApp.classList.add("hidden");
-  adminLoginScreen.classList.remove("hidden");
+  if (adminApp) {
+    adminApp.classList.add("hidden");
+  }
+
+  if (adminLoginScreen) {
+    adminLoginScreen.classList.remove("hidden");
+  }
+
   adminSetSessionStatus("Nicht angemeldet");
+}
+
+function adminResetState() {
+  adminSettings.selectedTicketId = null;
+  adminSettings.pendingCloseTicketId = null;
+  adminSettings.pendingBanIp = "";
+  adminSettings.activeTicketCategory = "all";
+  adminSettings.tickets = [];
+  adminSettings.messagesByTicketId = {};
+  adminSettings.notesByTicketId = {};
+  adminSettings.attachmentsByTicketId = {};
+  adminSettings.ipBans = [];
+  adminSettings.customerAccounts = [];
+  adminSettings.user = null;
+  adminSettings.profile = null;
 }
 
 async function adminLoadProfile() {
@@ -266,7 +342,7 @@ function adminNormalizeTicket(row) {
     category: row.category || "support",
     categoryLabel: row.category_label,
     discordUsername: row.discord_username,
-    rank: row.rank,
+    rank: row.rank || row.roblox_username,
     title: row.title,
     description: row.description,
     applicationArea: row.application_area,
@@ -286,7 +362,10 @@ function adminNormalizeTicket(row) {
     priority: row.priority,
     internalCategory: row.internal_category,
     cooldownIdentity: row.cooldown_identity,
-    attachmentCount: row.attachment_count || 0
+    attachmentCount: row.attachment_count || 0,
+    userId: row.user_id || null,
+    customerEmail: row.customer_email || row.email || null,
+    accountStatus: row.account_status || null
   };
 }
 
@@ -328,7 +407,7 @@ async function adminLoadTickets() {
 async function adminLoadMessages(ticketId) {
   const { data, error } = await adminSupabaseClient
     .from("ticket_messages")
-    .select("id,ticket_id,sender_type,sender_name,message_text,created_at")
+    .select("id,ticket_id,sender_type,sender_name,message_text,message,content,author_type,author_name,created_at")
     .eq("ticket_id", ticketId)
     .order("created_at", { ascending: true });
 
@@ -370,6 +449,8 @@ async function adminLoadAttachments(ticketId) {
 }
 
 async function adminLoadIpBans() {
+  if (!ipBansList) return;
+
   if (!adminIsManager()) {
     ipBansList.innerHTML = `<p class="muted">Nur Manager können IP-Sperren anzeigen.</p>`;
     return;
@@ -398,18 +479,24 @@ function adminCanReopenTickets() {
   return adminReopenRoles.includes(adminSettings.profile?.role);
 }
 
+function adminCanUseCustomerAccountTools() {
+  return adminIsManager() && adminSettings.customerAccountSystemEnabled;
+}
+
 function adminRenderDashboard() {
   const tickets = adminSettings.tickets;
 
-  statAll.textContent = tickets.length;
-  statOpen.textContent = tickets.filter((ticket) => ticket.status === "open").length;
-  statProgress.textContent = tickets.filter((ticket) => ticket.status === "in_progress").length;
-  statClosed.textContent = tickets.filter((ticket) => ticket.status === "closed").length;
+  if (statAll) statAll.textContent = tickets.length;
+  if (statOpen) statOpen.textContent = tickets.filter((ticket) => ticket.status === "open").length;
+  if (statProgress) statProgress.textContent = tickets.filter((ticket) => ticket.status === "in_progress").length;
+  if (statClosed) statClosed.textContent = tickets.filter((ticket) => ticket.status === "closed").length;
 
-  statCategorySupport.textContent = tickets.filter((ticket) => ticket.category === "support").length;
-  statCategoryApplication.textContent = tickets.filter((ticket) => ticket.category === "application").length;
-  statCategoryReport.textContent = tickets.filter((ticket) => ticket.category === "report").length;
-  statCategoryBug.textContent = tickets.filter((ticket) => ticket.category === "bug").length;
+  if (statCategorySupport) statCategorySupport.textContent = tickets.filter((ticket) => ticket.category === "support").length;
+  if (statCategoryApplication) statCategoryApplication.textContent = tickets.filter((ticket) => ticket.category === "application").length;
+  if (statCategoryReport) statCategoryReport.textContent = tickets.filter((ticket) => ticket.category === "report").length;
+  if (statCategoryBug) statCategoryBug.textContent = tickets.filter((ticket) => ticket.category === "bug").length;
+
+  if (!latestTickets) return;
 
   latestTickets.innerHTML = tickets.slice(0, 7).map((ticket) => `
     <button class="ticket-card" type="button" data-ticket-id="${adminEscape(ticket.id)}">
@@ -436,8 +523,8 @@ function adminRenderDashboard() {
 }
 
 function adminGetFilteredTickets() {
-  const search = ticketSearchInput.value.trim().toLowerCase();
-  const status = ticketStatusFilter.value;
+  const search = ticketSearchInput ? ticketSearchInput.value.trim().toLowerCase() : "";
+  const status = ticketStatusFilter ? ticketStatusFilter.value : "all";
   const category = adminSettings.activeTicketCategory;
 
   return adminSettings.tickets.filter((ticket) => {
@@ -461,7 +548,10 @@ function adminGetFilteredTickets() {
       ticket.requesterIp,
       ticket.requesterUserAgent,
       ticket.source,
-      ticket.priority
+      ticket.priority,
+      ticket.userId,
+      ticket.customerEmail,
+      ticket.accountStatus
     ].join(" ").toLowerCase();
 
     const searchMatches = !search || searchable.includes(search);
@@ -471,6 +561,8 @@ function adminGetFilteredTickets() {
 }
 
 function adminRenderTicketsList() {
+  if (!adminTicketsList) return;
+
   const tickets = adminGetFilteredTickets();
 
   if (ticketListCount) {
@@ -520,8 +612,12 @@ function adminRenderMessages(ticketId) {
   }
 
   return messages.map((message) => {
-    const senderType = message.sender_type || "system";
-    const senderName = senderType === "support" ? "Support Agent" : message.sender_name || "Unbekannt";
+    const senderType = message.sender_type || message.author_type || "system";
+    const senderName = senderType === "support"
+      ? message.sender_name || "Support Agent"
+      : message.sender_name || message.author_name || "Unbekannt";
+
+    const messageText = message.message_text || message.message || message.content || "";
 
     return `
       <div class="admin-message-bubble ${adminEscape(senderType)}">
@@ -529,7 +625,7 @@ function adminRenderMessages(ticketId) {
           <span>${adminEscape(senderName)}</span>
           <span>${adminEscape(adminFormatDate(message.created_at))}</span>
         </div>
-        <p>${adminEscape(message.message_text)}</p>
+        <p>${adminEscape(messageText)}</p>
       </div>
     `;
   }).join("");
@@ -602,6 +698,37 @@ function adminRenderClosedReason(ticket) {
   `;
 }
 
+function adminRenderCustomerAccountBox(ticket) {
+  if (!ticket.userId && !ticket.customerEmail) {
+    return `
+      <div class="detail-box full">
+        <strong>Kundenkonto</strong>
+        <span>Noch nicht mit einem Kundenkonto verbunden. Aktuell läuft dieses Ticket noch über Browser/Discord-Zuordnung.</span>
+      </div>
+    `;
+  }
+
+  return `
+    <div class="detail-box">
+      <strong>Kundenkonto-ID</strong>
+      <span>${adminEscape(ticket.userId || "Nicht gespeichert")}</span>
+    </div>
+
+    <div class="detail-box">
+      <strong>Kunden-E-Mail</strong>
+      <span>${adminEscape(ticket.customerEmail || "Nicht gespeichert")}</span>
+    </div>
+
+    <div class="detail-box full security-warning-box">
+      <strong>Account-Sperre</strong>
+      <span>
+        Dieser Bereich ist für die kommende Kundenkonto-Funktion vorbereitet.
+        Sobald Kundenprofile aktiv sind, können Manager hier Accounts sperren oder entsperren.
+      </span>
+    </div>
+  `;
+}
+
 function adminRenderIpSecurity(ticket) {
   const canBan = adminIsManager();
   const hasIp = ticket.requesterIp && ticket.requesterIp !== "unknown";
@@ -624,7 +751,7 @@ function adminRenderIpSecurity(ticket) {
 
     <div class="detail-box">
       <strong>Priorität</strong>
-      <span>${adminEscape(ticket.priority || "normal")}</span>
+      <span>${adminEscape(adminPriorityLabel(ticket.priority || "normal"))}</span>
     </div>
 
     ${hasIp && canBan ? `
@@ -645,6 +772,8 @@ function adminRenderIpSecurity(ticket) {
 }
 
 function adminRenderTicketDetail(ticket) {
+  if (!ticketDetailCard) return;
+
   const isClosed = ticket.status === "closed";
   const canReopen = adminCanReopenTickets();
 
@@ -730,6 +859,7 @@ function adminRenderTicketDetail(ticket) {
         <span>${adminEscape(ticket.reproduce || "Nicht angegeben")}</span>
       </div>
 
+      ${adminRenderCustomerAccountBox(ticket)}
       ${adminRenderIpSecurity(ticket)}
     </div>
 
@@ -861,6 +991,8 @@ function adminRenderTicketDetail(ticket) {
 }
 
 function adminRenderIpBans() {
+  if (!ipBansList) return;
+
   if (!adminSettings.ipBans.length) {
     ipBansList.innerHTML = `<p class="muted">Keine aktiven IP-Sperren vorhanden.</p>`;
     return;
@@ -916,13 +1048,36 @@ async function adminRefreshSelectedTicket() {
   }
 
   await adminLoadTickets();
-  await adminSelectTicket(adminSettings.selectedTicketId);
+
+  const stillExists = adminSettings.tickets.some((ticket) => {
+    return ticket.id === adminSettings.selectedTicketId;
+  });
+
+  if (stillExists) {
+    await adminSelectTicket(adminSettings.selectedTicketId);
+  } else {
+    adminSettings.selectedTicketId = null;
+    adminRenderTicketsList();
+
+    if (ticketDetailCard) {
+      ticketDetailCard.innerHTML = `
+        <div class="empty-detail">
+          <div class="empty-icon"></div>
+          <strong>Ticket nicht mehr gefunden</strong>
+          <span>Das ausgewählte Ticket konnte nach dem Aktualisieren nicht mehr geladen werden.</span>
+        </div>
+      `;
+    }
+  }
 }
 
 async function adminUpdateTicketStatus(ticketId, status) {
   const { error } = await adminSupabaseClient
     .from("tickets")
-    .update({ status })
+    .update({
+      status,
+      updated_at: new Date().toISOString()
+    })
     .eq("id", ticketId);
 
   if (error) {
@@ -942,19 +1097,31 @@ async function adminSendSupportMessage(ticketId, text) {
     return;
   }
 
+  const senderName = adminSettings.profile?.email || "Support Agent";
+
   const { error } = await adminSupabaseClient
     .from("ticket_messages")
     .insert({
       ticket_id: ticketId,
       sender_type: "support",
-      sender_name: "Support Agent",
-      message_text: text
+      sender_name: senderName,
+      message_text: text,
+      message: text
     });
 
   if (error) {
     alert(error.message || "Antwort konnte nicht gesendet werden.");
     return;
   }
+
+  await adminSupabaseClient
+    .from("tickets")
+    .update({
+      status: ticket?.status === "open" ? "in_progress" : ticket?.status || "in_progress",
+      last_message_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    })
+    .eq("id", ticketId);
 
   await adminRefreshSelectedTicket();
 }
@@ -984,20 +1151,36 @@ async function adminSaveNote(ticketId, text) {
 
 function adminOpenCloseModal(ticketId) {
   adminSettings.pendingCloseTicketId = ticketId;
-  closeReasonInput.value = "";
+
+  if (closeReasonInput) {
+    closeReasonInput.value = "";
+  }
+
   adminSetCloseMessage("");
-  closeTicketModal.classList.remove("hidden");
+
+  if (closeTicketModal) {
+    closeTicketModal.classList.remove("hidden");
+    document.body.classList.add("modal-active");
+  }
 
   setTimeout(() => {
-    closeReasonInput.focus();
+    closeReasonInput?.focus();
   }, 80);
 }
 
 function adminCloseCloseModal() {
   adminSettings.pendingCloseTicketId = null;
-  closeReasonInput.value = "";
+
+  if (closeReasonInput) {
+    closeReasonInput.value = "";
+  }
+
   adminSetCloseMessage("");
-  closeTicketModal.classList.add("hidden");
+
+  if (closeTicketModal) {
+    closeTicketModal.classList.add("hidden");
+    document.body.classList.remove("modal-active");
+  }
 }
 
 async function adminCloseTicketWithReason(ticketId, reason) {
@@ -1041,22 +1224,44 @@ function adminOpenBanIpModal(ipAddress) {
   }
 
   adminSettings.pendingBanIp = ipAddress || "";
-  banIpInput.value = ipAddress || "";
-  banIpReasonInput.value = "";
+
+  if (banIpInput) {
+    banIpInput.value = ipAddress || "";
+  }
+
+  if (banIpReasonInput) {
+    banIpReasonInput.value = "";
+  }
+
   adminSetBanMessage("");
-  banIpModal.classList.remove("hidden");
+
+  if (banIpModal) {
+    banIpModal.classList.remove("hidden");
+    document.body.classList.add("modal-active");
+  }
 
   setTimeout(() => {
-    banIpReasonInput.focus();
+    banIpReasonInput?.focus();
   }, 80);
 }
 
 function adminCloseBanIpModal() {
   adminSettings.pendingBanIp = "";
-  banIpInput.value = "";
-  banIpReasonInput.value = "";
+
+  if (banIpInput) {
+    banIpInput.value = "";
+  }
+
+  if (banIpReasonInput) {
+    banIpReasonInput.value = "";
+  }
+
   adminSetBanMessage("");
-  banIpModal.classList.add("hidden");
+
+  if (banIpModal) {
+    banIpModal.classList.add("hidden");
+    document.body.classList.remove("modal-active");
+  }
 }
 
 async function adminBanIp(ipAddress, reason) {
@@ -1113,252 +1318,314 @@ function adminOpenView(viewName) {
 }
 
 function adminSetTicketCategory(category) {
-  adminSettings.activeTicketCategory = category;
+  adminSettings.activeTicketCategory = category || "all";
   adminRenderTicketsList();
 }
 
-adminLoginForm.addEventListener("submit", async (event) => {
-  event.preventDefault();
+function adminSetupLogin() {
+  if (!adminLoginForm) return;
 
-  try {
-    adminSetLoginMessage("Login läuft...");
+  adminLoginForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
 
-    const { error } = await adminSupabaseClient.auth.signInWithPassword({
-      email: adminEmail.value.trim(),
-      password: adminPassword.value
-    });
+    try {
+      adminSetLoginMessage("Login läuft...");
 
-    if (error) {
-      throw new Error(error.message || "Login fehlgeschlagen.");
-    }
+      const { error } = await adminSupabaseClient.auth.signInWithPassword({
+        email: adminEmail.value.trim(),
+        password: adminPassword.value
+      });
 
-    await adminLoadProfile();
-    adminShowApp();
-    await adminLoadTickets();
-
-    adminSetLoginMessage("");
-  } catch (error) {
-    adminSetLoginMessage(error.message, "error");
-  }
-});
-
-adminLogoutButton.addEventListener("click", async () => {
-  await adminSupabaseClient.auth.signOut();
-
-  adminSettings.selectedTicketId = null;
-  adminSettings.pendingCloseTicketId = null;
-  adminSettings.pendingBanIp = "";
-  adminSettings.activeTicketCategory = "all";
-  adminSettings.tickets = [];
-  adminSettings.messagesByTicketId = {};
-  adminSettings.notesByTicketId = {};
-  adminSettings.attachmentsByTicketId = {};
-  adminSettings.ipBans = [];
-  adminSettings.user = null;
-  adminSettings.profile = null;
-
-  adminShowLogin();
-});
-
-adminNavButtons.forEach((button) => {
-  button.addEventListener("click", () => {
-    adminOpenView(button.dataset.adminView);
-  });
-});
-
-openTicketsViewButtons.forEach((button) => {
-  button.addEventListener("click", () => {
-    adminOpenView("tickets");
-  });
-});
-
-dashboardCategoryButtons.forEach((button) => {
-  button.addEventListener("click", () => {
-    adminSetTicketCategory(button.dataset.dashboardCategory);
-    adminOpenView("tickets");
-  });
-});
-
-ticketCategoryButtons.forEach((button) => {
-  button.addEventListener("click", () => {
-    adminSetTicketCategory(button.dataset.ticketCategory);
-  });
-});
-
-reloadTicketsButton.addEventListener("click", async () => {
-  await adminLoadTickets();
-
-  if (adminSettings.selectedTicketId) {
-    await adminSelectTicket(adminSettings.selectedTicketId);
-  }
-});
-
-reloadTicketsButtonTwo.addEventListener("click", async () => {
-  await adminLoadTickets();
-
-  if (adminSettings.selectedTicketId) {
-    await adminSelectTicket(adminSettings.selectedTicketId);
-  }
-});
-
-reloadBansButton.addEventListener("click", async () => {
-  await adminLoadIpBans();
-});
-
-ticketSearchInput.addEventListener("input", adminRenderTicketsList);
-ticketStatusFilter.addEventListener("change", adminRenderTicketsList);
-
-closeModalCancel.addEventListener("click", adminCloseCloseModal);
-closeModalCancelTop.addEventListener("click", adminCloseCloseModal);
-
-closeTicketModal.addEventListener("click", (event) => {
-  if (event.target === closeTicketModal) {
-    adminCloseCloseModal();
-  }
-});
-
-closeTicketForm.addEventListener("submit", async (event) => {
-  event.preventDefault();
-
-  const ticketId = adminSettings.pendingCloseTicketId;
-  const reason = closeReasonInput.value.trim();
-
-  if (!ticketId) {
-    adminSetCloseMessage("Kein Ticket ausgewählt.", "error");
-    return;
-  }
-
-  if (reason.length < 5) {
-    adminSetCloseMessage("Bitte gib einen richtigen Schließgrund an.", "error");
-    return;
-  }
-
-  try {
-    adminSetCloseMessage("Ticket wird geschlossen...");
-
-    await adminCloseTicketWithReason(ticketId, reason);
-
-    adminSetCloseMessage("Ticket wurde geschlossen.", "success");
-
-    await adminLoadTickets();
-    await adminSelectTicket(ticketId);
-
-    setTimeout(() => {
-      adminCloseCloseModal();
-    }, 450);
-  } catch (error) {
-    adminSetCloseMessage(error.message, "error");
-  }
-});
-
-banIpCancel.addEventListener("click", adminCloseBanIpModal);
-banIpCancelTop.addEventListener("click", adminCloseBanIpModal);
-
-banIpModal.addEventListener("click", (event) => {
-  if (event.target === banIpModal) {
-    adminCloseBanIpModal();
-  }
-});
-
-banIpForm.addEventListener("submit", async (event) => {
-  event.preventDefault();
-
-  const ipAddress = banIpInput.value.trim();
-  const reason = banIpReasonInput.value.trim();
-
-  if (!ipAddress) {
-    adminSetBanMessage("Keine IP-Adresse ausgewählt.", "error");
-    return;
-  }
-
-  if (reason.length < 5) {
-    adminSetBanMessage("Bitte gib einen richtigen Sperrgrund an.", "error");
-    return;
-  }
-
-  try {
-    adminSetBanMessage("IP wird gesperrt...");
-
-    await adminBanIp(ipAddress, reason);
-
-    adminSetBanMessage("IP wurde gesperrt.", "success");
-    await adminLoadIpBans();
-
-    setTimeout(() => {
-      adminCloseBanIpModal();
-    }, 450);
-  } catch (error) {
-    adminSetBanMessage(error.message, "error");
-  }
-});
-
-manualBanForm.addEventListener("submit", async (event) => {
-  event.preventDefault();
-
-  const ipAddress = manualBanIpInput.value.trim();
-  const reason = manualBanReasonInput.value.trim();
-
-  if (!adminIsManager()) {
-    adminSetManualBanMessage("Nur Manager können IP-Adressen sperren.", "error");
-    return;
-  }
-
-  if (!ipAddress) {
-    adminSetManualBanMessage("Bitte gib eine IP-Adresse ein.", "error");
-    return;
-  }
-
-  if (reason.length < 5) {
-    adminSetManualBanMessage("Bitte gib einen richtigen Sperrgrund an.", "error");
-    return;
-  }
-
-  try {
-    adminSetManualBanMessage("IP wird gesperrt...");
-
-    await adminBanIp(ipAddress, reason);
-
-    manualBanIpInput.value = "";
-    manualBanReasonInput.value = "";
-
-    adminSetManualBanMessage("IP wurde gesperrt.", "success");
-    await adminLoadIpBans();
-  } catch (error) {
-    adminSetManualBanMessage(error.message, "error");
-  }
-});
-
-document.addEventListener("keydown", (event) => {
-  if (event.key === "Escape" && !closeTicketModal.classList.contains("hidden")) {
-    adminCloseCloseModal();
-  }
-
-  if (event.key === "Escape" && !banIpModal.classList.contains("hidden")) {
-    adminCloseBanIpModal();
-  }
-});
-
-(async function initAdmin() {
-  try {
-    await adminSetupSupabase();
-
-    const { data } = await adminSupabaseClient.auth.getSession();
-
-    if (data.session) {
-      try {
-        await adminLoadProfile();
-        adminShowApp();
-        await adminLoadTickets();
-      } catch (error) {
-        adminShowLogin();
-        adminSetLoginMessage(error.message, "error");
+      if (error) {
+        throw new Error(error.message || "Login fehlgeschlagen.");
       }
-    } else {
-      adminShowLogin();
+
+      await adminLoadProfile();
+      adminShowApp();
+      await adminLoadTickets();
+
+      adminSetLoginMessage("");
+    } catch (error) {
+      adminSetLoginMessage(error.message || "Login fehlgeschlagen.", "error");
     }
+  });
+}
+
+function adminSetupLogout() {
+  if (!adminLogoutButton) return;
+
+  adminLogoutButton.addEventListener("click", async () => {
+    await adminSupabaseClient.auth.signOut();
+
+    adminResetState();
+    adminShowLogin();
+  });
+}
+
+function adminSetupNavigation() {
+  adminNavButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      adminOpenView(button.dataset.adminView);
+    });
+  });
+
+  openTicketsViewButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      adminOpenView("tickets");
+    });
+  });
+
+  dashboardCategoryButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      adminSetTicketCategory(button.dataset.dashboardCategory);
+      adminOpenView("tickets");
+    });
+  });
+
+  ticketCategoryButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      adminSetTicketCategory(button.dataset.ticketCategory);
+    });
+  });
+}
+
+function adminSetupReloadButtons() {
+  if (reloadTicketsButton) {
+    reloadTicketsButton.addEventListener("click", async () => {
+      await adminLoadTickets();
+
+      if (adminSettings.selectedTicketId) {
+        await adminSelectTicket(adminSettings.selectedTicketId);
+      }
+    });
+  }
+
+  if (reloadTicketsButtonTwo) {
+    reloadTicketsButtonTwo.addEventListener("click", async () => {
+      await adminLoadTickets();
+
+      if (adminSettings.selectedTicketId) {
+        await adminSelectTicket(adminSettings.selectedTicketId);
+      }
+    });
+  }
+
+  if (reloadBansButton) {
+    reloadBansButton.addEventListener("click", async () => {
+      await adminLoadIpBans();
+    });
+  }
+}
+
+function adminSetupFilters() {
+  if (ticketSearchInput) {
+    ticketSearchInput.addEventListener("input", adminRenderTicketsList);
+  }
+
+  if (ticketStatusFilter) {
+    ticketStatusFilter.addEventListener("change", adminRenderTicketsList);
+  }
+}
+
+function adminSetupCloseModal() {
+  if (closeModalCancel) {
+    closeModalCancel.addEventListener("click", adminCloseCloseModal);
+  }
+
+  if (closeModalCancelTop) {
+    closeModalCancelTop.addEventListener("click", adminCloseCloseModal);
+  }
+
+  if (closeTicketModal) {
+    closeTicketModal.addEventListener("click", (event) => {
+      if (event.target === closeTicketModal) {
+        adminCloseCloseModal();
+      }
+    });
+  }
+
+  if (closeTicketForm) {
+    closeTicketForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const ticketId = adminSettings.pendingCloseTicketId;
+      const reason = closeReasonInput.value.trim();
+
+      if (!ticketId) {
+        adminSetCloseMessage("Kein Ticket ausgewählt.", "error");
+        return;
+      }
+
+      if (reason.length < 5) {
+        adminSetCloseMessage("Bitte gib einen richtigen Schließgrund an.", "error");
+        return;
+      }
+
+      try {
+        adminSetCloseMessage("Ticket wird geschlossen...");
+
+        await adminCloseTicketWithReason(ticketId, reason);
+
+        adminSetCloseMessage("Ticket wurde geschlossen.", "success");
+
+        await adminLoadTickets();
+        await adminSelectTicket(ticketId);
+
+        setTimeout(() => {
+          adminCloseCloseModal();
+        }, 450);
+      } catch (error) {
+        adminSetCloseMessage(error.message || "Ticket konnte nicht geschlossen werden.", "error");
+      }
+    });
+  }
+}
+
+function adminSetupBanModal() {
+  if (banIpCancel) {
+    banIpCancel.addEventListener("click", adminCloseBanIpModal);
+  }
+
+  if (banIpCancelTop) {
+    banIpCancelTop.addEventListener("click", adminCloseBanIpModal);
+  }
+
+  if (banIpModal) {
+    banIpModal.addEventListener("click", (event) => {
+      if (event.target === banIpModal) {
+        adminCloseBanIpModal();
+      }
+    });
+  }
+
+  if (banIpForm) {
+    banIpForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      const ipAddress = banIpInput.value.trim();
+      const reason = banIpReasonInput.value.trim();
+
+      if (!ipAddress) {
+        adminSetBanMessage("Keine IP-Adresse ausgewählt.", "error");
+        return;
+      }
+
+      if (reason.length < 5) {
+        adminSetBanMessage("Bitte gib einen richtigen Sperrgrund an.", "error");
+        return;
+      }
+
+      try {
+        adminSetBanMessage("IP wird gesperrt...");
+
+        await adminBanIp(ipAddress, reason);
+
+        adminSetBanMessage("IP wurde gesperrt.", "success");
+        await adminLoadIpBans();
+
+        setTimeout(() => {
+          adminCloseBanIpModal();
+        }, 450);
+      } catch (error) {
+        adminSetBanMessage(error.message || "IP konnte nicht gesperrt werden.", "error");
+      }
+    });
+  }
+}
+
+function adminSetupManualBanForm() {
+  if (!manualBanForm) return;
+
+  manualBanForm.addEventListener("submit", async (event) => {
+    event.preventDefault();
+
+    const ipAddress = manualBanIpInput.value.trim();
+    const reason = manualBanReasonInput.value.trim();
+
+    if (!adminIsManager()) {
+      adminSetManualBanMessage("Nur Manager können IP-Adressen sperren.", "error");
+      return;
+    }
+
+    if (!ipAddress) {
+      adminSetManualBanMessage("Bitte gib eine IP-Adresse ein.", "error");
+      return;
+    }
+
+    if (reason.length < 5) {
+      adminSetManualBanMessage("Bitte gib einen richtigen Sperrgrund an.", "error");
+      return;
+    }
+
+    try {
+      adminSetManualBanMessage("IP wird gesperrt...");
+
+      await adminBanIp(ipAddress, reason);
+
+      manualBanIpInput.value = "";
+      manualBanReasonInput.value = "";
+
+      adminSetManualBanMessage("IP wurde gesperrt.", "success");
+      await adminLoadIpBans();
+    } catch (error) {
+      adminSetManualBanMessage(error.message || "IP konnte nicht gesperrt werden.", "error");
+    }
+  });
+}
+
+function adminSetupKeyboard() {
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && closeTicketModal && !closeTicketModal.classList.contains("hidden")) {
+      adminCloseCloseModal();
+    }
+
+    if (event.key === "Escape" && banIpModal && !banIpModal.classList.contains("hidden")) {
+      adminCloseBanIpModal();
+    }
+  });
+}
+
+function adminSetupEvents() {
+  adminSetupLogin();
+  adminSetupLogout();
+  adminSetupNavigation();
+  adminSetupReloadButtons();
+  adminSetupFilters();
+  adminSetupCloseModal();
+  adminSetupBanModal();
+  adminSetupManualBanForm();
+  adminSetupKeyboard();
+}
+
+async function adminRestoreSession() {
+  const { data } = await adminSupabaseClient.auth.getSession();
+
+  if (data.session) {
+    try {
+      await adminLoadProfile();
+      adminShowApp();
+      await adminLoadTickets();
+    } catch (error) {
+      await adminSupabaseClient.auth.signOut();
+      adminResetState();
+      adminShowLogin();
+      adminSetLoginMessage(error.message || "Sitzung konnte nicht geladen werden.", "error");
+    }
+  } else {
+    adminShowLogin();
+  }
+}
+
+async function initAdmin() {
+  try {
+    adminSetupEvents();
+    await adminSetupSupabase();
+    await adminRestoreSession();
   } catch (error) {
     adminSetConnectionStatus("offline", "Nicht verbunden");
     adminShowLogin();
-    adminSetLoginMessage(error.message, "error");
+    adminSetLoginMessage(error.message || "Admin-Panel konnte nicht geladen werden.", "error");
   }
-})();
+}
+
+initAdmin();
