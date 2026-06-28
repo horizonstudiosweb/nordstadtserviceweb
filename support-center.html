@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="de">
+<html lang="de" class="auth-checking">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -10,6 +10,78 @@
     name="description"
     content="Support-Center für Nordstadt Roleplay. Erstelle Tickets, sieh deine Tickets ein und schreibe direkt mit dem Support."
   />
+
+  <style>
+    html.auth-checking body {
+      opacity: 0;
+      pointer-events: none;
+    }
+  </style>
+
+  <script>
+    (function () {
+      const redirectUrl = new URL("auth.html", window.location.href);
+      redirectUrl.searchParams.set("redirect", "support-center.html");
+
+      function redirectToAuth() {
+        window.location.replace(redirectUrl.toString());
+      }
+
+      function loadScript(src) {
+        return new Promise((resolve, reject) => {
+          const existingScript = document.querySelector(`script[src="${src}"]`);
+
+          if (existingScript) {
+            if (existingScript.dataset.loaded === "true") {
+              resolve();
+              return;
+            }
+
+            existingScript.addEventListener("load", resolve, { once: true });
+            existingScript.addEventListener("error", reject, { once: true });
+            return;
+          }
+
+          const script = document.createElement("script");
+          script.src = src;
+          script.onload = () => {
+            script.dataset.loaded = "true";
+            resolve();
+          };
+          script.onerror = reject;
+          document.head.appendChild(script);
+        });
+      }
+
+      async function checkSupportAuth() {
+        try {
+          await loadScript("supabase-config.js");
+          await loadScript("https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2");
+
+          const config = window.NordstadtSupabaseConfig?.getConfig?.();
+
+          if (!config || !config.enabled || !config.url || !config.anonKey) {
+            redirectToAuth();
+            return;
+          }
+
+          const client = window.supabase.createClient(config.url, config.anonKey);
+          const { data, error } = await client.auth.getSession();
+
+          if (error || !data.session) {
+            redirectToAuth();
+            return;
+          }
+
+          document.documentElement.classList.remove("auth-checking");
+        } catch (_error) {
+          redirectToAuth();
+        }
+      }
+
+      checkSupportAuth();
+    })();
+  </script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -108,12 +180,12 @@
       <div>
         <h2>Kundenkonto benötigt</h2>
         <p>
-          Für das Support-Center wird später ein bestätigtes Kundenkonto benötigt.
+          Für das Support-Center wird ein bestätigtes Kundenkonto benötigt.
           Damit können deine Tickets sicher deinem Account zugeordnet werden.
         </p>
       </div>
 
-      <a class="auth-btn" href="auth.html">
+      <a class="auth-btn" href="auth.html?redirect=support-center.html">
         Zum Login
       </a>
     </section>
@@ -170,7 +242,7 @@
             <h2>Meine Tickets</h2>
 
             <p>
-              Hier findest du Tickets, die du mit diesem Browser erstellt hast.
+              Hier findest du Tickets, die du mit diesem Kundenkonto erstellt hast.
               Ein Klick auf „Öffnen“ zeigt den Chat direkt im Support-Center.
             </p>
           </div>
@@ -496,7 +568,6 @@
     </section>
   </div>
 
-  <script src="supabase-config.js"></script>
   <script src="support-center.js"></script>
 </body>
 </html>
