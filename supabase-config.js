@@ -1,4 +1,4 @@
-/*
+ /*
   Nordstadt Roleplay - Supabase Config
 
   Diese Datei ist nur für öffentliche Supabase-Verbindungsdaten gedacht.
@@ -17,34 +17,42 @@
 
   Wichtig:
   Der anon public key darf im Frontend sichtbar sein.
-  Die Sicherheit kommt später über Supabase RLS-Policies.
+  Die Sicherheit kommt über Supabase RLS-Policies, Rollenprüfung
+  und serverseitige Edge Functions.
 */
 
 const SUPABASE_CONFIG = {
   enabled: true,
 
-  /*
-    Später hier eintragen:
-
-    url:
-    Supabase Dashboard
-    → Project Settings
-    → Data API
-    → Project URL
-
-    anonKey:
-    Supabase Dashboard
-    → Project Settings
-    → Data API
-    → anon public key
-  */
-
   url: "https://nhasjzrtvxmlrwwoqnrk.supabase.co",
-  anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5oYXNqenJ0dnhtbHJ3d29xbnJrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI1NTY2NTgsImV4cCI6MjA5ODEzMjY1OH0.SGRA0aVeiLVGu-xYxCZvHXcFXtqNEMZGwiICaN1Z-F0"
+
+  anonKey: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5oYXNqenJ0dnhtbHJ3d29xbnJrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODI1NTY2NTgsImV4cCI6MjA5ODEzMjY1OH0.SGRA0aVeiLVGu-xYxCZvHXcFXtqNEMZGwiICaN1Z-F0",
+
+  functions: {
+    createTicket: "create-support-ticket"
+  },
+
+  storage: {
+    ticketUploadsBucket: "ticket-uploads"
+  },
+
+  pages: {
+    home: "index.html",
+    supportCenter: "support-center.html",
+    admin: "admin.html",
+    auth: "auth.html"
+  }
 };
 
 function getSupabaseConfig() {
-  return SUPABASE_CONFIG;
+  return {
+    enabled: SUPABASE_CONFIG.enabled,
+    url: SUPABASE_CONFIG.url,
+    anonKey: SUPABASE_CONFIG.anonKey,
+    functions: { ...SUPABASE_CONFIG.functions },
+    storage: { ...SUPABASE_CONFIG.storage },
+    pages: { ...SUPABASE_CONFIG.pages }
+  };
 }
 
 window.NordstadtSupabaseConfig = {
