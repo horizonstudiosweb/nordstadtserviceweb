@@ -8,6 +8,7 @@ const supportCenterSettings = {
   currentInlineTicketNumber: "",
   currentInlineDiscordName: "",
   currentInlineTicket: null,
+  accountSystemEnabled: false,
   categories: {
     support: {
       label: "Allgemein",
@@ -46,6 +47,7 @@ const supportCenterSettings = {
 
 let supportCenterSupabaseClient = null;
 let supportCenterReady = false;
+let supportCenterSession = null;
 
 const ticketModal = document.getElementById("ticketModal");
 const ticketModalClose = document.getElementById("ticketModalClose");
@@ -100,207 +102,12 @@ const inlineReplyInput = document.getElementById("inlineReplyInput");
 const inlineReplyMessage = document.getElementById("inlineReplyMessage");
 const inlineRefreshTicketButton = document.getElementById("inlineRefreshTicketButton");
 
+const accountInfoCard = document.getElementById("accountInfoCard");
+const accountInfoText = document.getElementById("accountInfoText");
+const authGate = document.getElementById("authGate");
+const logoutButton = document.getElementById("logoutButton");
+
 const openTicketButtons = document.querySelectorAll("[data-open-ticket]");
-
-function injectInlineChatStyles() {
-  if (document.getElementById("inlineTicketChatStyles")) return;
-
-  const style = document.createElement("style");
-  style.id = "inlineTicketChatStyles";
-  style.textContent = `
-    .inline-ticket-chat {
-      width: 100%;
-      margin-top: 26px;
-      padding: 22px;
-      border: 1px solid rgba(145, 190, 255, 0.16);
-      border-radius: 28px;
-      background:
-        radial-gradient(circle at top left, rgba(117, 197, 255, 0.14), transparent 36%),
-        rgba(255, 255, 255, 0.055);
-      text-align: left;
-    }
-
-    .inline-ticket-head {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      gap: 18px;
-      margin-bottom: 16px;
-    }
-
-    .inline-ticket-head h3 {
-      margin: 12px 0 0;
-      color: #ffffff;
-      font-size: clamp(30px, 4vw, 52px);
-      line-height: 0.95;
-      font-weight: 950;
-      letter-spacing: -0.07em;
-    }
-
-    .inline-ticket-head p {
-      margin: 10px 0 0;
-      color: rgba(226, 238, 255, 0.7);
-      line-height: 1.6;
-    }
-
-    .inline-ticket-info {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 12px;
-      margin-bottom: 12px;
-    }
-
-    .inline-ticket-info div,
-    .inline-ticket-description,
-    .inline-closed-reason {
-      padding: 14px;
-      border: 1px solid rgba(145, 190, 255, 0.12);
-      border-radius: 18px;
-      background: rgba(255, 255, 255, 0.045);
-    }
-
-    .inline-ticket-info span,
-    .inline-ticket-description span,
-    .inline-closed-reason span {
-      display: block;
-      color: rgba(226, 238, 255, 0.48);
-      font-size: 11px;
-      font-weight: 900;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      margin-bottom: 7px;
-    }
-
-    .inline-ticket-info strong,
-    .inline-ticket-description p,
-    .inline-closed-reason p {
-      margin: 0;
-      color: #f7fbff;
-      line-height: 1.6;
-      white-space: pre-wrap;
-      word-break: break-word;
-    }
-
-    .inline-closed-reason {
-      margin-top: 12px;
-      border-color: rgba(255, 224, 131, 0.24);
-      background: rgba(255, 224, 131, 0.08);
-    }
-
-    .inline-ticket-messages {
-      display: grid;
-      gap: 12px;
-      max-height: 380px;
-      overflow: auto;
-      margin-top: 16px;
-      padding-right: 6px;
-    }
-
-    .inline-ticket-message {
-      max-width: 86%;
-      padding: 13px 15px;
-      border: 1px solid rgba(145, 190, 255, 0.12);
-      border-radius: 18px;
-      background: rgba(255, 255, 255, 0.055);
-    }
-
-    .inline-ticket-message.user {
-      margin-right: auto;
-    }
-
-    .inline-ticket-message.support {
-      margin-left: auto;
-      border-color: rgba(117, 197, 255, 0.28);
-      background:
-        radial-gradient(circle at top left, rgba(117, 197, 255, 0.16), transparent 42%),
-        rgba(67, 164, 255, 0.1);
-    }
-
-    .inline-ticket-message.system {
-      max-width: 100%;
-      text-align: center;
-      margin: 0 auto;
-      color: rgba(226, 238, 255, 0.7);
-    }
-
-    .inline-ticket-message-top {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 8px;
-      color: rgba(226, 238, 255, 0.48);
-      font-size: 12px;
-      font-weight: 850;
-    }
-
-    .inline-ticket-message p {
-      margin: 0;
-      color: #f7fbff;
-      line-height: 1.6;
-      white-space: pre-wrap;
-      word-break: break-word;
-    }
-
-    .inline-reply-form {
-      display: grid;
-      gap: 12px;
-      margin-top: 14px;
-    }
-
-    .inline-reply-form textarea {
-      width: 100%;
-      min-height: 110px;
-      resize: vertical;
-      padding: 14px 15px;
-      border: 1px solid rgba(145, 190, 255, 0.16);
-      border-radius: 18px;
-      background: rgba(255, 255, 255, 0.062);
-      color: #f7fbff;
-      outline: none;
-      font-weight: 620;
-      line-height: 1.55;
-    }
-
-    .inline-reply-form button {
-      width: fit-content;
-    }
-
-    .inline-closed-notice {
-      margin-top: 14px;
-      padding: 14px 16px;
-      border: 1px solid rgba(255, 224, 131, 0.24);
-      border-radius: 18px;
-      background: rgba(255, 224, 131, 0.08);
-      color: #fff1b6;
-      line-height: 1.55;
-      font-weight: 700;
-    }
-
-    .my-ticket-open {
-      border: 0;
-      cursor: pointer;
-    }
-
-    @media (max-width: 760px) {
-      .inline-ticket-head {
-        display: grid;
-      }
-
-      .inline-ticket-info {
-        grid-template-columns: 1fr;
-      }
-
-      .inline-ticket-message {
-        max-width: 100%;
-      }
-
-      .inline-reply-form button {
-        width: 100%;
-      }
-    }
-  `;
-  document.head.appendChild(style);
-}
 
 function escapeHtml(value) {
   return String(value || "")
@@ -358,25 +165,45 @@ function setInlineReplyMessage(text, type = "") {
   inlineReplyMessage.className = `form-message ${type}`.trim();
 }
 
+function setButtonLoading(button, isLoading, loadingText, defaultText) {
+  if (!button) return;
+
+  button.disabled = isLoading;
+  button.textContent = isLoading ? loadingText : defaultText;
+}
+
 function loadScript(src) {
   return new Promise((resolve, reject) => {
     const existingScript = document.querySelector(`script[src="${src}"]`);
 
     if (existingScript) {
-      resolve();
+      if (existingScript.dataset.loaded === "true") {
+        resolve();
+        return;
+      }
+
+      existingScript.addEventListener("load", resolve, { once: true });
+      existingScript.addEventListener(
+        "error",
+        () => reject(new Error(`${src} konnte nicht geladen werden.`)),
+        { once: true }
+      );
       return;
     }
 
     const script = document.createElement("script");
     script.src = src;
-    script.onload = resolve;
+    script.onload = () => {
+      script.dataset.loaded = "true";
+      resolve();
+    };
     script.onerror = () => reject(new Error(`${src} konnte nicht geladen werden.`));
     document.head.appendChild(script);
   });
 }
 
 async function setupSupabase() {
-  if (supportCenterReady) return;
+  if (supportCenterReady && supportCenterSupabaseClient) return;
 
   await loadScript("supabase-config.js");
   await loadScript(supportCenterSettings.supabaseJsUrl);
@@ -389,6 +216,13 @@ async function setupSupabase() {
 
   supportCenterSupabaseClient = window.supabase.createClient(config.url, config.anonKey);
   supportCenterReady = true;
+
+  try {
+    const sessionResult = await supportCenterSupabaseClient.auth.getSession();
+    supportCenterSession = sessionResult?.data?.session || null;
+  } catch (_error) {
+    supportCenterSession = null;
+  }
 }
 
 function getCategoryConfig(category) {
@@ -468,32 +302,37 @@ function renderMyTickets() {
     return;
   }
 
-  list.innerHTML = tickets.map((ticket) => `
-    <article class="my-ticket-item">
-      <div class="my-ticket-info">
-        <div class="my-ticket-top">
-          <span class="my-ticket-number">${escapeHtml(ticket.ticket_number || "Ticket")}</span>
-          <span class="my-ticket-pill">${escapeHtml(ticket.category_label || "Support")}</span>
-          <span class="my-ticket-pill">${escapeHtml(ticket.status || "open")}</span>
+  list.innerHTML = tickets.map((ticket) => {
+    const ticketNumber = escapeHtml(ticket.ticket_number || "");
+    const discordName = escapeHtml(ticket.discord_username || "");
+
+    return `
+      <article class="my-ticket-item">
+        <div class="my-ticket-info">
+          <div class="my-ticket-top">
+            <span class="my-ticket-number">${escapeHtml(ticket.ticket_number || "Ticket")}</span>
+            <span class="my-ticket-pill">${escapeHtml(ticket.category_label || "Support")}</span>
+            <span class="my-ticket-pill">${escapeHtml(statusLabel(ticket.status || "open"))}</span>
+          </div>
+
+          <div class="my-ticket-title">${escapeHtml(ticket.title || "Ohne Titel")}</div>
+
+          <div class="my-ticket-meta">
+            Discord: ${escapeHtml(ticket.discord_username || "Unbekannt")}
+          </div>
         </div>
 
-        <div class="my-ticket-title">${escapeHtml(ticket.title || "Ohne Titel")}</div>
-
-        <div class="my-ticket-meta">
-          Discord: ${escapeHtml(ticket.discord_username || "Unbekannt")}
-        </div>
-      </div>
-
-      <button
-        class="my-ticket-open"
-        type="button"
-        data-ticket-number="${escapeHtml(ticket.ticket_number || "")}"
-        data-discord-name="${escapeHtml(ticket.discord_username || "")}"
-      >
-        Öffnen
-      </button>
-    </article>
-  `).join("");
+        <button
+          class="my-ticket-open"
+          type="button"
+          data-ticket-number="${ticketNumber}"
+          data-discord-name="${discordName}"
+        >
+          Öffnen
+        </button>
+      </article>
+    `;
+  }).join("");
 
   document.querySelectorAll("[data-ticket-number][data-discord-name]").forEach((button) => {
     button.addEventListener("click", async () => {
@@ -506,18 +345,36 @@ function renderMyTickets() {
 }
 
 function resetForm() {
-  supportCenterForm.reset();
+  if (supportCenterForm) {
+    supportCenterForm.reset();
+  }
+
   setFormMessage("");
   setInlineReplyMessage("");
 
-  successView.classList.add("hidden");
-  supportCenterForm.classList.remove("hidden");
+  if (successView) {
+    successView.classList.add("hidden");
+  }
 
-  successTicketNumber.textContent = "-";
+  if (supportCenterForm) {
+    supportCenterForm.classList.remove("hidden");
+  }
 
-  inlineTicketChat.classList.add("hidden");
-  inlineTicketMessages.innerHTML = "";
-  inlineReplyInput.value = "";
+  if (successTicketNumber) {
+    successTicketNumber.textContent = "-";
+  }
+
+  if (inlineTicketChat) {
+    inlineTicketChat.classList.add("hidden");
+  }
+
+  if (inlineTicketMessages) {
+    inlineTicketMessages.innerHTML = "";
+  }
+
+  if (inlineReplyInput) {
+    inlineReplyInput.value = "";
+  }
 
   supportCenterSettings.currentInlineTicketNumber = "";
   supportCenterSettings.currentInlineDiscordName = "";
@@ -525,8 +382,15 @@ function resetForm() {
 }
 
 function openTicketModal(category) {
+  if (!ticketModal) return;
+
   const currentCategory = category || "support";
   const config = getCategoryConfig(currentCategory);
+
+  if (supportCenterSettings.accountSystemEnabled && !supportCenterSession) {
+    window.location.href = "auth.html";
+    return;
+  }
 
   resetForm();
 
@@ -563,6 +427,7 @@ function openTicketModal(category) {
   }
 
   ticketModal.classList.remove("hidden");
+  document.body.classList.add("modal-active");
 
   setTimeout(() => {
     discordUsernameInput.focus();
@@ -570,7 +435,10 @@ function openTicketModal(category) {
 }
 
 function closeTicketModal() {
+  if (!ticketModal) return;
+
   ticketModal.classList.add("hidden");
+  document.body.classList.remove("modal-active");
   resetForm();
 }
 
@@ -579,6 +447,7 @@ function readTicketForm() {
     category: ticketCategoryInput.value.trim() || "support",
     discord_username: discordUsernameInput.value.trim(),
     rank: rankInput.value.trim(),
+    roblox_username: rankInput.value.trim(),
     title: titleInput.value.trim(),
     description: descriptionInput.value.trim(),
     application_area: applicationAreaInput.value.trim(),
@@ -616,8 +485,13 @@ function validateFiles(files) {
   ];
 
   for (const file of files) {
-    if (file.size > supportCenterSettings.maxFileSize) return `"${file.name}" ist größer als 10 MB.`;
-    if (!allowedTypes.includes(file.type)) return `"${file.name}" hat einen nicht erlaubten Dateityp.`;
+    if (file.size > supportCenterSettings.maxFileSize) {
+      return `"${file.name}" ist größer als 10 MB.`;
+    }
+
+    if (!allowedTypes.includes(file.type)) {
+      return `"${file.name}" hat einen nicht erlaubten Dateityp.`;
+    }
   }
 
   return "";
@@ -676,19 +550,32 @@ async function uploadFiles(ticket) {
 }
 
 async function createTicket(ticket, attachments) {
+  const invokeOptions = {
+    body: {
+      ...ticket,
+      attachments,
+      page_url: window.location.href
+    }
+  };
+
+  if (supportCenterSession?.access_token) {
+    invokeOptions.headers = {
+      Authorization: `Bearer ${supportCenterSession.access_token}`
+    };
+  }
+
   const { data, error } = await supportCenterSupabaseClient.functions.invoke(
     supportCenterSettings.createTicketFunctionName,
-    {
-      body: {
-        ...ticket,
-        attachments,
-        page_url: window.location.href
-      }
-    }
+    invokeOptions
   );
 
-  if (error) throw new Error(error.message || "Ticket konnte nicht erstellt werden.");
-  if (!data || data.success !== true) throw new Error(data?.error || "Ticket konnte nicht erstellt werden.");
+  if (error) {
+    throw new Error(error.message || "Ticket konnte nicht erstellt werden.");
+  }
+
+  if (!data || data.success !== true) {
+    throw new Error(data?.error || "Ticket konnte nicht erstellt werden.");
+  }
 
   return data;
 }
@@ -699,8 +586,13 @@ async function fetchPublicTicket(ticketNumber, discordName) {
     p_discord_username: discordName
   });
 
-  if (error) throw new Error(error.message || "Ticket konnte nicht geladen werden.");
-  if (!data || data.success !== true) throw new Error(data?.error || "Ticket nicht gefunden.");
+  if (error) {
+    throw new Error(error.message || "Ticket konnte nicht geladen werden.");
+  }
+
+  if (!data || data.success !== true) {
+    throw new Error(data?.error || "Ticket nicht gefunden.");
+  }
 
   return data;
 }
@@ -784,6 +676,8 @@ async function openInlineTicketChat(ticketNumber, discordName) {
     await setupSupabase();
 
     ticketModal.classList.remove("hidden");
+    document.body.classList.add("modal-active");
+
     supportCenterForm.classList.add("hidden");
     successView.classList.remove("hidden");
 
@@ -929,8 +823,7 @@ async function handleSubmit(event) {
 
     const config = getCategoryConfig(ticket.category);
 
-    submitTicketButton.disabled = true;
-    submitTicketButton.textContent = "Wird vorbereitet...";
+    setButtonLoading(submitTicketButton, true, "Wird vorbereitet...", config.submitText);
     setFormMessage("Ticket wird vorbereitet...");
 
     const attachments = await uploadFiles(ticket);
@@ -945,85 +838,159 @@ async function handleSubmit(event) {
     setFormMessage("");
     renderSuccess(result, ticket);
 
-    submitTicketButton.disabled = false;
-    submitTicketButton.textContent = config.submitText;
+    setButtonLoading(submitTicketButton, false, config.submitText, config.submitText);
   } catch (error) {
     const category = ticketCategoryInput.value || "support";
     const config = getCategoryConfig(category);
 
-    submitTicketButton.disabled = false;
-    submitTicketButton.textContent = config.submitText;
-
+    setButtonLoading(submitTicketButton, false, config.submitText, config.submitText);
     setFormMessage(error.message || "Ticket konnte nicht erstellt werden.", "error");
   }
 }
 
-openTicketButtons.forEach((button) => {
-  button.addEventListener("click", () => {
-    openTicketModal(button.dataset.openTicket);
+function setupTicketButtons() {
+  openTicketButtons.forEach((button) => {
+    if (button.dataset.ready === "true") return;
+
+    button.dataset.ready = "true";
+
+    button.addEventListener("click", () => {
+      openTicketModal(button.dataset.openTicket);
+    });
   });
-});
+}
 
-ticketModalClose.addEventListener("click", closeTicketModal);
-ticketModalCancel.addEventListener("click", closeTicketModal);
-successCloseButton.addEventListener("click", closeTicketModal);
-
-successTicketLink.addEventListener("click", async () => {
-  await openInlineTicketChat(
-    supportCenterSettings.currentInlineTicketNumber,
-    supportCenterSettings.currentInlineDiscordName
-  );
-});
-
-inlineRefreshTicketButton.addEventListener("click", refreshInlineTicket);
-
-inlineReplyForm.addEventListener("submit", async (event) => {
-  event.preventDefault();
-  await sendInlineReply();
-});
-
-ticketModal.addEventListener("click", (event) => {
-  if (event.target === ticketModal) {
-    closeTicketModal();
+function setupModalEvents() {
+  if (ticketModalClose) {
+    ticketModalClose.addEventListener("click", closeTicketModal);
   }
-});
 
-supportCenterForm.addEventListener("submit", handleSubmit);
-
-document.addEventListener("keydown", (event) => {
-  if (event.key === "Escape" && !ticketModal.classList.contains("hidden")) {
-    closeTicketModal();
+  if (ticketModalCancel) {
+    ticketModalCancel.addEventListener("click", closeTicketModal);
   }
-});
 
-attachmentsInput.addEventListener("change", () => {
-  const files = Array.from(attachmentsInput.files || []);
+  if (successCloseButton) {
+    successCloseButton.addEventListener("click", closeTicketModal);
+  }
 
-  if (!files.length) {
-    setFormMessage("");
+  if (successTicketLink) {
+    successTicketLink.addEventListener("click", async () => {
+      await openInlineTicketChat(
+        supportCenterSettings.currentInlineTicketNumber,
+        supportCenterSettings.currentInlineDiscordName
+      );
+    });
+  }
+
+  if (inlineRefreshTicketButton) {
+    inlineRefreshTicketButton.addEventListener("click", refreshInlineTicket);
+  }
+
+  if (inlineReplyForm) {
+    inlineReplyForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      await sendInlineReply();
+    });
+  }
+
+  if (ticketModal) {
+    ticketModal.addEventListener("click", (event) => {
+      if (event.target === ticketModal) {
+        closeTicketModal();
+      }
+    });
+  }
+
+  if (supportCenterForm) {
+    supportCenterForm.addEventListener("submit", handleSubmit);
+  }
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && ticketModal && !ticketModal.classList.contains("hidden")) {
+      closeTicketModal();
+    }
+  });
+}
+
+function setupAttachmentValidation() {
+  if (!attachmentsInput) return;
+
+  attachmentsInput.addEventListener("change", () => {
+    const files = Array.from(attachmentsInput.files || []);
+
+    if (!files.length) {
+      setFormMessage("");
+      return;
+    }
+
+    const validationError = validateFiles(files);
+
+    if (validationError) {
+      setFormMessage(validationError, "error");
+      return;
+    }
+
+    const fileText = files.length === 1
+      ? `1 Datei ausgewählt: ${files[0].name}`
+      : `${files.length} Dateien ausgewählt.`;
+
+    setFormMessage(fileText, "success");
+  });
+}
+
+async function setupAccountPreview() {
+  if (!accountInfoCard && !authGate) return;
+
+  if (!supportCenterSettings.accountSystemEnabled) {
+    if (accountInfoCard) accountInfoCard.classList.add("hidden");
+    if (authGate) authGate.classList.add("hidden");
     return;
   }
 
-  const validationError = validateFiles(files);
+  await setupSupabase();
 
-  if (validationError) {
-    setFormMessage(validationError, "error");
-    return;
+  if (supportCenterSession?.user) {
+    if (authGate) authGate.classList.add("hidden");
+    if (accountInfoCard) accountInfoCard.classList.remove("hidden");
+
+    if (accountInfoText) {
+      accountInfoText.textContent = `Angemeldet als ${supportCenterSession.user.email || "Kunde"}. Deine Tickets werden deinem Kundenkonto zugeordnet.`;
+    }
+  } else {
+    if (accountInfoCard) accountInfoCard.classList.add("hidden");
+    if (authGate) authGate.classList.remove("hidden");
   }
+}
 
-  const fileText = files.length === 1
-    ? `1 Datei ausgewählt: ${files[0].name}`
-    : `${files.length} Dateien ausgewählt.`;
+function setupLogoutButton() {
+  if (!logoutButton || logoutButton.dataset.ready === "true") return;
 
-  setFormMessage(fileText, "success");
-});
+  logoutButton.dataset.ready = "true";
 
-(async function initSupportCenter() {
+  logoutButton.addEventListener("click", async () => {
+    try {
+      await setupSupabase();
+      await supportCenterSupabaseClient.auth.signOut();
+      supportCenterSession = null;
+      await setupAccountPreview();
+    } catch (_error) {
+      window.location.href = "auth.html";
+    }
+  });
+}
+
+async function initSupportCenter() {
   try {
-    injectInlineChatStyles();
     renderMyTickets();
+    setupTicketButtons();
+    setupModalEvents();
+    setupAttachmentValidation();
+    setupLogoutButton();
     await setupSupabase();
+    await setupAccountPreview();
   } catch (error) {
-    setFormMessage(error.message, "error");
+    setFormMessage(error.message || "Support-Center konnte nicht vollständig geladen werden.", "error");
   }
-})();
+}
+
+initSupportCenter();
