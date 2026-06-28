@@ -1,611 +1,1755 @@
-<!DOCTYPE html>
-<html lang="de">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
-  <title>Nordstadt Roleplay</title>
-
-  <link rel="stylesheet" href="style.css" />
-  <link rel="stylesheet" href="support.css" />
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Montserrat:wght@600;700;800;900&display=swap" rel="stylesheet">
-</head>
-
-<body>
-  <div id="introOverlay" class="intro-overlay">
-    <div class="intro-stage intro-stage-one">
-      <h1><strong>Horizon</strong> <span>Studios</span></h1>
-    </div>
-
-    <div class="intro-stage intro-stage-two">
-      <h1>
-        <span class="german-word">
-          <span class="german-black">GE</span><span class="german-red">RM</span><span class="german-gold">AN</span>
-        </span>
-
-        <span class="roleplay-word">
-          <span style="--i: 1;">R</span>
-          <span style="--i: 2;">O</span>
-          <span style="--i: 3;">L</span>
-          <span style="--i: 4;">E</span>
-          <span style="--i: 5;">P</span>
-          <span style="--i: 6;">L</span>
-          <span style="--i: 7;">A</span>
-          <span style="--i: 8;">Y</span>
-        </span>
-      </h1>
-    </div>
-  </div>
-
-  <div class="page-bg"></div>
-
-  <header class="navbar">
-    <div class="nav-logo">NORDSTADT ROLEPLAY</div>
-
-    <nav class="nav-links">
-      <button class="nav-link active" data-tab="home">Startseite</button>
-      <button class="nav-link" data-tab="systems">Systeme</button>
-      <button class="nav-link" data-tab="training">Ausbildung</button>
-      <button class="nav-link" data-tab="progress">Fortschritt</button>
-      <button class="nav-link" data-tab="status">Status</button>
-      <button class="nav-link" data-tab="events">Tests</button>
-      <button class="nav-link" data-tab="discord">Discord</button>
-      <button class="nav-link" onclick="window.location.href='admin.html'">Admin</button>
-    </nav>
-  </header>
-
-  <main>
-    <section id="home" class="tab-section active">
-      <div class="hero">
-        <div class="hero-content">
-          <p class="eyebrow">Fiktives Roblox Roleplay-Projekt</p>
-
-          <h1>
-            Nordstadt
-            <span>Roleplay.</span>
-          </h1>
-
-          <p class="hero-text">
-            Nordstadt Roleplay ist ein fiktives Roblox-Roleplay-Spiel, in dem sich Realismus
-            und Roleplay vereinen. Das Projekt setzt auf durchdachte Systeme, klare Strukturen
-            und ein realistisches Stadt- und Einsatzleben.
-          </p>
-
-          <div class="hero-actions">
-            <button class="primary-btn" data-tab-open="progress">Fortschritt ansehen</button>
-            <button class="secondary-btn" data-tab-open="discord">Discord beitreten</button>
-          </div>
-        </div>
-
-        <div class="hero-card">
-          <p class="eyebrow">Projektstatus</p>
-          <div class="brand-word">WORK<span>.</span></div>
-          <p>in progress</p>
-
-          <div class="mini-info">
-            Ein Projekt von Horizon Studios und German Roleplay.
-          </div>
-        </div>
-      </div>
-
-      <section class="content-section">
-        <div class="section-header">
-          <p class="eyebrow">Über die Stadt</p>
-          <h2>Eine fiktive Stadt für ernstes und realistisches Roleplay.</h2>
-        </div>
-
-        <div class="card-grid">
-          <article class="info-card">
-            <div class="card-light"></div>
-            <h3>Realistisches Roleplay</h3>
-            <p>
-              Nordstadt Roleplay verbindet alltägliches Stadtleben mit realistischen Einsatzlagen,
-              strukturierten Abläufen und einem klaren Fokus auf hochwertiges Roleplay.
-            </p>
-          </article>
-
-          <article class="info-card">
-            <div class="card-light"></div>
-            <h3>Behörden & Dienste</h3>
-            <p>
-              Im Spiel gibt es verschiedene Bereiche wie Polizei, Bundespolizei, LKA und weitere
-              Einheiten, die jeweils eigene Aufgaben und Verantwortungen besitzen.
-            </p>
-          </article>
-
-          <article class="info-card">
-            <div class="card-light"></div>
-            <h3>FailRP-Kontrolle</h3>
-            <p>
-              Wir achten stark auf FailRP, unrealistisches Verhalten und störendes Gameplay,
-              damit das Roleplay fair, ernst und immersiv bleibt.
-            </p>
-          </article>
-        </div>
-      </section>
-
-      <section class="content-section">
-        <div class="section-header">
-          <p class="eyebrow">Roleplay-Konzept</p>
-          <h2>Moderne Systeme mit Logik, Struktur und Tiefe.</h2>
-        </div>
-
-        <div class="project-grid">
-          <article class="project-card">
-            <h3>Ausbildungssystem</h3>
-            <p>
-              Für bestimmte Berufe ist eine Ausbildung notwendig, bevor man sie vollständig
-              ausführen kann. Dazu gehören unter anderem die Bundespolizei und das LKA.
-              Der Beitritt zur Landespolizei ist freier gestaltet.
-            </p>
-          </article>
-
-          <article class="project-card">
-            <h3>Kommunikation</h3>
-            <p>
-              Ein strukturiertes Funksystem unterstützt die Kommunikation zwischen Leitstelle,
-              Polizei, Bundespolizei, LKA und weiteren Einheiten. Dadurch entstehen realistischere
-              und besser koordinierte Roleplay-Situationen.
-            </p>
-          </article>
-
-          <article class="project-card">
-            <h3>Eigene Skripte</h3>
-            <p>
-              Die meisten Systeme werden von uns selbst entwickelt. Einige Skripte sind lizenziert
-              und rechtmäßig eingebunden, während die Struktur, Logik und Spielrichtung von uns
-              gestaltet werden.
-            </p>
-          </article>
-        </div>
-      </section>
-    </section>
-
-    <section id="systems" class="tab-section">
-      <div class="subpage">
-        <p class="eyebrow">Spielsysteme</p>
-        <h1>Systeme</h1>
-
-        <p class="subpage-text">
-          Nordstadt Roleplay basiert auf Systemen, die realistische Situationen, organisierte
-          Behörden und ein immersives Stadtleben ermöglichen.
-        </p>
-
-        <div class="feature-list">
-          <article class="wide-card">
-            <div>
-              <h3>Funk & Leitstelle</h3>
-              <p>
-                Ein strukturiertes Funksystem ermöglicht die Kommunikation zwischen Leitstelle,
-                Streifen, Sonderdiensten und weiteren Einsatzbereichen.
-              </p>
-            </div>
-            <span>01</span>
-          </article>
-
-          <article class="wide-card">
-            <div>
-              <h3>Behördenstruktur</h3>
-              <p>
-                Spieler können in verschiedenen Bereichen aktiv werden. Jede Einheit besitzt
-                eigene Aufgaben, Regeln und Erwartungen an das Roleplay.
-              </p>
-            </div>
-            <span>02</span>
-          </article>
-
-          <article class="wide-card">
-            <div>
-              <h3>Ausbildung & Freigaben</h3>
-              <p>
-                Einige Berufe benötigen eine Ausbildung oder Freigabe. Dadurch bleiben wichtige
-                Rollen seriös und das Roleplay wirkt geordneter.
-              </p>
-            </div>
-            <span>03</span>
-          </article>
-
-          <article class="wide-card">
-            <div>
-              <h3>Regelwerk & Realismus</h3>
-              <p>
-                FailRP, unrealistisches Verhalten und störende Aktionen werden aktiv kontrolliert,
-                damit die Spielerfahrung für alle fair und realistisch bleibt.
-              </p>
-            </div>
-            <span>04</span>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <section id="training" class="tab-section">
-      <div class="subpage">
-        <p class="eyebrow">Fiktive Roleplay-Ausbildungen</p>
-        <h1>Ausbildung</h1>
-
-        <p class="subpage-text">
-          Ausbildungen helfen uns dabei, bestimmte Berufe realistischer, geordneter und hochwertiger
-          im Roleplay darzustellen. Sie sorgen dafür, dass wichtige Rollen verstanden werden und
-          Spieler besser auf ihre Aufgaben vorbereitet sind.
-        </p>
-
-        <div class="training-warning">
-          <h3>Wichtiger Hinweis</h3>
-          <p>
-            Alle Ausbildungen auf Nordstadt Roleplay sind vollständig fiktiv und ausschließlich
-            für Roleplay-Zwecke gedacht. Es handelt sich nicht um echte Ausbildungen, Behörden,
-            Qualifikationen oder offizielle Dokumente.
-          </p>
-        </div>
-
-        <div class="training-grid">
-          <article class="training-card available">
-            <div class="training-top">
-              <div>
-                <h3>Bundespolizei</h3>
-                <p>
-                  Ausbildung für strukturierte Einsätze, Kommunikation, Verhalten im Dienst und
-                  realistische Situationen innerhalb der fiktiven Bundespolizei.
-                </p>
-              </div>
-              <span class="training-badge available">Verfügbar</span>
-            </div>
-
-            <button class="download-btn" data-document="bundespolizei">
-              Ausbildungsdokument herunterladen
-            </button>
-          </article>
-
-          <article class="training-card">
-            <div class="training-top">
-              <div>
-                <h3>LKA</h3>
-                <p>Ausbildung für Ermittlungsarbeit, Sonderlagen und gehobenes Roleplay.</p>
-              </div>
-              <span class="training-badge unavailable">Nicht verfügbar</span>
-            </div>
-          </article>
-
-          <article class="training-card">
-            <div class="training-top">
-              <div>
-                <h3>Justiz</h3>
-                <p>Ausbildung für rechtliche Abläufe, Haft, Verfahren und Justiz-Roleplay.</p>
-              </div>
-              <span class="training-badge unavailable">Nicht verfügbar</span>
-            </div>
-          </article>
-
-          <article class="training-card">
-            <div class="training-top">
-              <div>
-                <h3>Bundeswehr</h3>
-                <p>Ausbildung für militärisches Roleplay, Disziplin und strukturierte Abläufe.</p>
-              </div>
-              <span class="training-badge unavailable">Nicht verfügbar</span>
-            </div>
-          </article>
-
-          <article class="training-card">
-            <div class="training-top">
-              <div>
-                <h3>Nordstadt Bank</h3>
-                <p>Ausbildung für Bankbetrieb, Kundenservice und wirtschaftliches Stadt-Roleplay.</p>
-              </div>
-              <span class="training-badge unavailable">Nicht verfügbar</span>
-            </div>
-          </article>
-
-          <article class="training-card">
-            <div class="training-top">
-              <div>
-                <h3>Nordstadt Mobil</h3>
-                <p>Ausbildung für Mobilfunk, Service und technische Abläufe im Stadtleben.</p>
-              </div>
-              <span class="training-badge unavailable">Nicht verfügbar</span>
-            </div>
-          </article>
-
-          <article class="training-card">
-            <div class="training-top">
-              <div>
-                <h3>Leitstelle</h3>
-                <p>Ausbildung für Notrufannahme, Koordination, Funkdisziplin und Einsatzführung.</p>
-              </div>
-              <span class="training-badge unavailable">Nicht verfügbar</span>
-            </div>
-          </article>
-
-          <article class="training-card">
-            <div class="training-top">
-              <div>
-                <h3>Verkehrsbetriebe Leitstelle</h3>
-                <p>Ausbildung für Linienkoordination, Verkehrsabläufe und Betriebsüberwachung.</p>
-              </div>
-              <span class="training-badge unavailable">Nicht verfügbar</span>
-            </div>
-          </article>
-
-          <article class="training-card">
-            <div class="training-top">
-              <div>
-                <h3>Verkehrsbetriebe Sicherheit</h3>
-                <p>Ausbildung für Sicherheit im ÖPNV, Kontrolle, Schutz und Einsatzlagen.</p>
-              </div>
-              <span class="training-badge unavailable">Nicht verfügbar</span>
-            </div>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <section id="progress" class="tab-section">
-      <div class="subpage">
-        <p class="eyebrow">Entwicklungsübersicht</p>
-        <h1>Fortschritt</h1>
-
-        <p class="subpage-text">
-          Hier findest du den aktuellen Entwicklungsstand von Nordstadt Roleplay und ausgewählten Produkten.
-          Die Angaben sind ungefähre interne Fortschrittswerte.
-        </p>
-
-        <div class="progress-section">
-          <div class="section-header compact">
-            <p class="eyebrow">Kategorie</p>
-            <h2>Game</h2>
-          </div>
-
-          <article class="progress-main-card">
-            <div class="progress-card-header">
-              <div>
-                <h3>Nordstadt Roleplay <span>(Roblox)</span></h3>
-                <p>
-                  Nordstadt Roleplay befindet sich aktuell in einer frühen Entwicklungsphase.
-                  Der gesamte Fortschritt des Spiels liegt derzeit bei ungefähr 10 Prozent.
-                </p>
-              </div>
-
-              <strong>10%</strong>
-            </div>
-
-            <div class="progress-bar big">
-              <div class="progress-fill" style="--progress: 10%;"></div>
-            </div>
-
-            <div class="progress-grid">
-              <article class="progress-detail-card">
-                <div class="progress-detail-top">
-                  <h4>Stadtteile</h4>
-                  <span>5%</span>
-                </div>
-                <p>Die Stadtteile befinden sich noch am Anfang und werden schrittweise aufgebaut.</p>
-                <div class="progress-bar small">
-                  <div class="progress-fill" style="--progress: 5%;"></div>
-                </div>
-              </article>
-
-              <article class="progress-detail-card">
-                <div class="progress-detail-top">
-                  <h4>Systeme</h4>
-                  <span>12%</span>
-                </div>
-                <p>Grundlagen für Logik, Roleplay-Abläufe und technische Systeme werden vorbereitet.</p>
-                <div class="progress-bar small">
-                  <div class="progress-fill" style="--progress: 12%;"></div>
-                </div>
-              </article>
-
-              <article class="progress-detail-card">
-                <div class="progress-detail-top">
-                  <h4>Jobs</h4>
-                  <span>23%</span>
-                </div>
-                <p>Erste Jobstrukturen und Rollenbereiche sind geplant und teilweise vorbereitet.</p>
-                <div class="progress-bar small">
-                  <div class="progress-fill" style="--progress: 23%;"></div>
-                </div>
-              </article>
-
-              <article class="progress-detail-card">
-                <div class="progress-detail-top">
-                  <h4>Fahrzeuge</h4>
-                  <span>8%</span>
-                </div>
-                <p>Fahrzeuge und dazugehörige Funktionen befinden sich noch in einer frühen Phase.</p>
-                <div class="progress-bar small">
-                  <div class="progress-fill" style="--progress: 8%;"></div>
-                </div>
-              </article>
-            </div>
-          </article>
-        </div>
-
-        <div class="progress-section">
-          <div class="section-header compact">
-            <p class="eyebrow">Kategorie</p>
-            <h2>Produkte</h2>
-          </div>
-
-          <article class="progress-main-card product-waitlist">
-            <div class="waitlist-banner">
-              <span>Warteliste</span>
-              <p>
-                Bus-Link wurde vorerst auf eine Warteliste gesetzt, da wir uns aktuell auf andere Bereiche konzentrieren.
-                Das Produkt wird größer geplant und später strukturiert weiterentwickelt.
-              </p>
-            </div>
-
-            <div class="progress-card-header">
-              <div>
-                <h3>Bus-Link <span>Version 1.0 Beta</span></h3>
-                <p>
-                  Bus-Link ist ein geplantes Produkt für strukturierte Verkehrs- und Verbindungssysteme.
-                  Die Beta-Version befindet sich aktuell noch in einer frühen Entwicklungsphase.
-                </p>
-              </div>
-
-              <strong>20%</strong>
-            </div>
-
-            <div class="progress-bar big orange">
-              <div class="progress-fill" style="--progress: 20%;"></div>
-            </div>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <section id="status" class="tab-section">
-      <div class="subpage">
-        <p class="eyebrow">Aktueller Entwicklungsstand</p>
-        <h1>Status</h1>
-
-        <p class="subpage-text">
-          Hier findest du den aktuellen Entwicklungs- und Zugangsstatus von Nordstadt Roleplay.
-        </p>
-
-        <div id="statusCards" class="status-grid"></div>
-      </div>
-    </section>
-
-    <section id="events" class="tab-section">
-      <div class="subpage">
-        <p class="eyebrow">Public Testing</p>
-        <h1>Tests</h1>
-
-        <p class="subpage-text">
-          Nordstadt Roleplay befindet sich aktuell im Aufbau. Testtermine werden über den Discord
-          bekanntgegeben, sobald neue öffentliche Tests geplant sind.
-        </p>
-
-        <div class="timeline">
-          <article class="timeline-item">
-            <div class="timeline-date">
-              <strong>Aktuell</strong>
-              <span>In Planung</span>
-            </div>
-
-            <div class="timeline-content">
-              <h3>Weitere Testphasen folgen</h3>
-              <p>
-                Neue Testtermine werden vorbereitet und später über den Discord-Server veröffentlicht.
-              </p>
-            </div>
-          </article>
-
-          <article class="timeline-item">
-            <div class="timeline-date">
-              <strong>Bewerbungen</strong>
-              <span>Geöffnet</span>
-            </div>
-
-            <div class="timeline-content">
-              <h3>Teampositionen gesucht</h3>
-              <p>
-                Wir suchen aktuell Unterstützung in Leitungspositionen sowie im administrativen Bereich.
-                Informationen dazu findest du auf unserem Discord.
-              </p>
-            </div>
-          </article>
-        </div>
-      </div>
-    </section>
-
-    <section id="discord" class="tab-section">
-      <div class="subpage">
-        <p class="eyebrow">Community & Informationen</p>
-        <h1>Discord</h1>
-
-        <p class="subpage-text">
-          Tritt unserem Discord-Server bei, um Ankündigungen, Testtermine, Entwicklungsupdates,
-          Bewerbungen und wichtige Informationen zu Nordstadt Roleplay zu erhalten.
-        </p>
-
-        <div class="support-card">
-          <div class="support-icon">
-            <span></span>
-          </div>
-
-          <div>
-            <h2>Nordstadt Roleplay beitreten</h2>
-            <p>
-              Werde Teil der Community, verfolge die Entwicklung und nimm an öffentlichen
-              Testsitzungen teil.
-            </p>
-          </div>
-
-          <a id="discordButton" class="support-btn" href="#" target="_blank" rel="noopener noreferrer">
-            Discord öffnen
-          </a>
-        </div>
-
-        <div class="card-grid support-grid">
-          <article class="info-card">
-            <div class="card-light"></div>
-            <h3>Ankündigungen</h3>
-            <p>Erhalte Informationen zu Tests, Updates, Änderungen und wichtigen Projektmeldungen.</p>
-          </article>
-
-          <article class="info-card">
-            <div class="card-light"></div>
-            <h3>Bewerbungen</h3>
-            <p>Informiere dich über Behörden, Ausbildungen, Freigaben und mögliche Roleplay-Positionen.</p>
-          </article>
-
-          <article class="info-card">
-            <div class="card-light"></div>
-            <h3>Community</h3>
-            <p>Verbinde dich mit anderen Spielern und bereite dich auf kommende Public Tests vor.</p>
-          </article>
-        </div>
-      </div>
-    </section>
-  </main>
-
-  <div id="recruitmentPopup" class="recruitment-popup">
-    <div class="notification-dot"></div>
-
-    <div class="notification-content">
-      <strong>Bewirb dich jetzt</strong>
-      <p>Wir suchen Leitungspersonal und Administratoren für Nordstadt Roleplay.</p>
-    </div>
-
-    <a id="applyButton" href="#" target="_blank" rel="noopener noreferrer">
-      Bewerben
-    </a>
-
-    <button id="closeRecruitmentPopup" class="close-notification">×</button>
-  </div>
-
-  <div id="downloadModal" class="modal-overlay">
-    <div class="download-modal">
-      <p class="eyebrow">Dokument herunterladen</p>
-      <h2>Fiktive Roleplay-Ausbildung</h2>
-
-      <p>
-        Dieses Dokument gehört zu einer fiktiven Roleplay-Ausbildung auf Nordstadt Roleplay.
-        Es handelt sich nicht um eine echte Ausbildung, keine echte Behörde und keine offizielle
-        Qualifikation.
-      </p>
-
-      <div class="modal-actions">
-        <button id="cancelDownload" class="secondary-btn">Abbrechen</button>
-        <button id="confirmDownload" class="primary-btn">Herunterladen</button>
-      </div>
-    </div>
-  </div>
-
-  <footer class="footer">
-    <p>Nordstadt Roleplay</p>
-    <p>Horizon Studios</p>
-    <p>German Roleplay</p>
-  </footer>
-
-  <script src="script.js"></script>
-  <script src="support.js"></script>
-</body>
-</html>
+:root {
+  --bg: #05040d;
+  --bg-soft: #090817;
+  --bg-deep: #03020a;
+
+  --panel: rgba(18, 14, 34, 0.78);
+  --panel-strong: rgba(26, 18, 48, 0.88);
+
+  --white: #ffffff;
+  --text: #fff7ff;
+  --muted: rgba(255, 235, 255, 0.72);
+  --muted-soft: rgba(255, 235, 255, 0.48);
+
+  --pink: #ff4fd8;
+  --hot-pink: #ff2a91;
+  --violet: #8d5cff;
+  --sunset: #ff9a5c;
+  --peach: #ffc1a3;
+  --cyan: #79e8ff;
+
+  --card: rgba(255, 255, 255, 0.075);
+  --card-hover: rgba(255, 255, 255, 0.125);
+  --card-border: rgba(255, 255, 255, 0.15);
+  --card-border-strong: rgba(255, 79, 216, 0.34);
+
+  --shadow: rgba(0, 0, 0, 0.52);
+  --glow-pink: 0 0 34px rgba(255, 79, 216, 0.32);
+  --glow-violet: 0 0 42px rgba(141, 92, 255, 0.28);
+  --glow-sunset: 0 0 38px rgba(255, 154, 92, 0.24);
+
+  --active: #ffffff;
+  --testing: #79e8ff;
+  --wip: #ffcf7a;
+  --closed: #ff5f7d;
+  --success: #71f6ad;
+  --orange: #ff9a5c;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  min-height: 100vh;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Inter", sans-serif;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -3;
+  pointer-events: none;
+  background:
+    linear-gradient(rgba(255, 255, 255, 0.028) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.028) 1px, transparent 1px);
+  background-size: 58px 58px;
+  mask-image: radial-gradient(circle at center, black 0%, transparent 74%);
+  opacity: 0.34;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -2;
+  pointer-events: none;
+  background:
+    radial-gradient(circle at 20% 18%, rgba(255, 79, 216, 0.18), transparent 30%),
+    radial-gradient(circle at 82% 18%, rgba(141, 92, 255, 0.2), transparent 34%),
+    radial-gradient(circle at 50% 100%, rgba(255, 154, 92, 0.12), transparent 36%);
+  animation: globalGlowMove 12s ease-in-out infinite alternate;
+}
+
+body.intro-active {
+  overflow: hidden;
+}
+
+@keyframes globalGlowMove {
+  from {
+    filter: hue-rotate(0deg);
+    transform: scale(1);
+  }
+
+  to {
+    filter: hue-rotate(8deg);
+    transform: scale(1.035);
+  }
+}
+
+.page-bg {
+  position: fixed;
+  inset: 0;
+  z-index: -4;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 16% 10%, rgba(255, 79, 216, 0.26), transparent 31%),
+    radial-gradient(circle at 82% 28%, rgba(141, 92, 255, 0.26), transparent 30%),
+    radial-gradient(circle at 46% 88%, rgba(255, 154, 92, 0.22), transparent 38%),
+    radial-gradient(circle at 80% 92%, rgba(121, 232, 255, 0.1), transparent 28%),
+    linear-gradient(135deg, #03020a 0%, #090817 48%, #05040d 100%);
+}
+
+.page-bg::before,
+.page-bg::after {
+  content: "";
+  position: absolute;
+  width: 520px;
+  height: 520px;
+  border-radius: 50%;
+  filter: blur(72px);
+  opacity: 0.5;
+  animation: orbFloat 13s ease-in-out infinite alternate;
+}
+
+.page-bg::before {
+  left: -180px;
+  top: 120px;
+  background: rgba(255, 79, 216, 0.38);
+}
+
+.page-bg::after {
+  right: -180px;
+  bottom: -140px;
+  background: rgba(141, 92, 255, 0.34);
+  animation-delay: -5s;
+}
+
+@keyframes orbFloat {
+  from {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  to {
+    transform: translate3d(38px, -42px, 0) scale(1.09);
+  }
+}
+
+/* =========================
+   INTRO
+========================= */
+
+.intro-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 999;
+  background:
+    radial-gradient(circle at 50% 45%, rgba(255, 79, 216, 0.18), transparent 34%),
+    radial-gradient(circle at 65% 60%, rgba(141, 92, 255, 0.18), transparent 38%),
+    linear-gradient(135deg, #03020a 0%, #080616 52%, #05040d 100%);
+  display: grid;
+  place-items: center;
+  transition: 0.8s ease;
+  overflow: hidden;
+}
+
+.intro-overlay::before {
+  content: "";
+  position: absolute;
+  inset: -35%;
+  background:
+    linear-gradient(115deg, transparent 0%, transparent 42%, rgba(255, 79, 216, 0.22) 48%, rgba(255, 255, 255, 0.48) 50%, rgba(141, 92, 255, 0.24) 52%, transparent 58%, transparent 100%);
+  transform: translateX(-42%) rotate(6deg);
+  animation: introLaserSweep 3.8s ease-in-out forwards;
+}
+
+.intro-overlay::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    repeating-linear-gradient(
+      0deg,
+      rgba(255, 255, 255, 0.035) 0px,
+      rgba(255, 255, 255, 0.035) 1px,
+      transparent 2px,
+      transparent 6px
+    );
+  mix-blend-mode: screen;
+  opacity: 0.22;
+  pointer-events: none;
+  animation: scanlinePulse 1.8s ease-in-out infinite alternate;
+}
+
+.intro-overlay.hide {
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-35px) scale(1.02);
+}
+
+.intro-stage {
+  position: absolute;
+  opacity: 0;
+  transform: translateY(18px);
+  z-index: 3;
+  text-align: center;
+}
+
+.intro-stage h1 {
+  font-family: "Montserrat", sans-serif;
+  font-size: clamp(2.8rem, 8vw, 7.4rem);
+  line-height: 1;
+  letter-spacing: -0.08em;
+  color: var(--white);
+  text-shadow:
+    0 0 22px rgba(255, 255, 255, 0.18),
+    0 0 44px rgba(255, 79, 216, 0.34),
+    0 0 74px rgba(141, 92, 255, 0.26);
+}
+
+.intro-stage-one {
+  animation: introOne 2.2s ease forwards;
+}
+
+.intro-stage-one strong {
+  font-weight: 900;
+}
+
+.intro-stage-one span {
+  font-weight: 500;
+  color: rgba(255, 235, 255, 0.68);
+}
+
+.intro-stage-two {
+  animation: introTwo 2.8s ease forwards;
+  animation-delay: 2.15s;
+}
+
+.german-word {
+  display: inline-flex;
+  margin-right: 26px;
+  font-weight: 900;
+}
+
+.german-black {
+  color: #000000;
+  text-shadow:
+    0 0 2px rgba(255, 255, 255, 0.45),
+    0 0 18px rgba(255, 255, 255, 0.26),
+    0 16px 40px rgba(0, 0, 0, 0.55);
+}
+
+.german-red {
+  color: var(--hot-pink);
+  text-shadow:
+    0 0 18px rgba(255, 42, 145, 0.7),
+    0 0 44px rgba(255, 42, 145, 0.36);
+}
+
+.german-gold {
+  color: var(--sunset);
+  text-shadow:
+    0 0 18px rgba(255, 154, 92, 0.72),
+    0 0 44px rgba(255, 154, 92, 0.34);
+}
+
+.roleplay-word {
+  display: inline-flex;
+  gap: 0.18em;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.88);
+  text-transform: uppercase;
+  font-size: 0.52em;
+  vertical-align: middle;
+  letter-spacing: 0;
+  overflow: visible;
+}
+
+.roleplay-word span {
+  display: inline-block;
+  opacity: 0;
+  filter: blur(14px);
+  transform: translate(42px, -34px) rotate(-10deg) scale(1.08);
+  animation: roleplayLetterDrop 0.75s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-delay: calc(2.65s + var(--i) * 0.075s);
+}
+
+@keyframes introLaserSweep {
+  0% {
+    transform: translateX(-62%) rotate(6deg);
+    opacity: 0;
+  }
+
+  18% {
+    opacity: 1;
+  }
+
+  70% {
+    opacity: 1;
+  }
+
+  100% {
+    transform: translateX(42%) rotate(6deg);
+    opacity: 0;
+  }
+}
+
+@keyframes scanlinePulse {
+  from {
+    opacity: 0.14;
+  }
+
+  to {
+    opacity: 0.28;
+  }
+}
+
+@keyframes roleplayLetterDrop {
+  0% {
+    opacity: 0;
+    filter: blur(14px);
+    transform: translate(42px, -34px) rotate(-10deg) scale(1.08);
+  }
+
+  58% {
+    opacity: 1;
+    filter: blur(3px);
+    transform: translate(-4px, 4px) rotate(1deg) scale(1);
+  }
+
+  100% {
+    opacity: 1;
+    filter: blur(0);
+    transform: translate(0, 0) rotate(0deg) scale(1);
+  }
+}
+
+@keyframes introOne {
+  0% {
+    opacity: 0;
+    transform: translateY(18px) scale(0.96);
+  }
+
+  22% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  72% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(-24px) scale(0.98);
+  }
+}
+
+@keyframes introTwo {
+  0% {
+    opacity: 0;
+    transform: translateY(18px) scale(0.96);
+  }
+
+  22% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  82% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateY(-24px) scale(0.98);
+  }
+}
+
+/* =========================
+   NAVBAR
+========================= */
+
+.navbar {
+  position: fixed;
+  top: 22px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(1320px, calc(100% - 36px));
+  min-height: 72px;
+  padding: 12px 18px;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 18px;
+  z-index: 100;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 999px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.035)),
+    rgba(5, 4, 13, 0.72);
+  backdrop-filter: blur(26px);
+  box-shadow:
+    0 24px 70px rgba(0, 0, 0, 0.52),
+    0 0 0 1px rgba(255, 79, 216, 0.06),
+    0 0 40px rgba(255, 79, 216, 0.1);
+  overflow: visible;
+}
+
+.navbar::before {
+  content: "";
+  position: absolute;
+  inset: -1px;
+  z-index: -1;
+  border-radius: inherit;
+  background: linear-gradient(110deg, rgba(255, 79, 216, 0.45), rgba(255, 255, 255, 0.16), rgba(141, 92, 255, 0.45), rgba(255, 154, 92, 0.26));
+  opacity: 0.26;
+  filter: blur(10px);
+  animation: navGlow 6s ease-in-out infinite alternate;
+}
+
+@keyframes navGlow {
+  from {
+    opacity: 0.18;
+  }
+
+  to {
+    opacity: 0.38;
+  }
+}
+
+.nav-logo {
+  font-family: "Montserrat", sans-serif;
+  font-size: 0.82rem;
+  font-weight: 900;
+  letter-spacing: 0.18em;
+  color: var(--white);
+  padding-left: 14px;
+  white-space: nowrap;
+  min-width: 0;
+  position: relative;
+  z-index: 3;
+  text-shadow:
+    0 0 14px rgba(255, 255, 255, 0.18),
+    0 0 24px rgba(255, 79, 216, 0.28);
+}
+
+.nav-links {
+  position: static;
+  left: auto;
+  transform: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.062);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  min-width: 0;
+  width: 100%;
+  overflow: visible;
+}
+
+.nav-link {
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 12px 16px;
+  border-radius: 999px;
+  color: var(--muted);
+  background: transparent;
+  font-family: "Inter", sans-serif;
+  font-weight: 800;
+  transition:
+    color 0.22s ease,
+    background 0.22s ease,
+    transform 0.22s ease,
+    box-shadow 0.22s ease;
+  white-space: nowrap;
+  flex: 0 0 auto;
+}
+
+.nav-link:hover {
+  color: var(--white);
+  background: rgba(255, 79, 216, 0.12);
+  transform: translateY(-1px);
+  box-shadow: 0 0 24px rgba(255, 79, 216, 0.14);
+}
+
+.nav-link.active {
+  color: #110617;
+  background:
+    linear-gradient(135deg, #ffffff 0%, #ffd7f6 42%, #ff9bdd 100%);
+  box-shadow:
+    0 14px 32px rgba(255, 79, 216, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.78);
+}
+
+.nav-link[data-tab="admin"],
+.nav-link[data-tab-open="admin"],
+button[data-tab="admin"],
+button[data-tab-open="admin"],
+a[data-tab="admin"],
+a[data-tab-open="admin"] {
+  display: none !important;
+}
+
+.nav-right-actions {
+  display: flex !important;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 14px;
+  margin-left: 0;
+  min-width: max-content;
+  position: relative;
+  z-index: 4;
+}
+
+.nav-action-button {
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 42px;
+  padding: 0 24px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 214, 248, 0.72);
+  background:
+    linear-gradient(135deg, #ffffff 0%, #ffd7f6 44%, #ff9bdd 100%);
+  color: #120617;
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  white-space: nowrap;
+  box-shadow:
+    0 14px 34px rgba(255, 79, 216, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.75);
+  transition:
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    background 0.18s ease;
+  overflow: hidden;
+}
+
+.nav-action-button::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(110deg, transparent 0%, rgba(255, 255, 255, 0.7) 48%, transparent 58%);
+  transform: translateX(-120%) skewX(-18deg);
+  transition: 0.45s ease;
+}
+
+.nav-action-button:hover {
+  transform: translateY(-2px);
+  box-shadow:
+    0 20px 46px rgba(255, 79, 216, 0.3),
+    0 0 28px rgba(141, 92, 255, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85);
+}
+
+.nav-action-button:hover::before {
+  transform: translateX(120%) skewX(-18deg);
+}
+
+.nav-action-button.admin {
+  background:
+    linear-gradient(135deg, #ffffff 0%, #ede4ff 46%, #c8b4ff 100%);
+  border-color: rgba(214, 202, 255, 0.72);
+}
+
+main {
+  padding-top: 130px;
+}
+
+/* =========================
+   SECTIONS
+========================= */
+
+.tab-section {
+  display: none;
+  min-height: calc(100vh - 130px);
+  opacity: 0;
+  transform: translateY(16px);
+}
+
+.tab-section.active {
+  display: block;
+  animation: tabFade 0.55s ease forwards;
+}
+
+@keyframes tabFade {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.hero {
+  width: min(1120px, calc(100% - 36px));
+  margin: 0 auto;
+  min-height: 680px;
+  display: grid;
+  grid-template-columns: 1.15fr 0.85fr;
+  align-items: center;
+  gap: 50px;
+}
+
+.eyebrow {
+  width: fit-content;
+  color: rgba(255, 215, 246, 0.95);
+  font-family: "Montserrat", sans-serif;
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  margin-bottom: 18px;
+  text-shadow:
+    0 0 18px rgba(255, 79, 216, 0.32),
+    0 0 34px rgba(141, 92, 255, 0.22);
+}
+
+.hero h1,
+.subpage h1 {
+  font-family: "Montserrat", sans-serif;
+  font-size: clamp(3rem, 7vw, 6.8rem);
+  line-height: 0.95;
+  letter-spacing: -0.075em;
+  font-weight: 900;
+  color: var(--white);
+  text-shadow:
+    0 0 22px rgba(255, 255, 255, 0.12),
+    0 0 58px rgba(255, 79, 216, 0.18);
+}
+
+.hero h1 span {
+  display: block;
+  color: rgba(255, 235, 255, 0.62);
+}
+
+.hero-text,
+.subpage-text {
+  max-width: 640px;
+  margin-top: 28px;
+  color: var(--muted);
+  font-size: 1.08rem;
+  line-height: 1.8;
+}
+
+.hero-actions {
+  margin-top: 36px;
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.primary-btn,
+.secondary-btn,
+.support-btn,
+.download-btn {
+  position: relative;
+  isolation: isolate;
+  text-decoration: none;
+  border: none;
+  cursor: pointer;
+  padding: 15px 24px;
+  border-radius: 999px;
+  font-family: "Inter", sans-serif;
+  font-weight: 900;
+  transition:
+    transform 0.22s ease,
+    box-shadow 0.22s ease,
+    background 0.22s ease,
+    border-color 0.22s ease;
+  overflow: hidden;
+}
+
+.primary-btn {
+  background:
+    linear-gradient(135deg, #ffffff 0%, #ffd7f6 42%, #ff9bdd 100%);
+  color: #120617;
+  box-shadow:
+    0 18px 42px rgba(255, 79, 216, 0.24),
+    inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.secondary-btn {
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.09), rgba(255, 79, 216, 0.08));
+  color: var(--white);
+  border: 1px solid var(--card-border);
+}
+
+.primary-btn::before,
+.secondary-btn::before,
+.support-btn::before,
+.download-btn::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  background: linear-gradient(110deg, transparent 0%, rgba(255, 255, 255, 0.68) 48%, transparent 58%);
+  transform: translateX(-125%) skewX(-18deg);
+  transition: 0.48s ease;
+}
+
+.primary-btn:hover,
+.secondary-btn:hover,
+.support-btn:hover,
+.download-btn:hover {
+  transform: translateY(-3px);
+  box-shadow:
+    0 24px 52px rgba(255, 79, 216, 0.24),
+    0 0 34px rgba(141, 92, 255, 0.2);
+}
+
+.primary-btn:hover::before,
+.secondary-btn:hover::before,
+.support-btn:hover::before,
+.download-btn:hover::before {
+  transform: translateX(125%) skewX(-18deg);
+}
+
+/* =========================
+   HERO CARD
+========================= */
+
+.hero-card {
+  position: relative;
+  min-height: 420px;
+  border-radius: 38px;
+  background:
+    radial-gradient(circle at top right, rgba(255, 79, 216, 0.25), transparent 38%),
+    radial-gradient(circle at bottom left, rgba(255, 154, 92, 0.16), transparent 42%),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0.045)),
+    linear-gradient(135deg, rgba(26, 18, 48, 0.92), rgba(5, 4, 13, 0.9));
+  border: 1px solid var(--card-border);
+  box-shadow:
+    0 35px 90px var(--shadow),
+    0 0 48px rgba(255, 79, 216, 0.14);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 42px;
+  overflow: hidden;
+  animation: heroCardFloat 6s ease-in-out infinite alternate;
+}
+
+.hero-card::before {
+  content: "";
+  position: absolute;
+  width: 330px;
+  height: 330px;
+  top: -120px;
+  right: -100px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, rgba(255, 79, 216, 0.34), rgba(141, 92, 255, 0.16), transparent 68%);
+  filter: blur(12px);
+}
+
+.hero-card::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(120deg, transparent 0%, rgba(255, 255, 255, 0.12) 48%, transparent 62%);
+  transform: translateX(-130%);
+  animation: cardShine 6.5s ease-in-out infinite;
+}
+
+@keyframes heroCardFloat {
+  from {
+    transform: translateY(0);
+  }
+
+  to {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes cardShine {
+  0% {
+    transform: translateX(-130%);
+  }
+
+  40% {
+    transform: translateX(130%);
+  }
+
+  100% {
+    transform: translateX(130%);
+  }
+}
+
+.brand-word {
+  position: relative;
+  font-family: "Montserrat", sans-serif;
+  color: var(--white);
+  font-size: clamp(2.9rem, 6vw, 5.9rem);
+  font-weight: 900;
+  letter-spacing: -0.08em;
+  text-shadow:
+    0 16px 30px rgba(0, 0, 0, 0.34),
+    0 0 28px rgba(255, 79, 216, 0.36),
+    0 0 62px rgba(141, 92, 255, 0.22);
+  z-index: 1;
+}
+
+.hero-card p {
+  position: relative;
+  z-index: 1;
+}
+
+.hero-card > p:not(.eyebrow) {
+  margin-top: 8px;
+  color: rgba(255, 245, 255, 0.84);
+  font-size: 1.25rem;
+  letter-spacing: 0.04em;
+}
+
+.mini-info {
+  position: relative;
+  z-index: 1;
+  margin-top: 26px;
+  padding: 16px 18px;
+  border-radius: 22px;
+  color: var(--muted);
+  line-height: 1.6;
+  background: rgba(255, 255, 255, 0.075);
+  border: 1px solid var(--card-border);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+/* =========================
+   CARDS / CONTENT
+========================= */
+
+.content-section {
+  width: min(1120px, calc(100% - 36px));
+  margin: 0 auto 120px;
+}
+
+.section-header {
+  margin-bottom: 34px;
+}
+
+.section-header.compact {
+  margin-bottom: 24px;
+}
+
+.section-header h2 {
+  font-family: "Montserrat", sans-serif;
+  max-width: 800px;
+  color: var(--white);
+  font-size: clamp(2rem, 4vw, 4rem);
+  letter-spacing: -0.06em;
+  line-height: 1;
+  text-shadow:
+    0 0 28px rgba(255, 79, 216, 0.16),
+    0 0 52px rgba(141, 92, 255, 0.12);
+}
+
+.card-grid,
+.project-grid,
+.status-grid,
+.training-grid,
+.progress-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 18px;
+}
+
+.info-card,
+.project-card,
+.status-card,
+.support-card,
+.wide-card,
+.timeline-item,
+.training-card,
+.training-warning,
+.progress-main-card,
+.progress-detail-card {
+  position: relative;
+  overflow: hidden;
+  border: 1px solid var(--card-border);
+  background:
+    radial-gradient(circle at top right, rgba(255, 79, 216, 0.1), transparent 34%),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.04));
+  border-radius: 30px;
+  box-shadow:
+    0 22px 55px rgba(0, 0, 0, 0.22),
+    inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  transition:
+    transform 0.35s ease,
+    border-color 0.35s ease,
+    background 0.35s ease,
+    box-shadow 0.35s ease;
+}
+
+.info-card::before,
+.project-card::before,
+.status-card::before,
+.support-card::before,
+.wide-card::before,
+.timeline-item::before,
+.training-card::before,
+.training-warning::before,
+.progress-main-card::before,
+.progress-detail-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(120deg, transparent 0%, rgba(255, 255, 255, 0.08) 48%, transparent 64%);
+  transform: translateX(-140%);
+  transition: 0.55s ease;
+  pointer-events: none;
+}
+
+.info-card,
+.project-card,
+.status-card,
+.training-card {
+  min-height: 240px;
+  padding: 30px;
+}
+
+.info-card:hover,
+.project-card:hover,
+.status-card:hover,
+.support-card:hover,
+.wide-card:hover,
+.timeline-item:hover,
+.training-card:hover,
+.training-warning:hover,
+.progress-main-card:hover,
+.progress-detail-card:hover {
+  transform: translateY(-8px);
+  border-color: rgba(255, 79, 216, 0.42);
+  background:
+    radial-gradient(circle at top right, rgba(255, 79, 216, 0.16), transparent 36%),
+    radial-gradient(circle at bottom left, rgba(255, 154, 92, 0.08), transparent 42%),
+    var(--card-hover);
+  box-shadow:
+    0 28px 70px rgba(0, 0, 0, 0.32),
+    0 0 36px rgba(255, 79, 216, 0.14);
+}
+
+.info-card:hover::before,
+.project-card:hover::before,
+.status-card:hover::before,
+.support-card:hover::before,
+.wide-card:hover::before,
+.timeline-item:hover::before,
+.training-card:hover::before,
+.training-warning:hover::before,
+.progress-main-card:hover::before,
+.progress-detail-card:hover::before {
+  transform: translateX(140%);
+}
+
+.card-light {
+  position: absolute;
+  width: 120px;
+  height: 120px;
+  top: -38px;
+  right: -38px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle, rgba(255, 79, 216, 0.22), rgba(141, 92, 255, 0.1), transparent 66%);
+  filter: blur(7px);
+}
+
+.info-card h3,
+.project-card h3,
+.status-card h3,
+.support-card h2,
+.wide-card h3,
+.timeline-content h3,
+.training-card h3,
+.training-warning h3,
+.download-modal h2,
+.progress-main-card h3,
+.progress-detail-card h4 {
+  position: relative;
+  font-family: "Montserrat", sans-serif;
+  font-size: 1.45rem;
+  font-weight: 900;
+  letter-spacing: -0.04em;
+  color: var(--white);
+}
+
+.info-card p,
+.project-card p,
+.status-card p,
+.support-card p,
+.wide-card p,
+.timeline-content p,
+.training-card p,
+.training-warning p,
+.download-modal p,
+.progress-main-card p,
+.progress-detail-card p,
+.waitlist-banner p {
+  position: relative;
+  color: var(--muted);
+  line-height: 1.75;
+  margin-top: 14px;
+}
+
+.subpage {
+  width: min(1120px, calc(100% - 36px));
+  margin: 0 auto;
+  padding: 110px 0 130px;
+}
+
+.feature-list {
+  margin-top: 46px;
+  display: grid;
+  gap: 18px;
+}
+
+.wide-card {
+  padding: 30px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 30px;
+  align-items: center;
+}
+
+.wide-card span {
+  font-family: "Montserrat", sans-serif;
+  font-size: 3.2rem;
+  font-weight: 900;
+  letter-spacing: -0.08em;
+  color: rgba(255, 79, 216, 0.28);
+  text-shadow: 0 0 30px rgba(255, 79, 216, 0.24);
+}
+
+/* =========================
+   TRAINING
+========================= */
+
+.training-warning {
+  margin-top: 42px;
+  margin-bottom: 18px;
+  padding: 30px;
+  border-color: rgba(255, 154, 92, 0.42);
+  background:
+    radial-gradient(circle at top right, rgba(255, 154, 92, 0.12), transparent 38%),
+    rgba(255, 154, 92, 0.075);
+}
+
+.training-grid {
+  margin-top: 18px;
+}
+
+.training-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.training-card.available {
+  border-color: rgba(113, 246, 173, 0.34);
+  background:
+    radial-gradient(circle at top right, rgba(113, 246, 173, 0.12), transparent 38%),
+    linear-gradient(145deg, rgba(113, 246, 173, 0.1), rgba(255, 255, 255, 0.06));
+}
+
+.training-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.training-badge {
+  flex: 0 0 auto;
+  padding: 8px 11px;
+  border-radius: 999px;
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.training-badge.available {
+  color: #07130d;
+  background: var(--success);
+  box-shadow: 0 0 24px rgba(113, 246, 173, 0.28);
+}
+
+.training-badge.unavailable {
+  color: rgba(255, 235, 255, 0.72);
+  background: rgba(255, 255, 255, 0.09);
+}
+
+.download-btn {
+  margin-top: 28px;
+  color: #120617;
+  background:
+    linear-gradient(135deg, #ffffff 0%, #ffd7f6 42%, #ff9bdd 100%);
+  width: fit-content;
+}
+
+/* =========================
+   PROGRESS
+========================= */
+
+.progress-section {
+  margin-top: 52px;
+}
+
+.progress-main-card {
+  padding: 34px;
+}
+
+.progress-card-header,
+.progress-detail-top {
+  display: flex;
+  justify-content: space-between;
+  gap: 24px;
+  align-items: flex-start;
+}
+
+.progress-card-header h3 span {
+  color: var(--muted);
+  font-size: 0.92rem;
+  letter-spacing: 0;
+}
+
+.progress-card-header strong {
+  font-family: "Montserrat", sans-serif;
+  font-size: clamp(2.4rem, 5vw, 4.6rem);
+  line-height: 1;
+  letter-spacing: -0.08em;
+  color: var(--white);
+  text-shadow:
+    0 0 30px rgba(255, 79, 216, 0.28),
+    0 0 48px rgba(141, 92, 255, 0.16);
+}
+
+.progress-bar {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.09);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.progress-bar.big {
+  height: 18px;
+  margin-top: 30px;
+}
+
+.progress-bar.small {
+  height: 10px;
+  margin-top: 18px;
+}
+
+.progress-fill {
+  position: relative;
+  width: var(--progress);
+  height: 100%;
+  border-radius: inherit;
+  background:
+    linear-gradient(90deg, rgba(255, 79, 216, 0.88), rgba(141, 92, 255, 0.82), rgba(255, 255, 255, 0.94));
+  box-shadow:
+    0 0 18px rgba(255, 79, 216, 0.52),
+    0 0 38px rgba(141, 92, 255, 0.28);
+  overflow: hidden;
+}
+
+.progress-fill::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -45%;
+  width: 42%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.9), transparent);
+  transform: skewX(-18deg);
+  animation: progressShine 2.4s ease-in-out infinite;
+}
+
+.progress-bar.orange .progress-fill {
+  background:
+    linear-gradient(90deg, rgba(255, 154, 92, 0.82), rgba(255, 79, 216, 0.74), rgba(255, 255, 255, 0.95));
+  box-shadow:
+    0 0 18px rgba(255, 154, 92, 0.52),
+    0 0 38px rgba(255, 79, 216, 0.24);
+}
+
+@keyframes progressShine {
+  0% {
+    left: -45%;
+  }
+
+  48% {
+    left: 110%;
+  }
+
+  100% {
+    left: 110%;
+  }
+}
+
+.progress-grid {
+  margin-top: 22px;
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.progress-detail-card {
+  padding: 24px;
+}
+
+.progress-detail-top h4 {
+  font-size: 1.2rem;
+}
+
+.progress-detail-top span {
+  font-family: "Montserrat", sans-serif;
+  color: var(--white);
+  font-weight: 900;
+  font-size: 1.15rem;
+}
+
+.product-waitlist {
+  border-color: rgba(255, 154, 92, 0.38);
+  background:
+    radial-gradient(circle at top right, rgba(255, 154, 92, 0.12), transparent 38%),
+    linear-gradient(145deg, rgba(255, 154, 92, 0.08), rgba(255, 255, 255, 0.06));
+}
+
+.waitlist-banner {
+  margin-bottom: 28px;
+  padding: 20px;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 154, 92, 0.38);
+  background: rgba(255, 154, 92, 0.08);
+}
+
+.waitlist-banner span {
+  display: inline-flex;
+  width: fit-content;
+  padding: 8px 12px;
+  border-radius: 999px;
+  color: #180b04;
+  background:
+    linear-gradient(135deg, var(--sunset), var(--peach));
+  font-size: 0.72rem;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* =========================
+   STATUS
+========================= */
+
+.status-grid {
+  margin-top: 46px;
+}
+
+.status-card {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.status-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.status-indicator {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  flex: 0 0 auto;
+  margin-top: 6px;
+  background: var(--muted);
+  animation: statusPulse 2.1s ease-in-out infinite;
+}
+
+.status-indicator.active {
+  background: var(--active);
+  box-shadow: 0 0 22px rgba(255, 255, 255, 0.9);
+}
+
+.status-indicator.testing {
+  background: var(--testing);
+  box-shadow: 0 0 22px rgba(121, 232, 255, 0.9);
+}
+
+.status-indicator.wip {
+  background: var(--wip);
+  box-shadow: 0 0 22px rgba(255, 207, 122, 0.88);
+}
+
+.status-indicator.closed {
+  background: var(--closed);
+  box-shadow: 0 0 22px rgba(255, 95, 125, 0.9);
+}
+
+@keyframes statusPulse {
+  0%,
+  100% {
+    transform: scale(1);
+    opacity: 0.82;
+  }
+
+  50% {
+    transform: scale(1.16);
+    opacity: 1;
+  }
+}
+
+.status-label {
+  width: fit-content;
+  margin-top: 24px;
+  padding: 9px 13px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  background:
+    linear-gradient(135deg, rgba(255, 79, 216, 0.16), rgba(141, 92, 255, 0.12));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--white);
+}
+
+/* =========================
+   TIMELINE / SUPPORT
+========================= */
+
+.timeline {
+  margin-top: 46px;
+  display: grid;
+  gap: 18px;
+}
+
+.timeline-item {
+  padding: 30px;
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 28px;
+}
+
+.timeline-date {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.timeline-date strong {
+  color: var(--white);
+  font-family: "Montserrat", sans-serif;
+  font-size: 1.15rem;
+}
+
+.timeline-date span {
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.support-card {
+  margin-top: 46px;
+  padding: 34px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 26px;
+}
+
+.support-icon {
+  width: 64px;
+  height: 64px;
+  border-radius: 22px;
+  background:
+    radial-gradient(circle at top right, rgba(255, 79, 216, 0.26), transparent 40%),
+    linear-gradient(135deg, rgba(141, 92, 255, 0.24), rgba(255, 255, 255, 0.08));
+  border: 1px solid var(--card-border);
+  display: grid;
+  place-items: center;
+  box-shadow: 0 0 30px rgba(255, 79, 216, 0.15);
+}
+
+.support-icon span {
+  width: 26px;
+  height: 26px;
+  border: 3px solid var(--white);
+  border-radius: 8px 8px 8px 2px;
+  display: block;
+  box-shadow: 0 0 18px rgba(255, 255, 255, 0.2);
+}
+
+.support-btn {
+  color: #120617;
+  background:
+    linear-gradient(135deg, #ffffff 0%, #ffd7f6 42%, #ff9bdd 100%);
+  white-space: nowrap;
+}
+
+.support-grid {
+  margin-top: 20px;
+}
+
+/* =========================
+   POPUP / MODAL
+========================= */
+
+.recruitment-popup {
+  position: fixed;
+  right: 24px;
+  bottom: 24px;
+  width: min(440px, calc(100% - 48px));
+  z-index: 150;
+  padding: 18px;
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  align-items: center;
+  gap: 14px;
+  border-radius: 28px;
+  background:
+    linear-gradient(145deg, rgba(255, 255, 255, 0.1), rgba(255, 79, 216, 0.08)),
+    rgba(5, 4, 13, 0.86);
+  backdrop-filter: blur(24px);
+  border: 1px solid var(--card-border);
+  box-shadow:
+    0 24px 65px rgba(0, 0, 0, 0.48),
+    0 0 36px rgba(255, 79, 216, 0.18);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(24px) scale(0.96);
+  transition: 0.45s ease;
+}
+
+.recruitment-popup.show {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0) scale(1);
+}
+
+.notification-dot {
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: var(--success);
+  box-shadow: 0 0 20px rgba(113, 246, 173, 0.86);
+}
+
+.notification-content strong {
+  display: block;
+  color: var(--white);
+  font-weight: 900;
+}
+
+.notification-content p {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.45;
+}
+
+.recruitment-popup a {
+  text-decoration: none;
+  color: #120617;
+  background:
+    linear-gradient(135deg, #ffffff 0%, #ffd7f6 42%, #ff9bdd 100%);
+  padding: 10px 15px;
+  border-radius: 999px;
+  font-size: 0.9rem;
+  font-weight: 900;
+}
+
+.close-notification {
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  color: var(--white);
+  background: rgba(255, 255, 255, 0.11);
+  font-size: 1.2rem;
+  line-height: 1;
+  transition: 0.22s ease;
+}
+
+.close-notification:hover {
+  background: rgba(255, 79, 216, 0.16);
+  transform: rotate(90deg);
+}
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background:
+    radial-gradient(circle at center, rgba(255, 79, 216, 0.12), transparent 44%),
+    rgba(0, 0, 0, 0.62);
+  backdrop-filter: blur(20px);
+  opacity: 0;
+  pointer-events: none;
+  transition: 0.35s ease;
+}
+
+.modal-overlay.show {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.download-modal {
+  width: min(520px, 100%);
+  border-radius: 34px;
+  padding: 34px;
+  border: 1px solid var(--card-border);
+  background:
+    radial-gradient(circle at top right, rgba(255, 79, 216, 0.16), transparent 38%),
+    linear-gradient(145deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.055)),
+    #080616;
+  box-shadow:
+    0 30px 90px rgba(0, 0, 0, 0.5),
+    0 0 42px rgba(255, 79, 216, 0.16);
+  transform: translateY(16px) scale(0.98);
+  transition: 0.35s ease;
+}
+
+.modal-overlay.show .download-modal {
+  transform: translateY(0) scale(1);
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-top: 28px;
+}
+
+.footer {
+  width: min(1120px, calc(100% - 36px));
+  margin: 0 auto;
+  padding: 46px 0 56px;
+  border-top: 1px solid var(--card-border);
+  display: flex;
+  justify-content: center;
+  gap: 34px;
+  flex-wrap: wrap;
+}
+
+.footer p {
+  font-family: "Montserrat", sans-serif;
+  color: rgba(255, 235, 255, 0.78);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+}
+
+/* =========================
+   RESPONSIVE
+========================= */
+
+@media (max-width: 1400px) {
+  .navbar {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    border-radius: 34px;
+    padding: 16px;
+    gap: 14px;
+  }
+
+  .nav-logo {
+    padding-left: 0;
+    text-align: center;
+  }
+
+  .nav-links {
+    justify-content: center;
+  }
+
+  .nav-right-actions {
+    justify-content: center;
+    min-width: 0;
+    width: 100%;
+  }
+
+  main {
+    padding-top: 225px;
+  }
+}
+
+@media (max-width: 900px) {
+  .hero {
+    min-height: auto;
+    padding: 70px 0;
+    grid-template-columns: 1fr;
+  }
+
+  .hero-card {
+    min-height: 320px;
+  }
+
+  .card-grid,
+  .project-grid,
+  .status-grid,
+  .training-grid,
+  .progress-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .support-card,
+  .timeline-item {
+    grid-template-columns: 1fr;
+  }
+
+  .wide-card {
+    grid-template-columns: 1fr;
+  }
+
+  .wide-card span {
+    font-size: 2rem;
+  }
+
+  .progress-card-header {
+    flex-direction: column;
+  }
+}
+
+@media (max-width: 700px) {
+  .navbar {
+    width: min(100% - 24px, 1320px);
+    top: 12px;
+    border-radius: 28px;
+  }
+
+  .nav-logo {
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+  }
+
+  .nav-links {
+    overflow-x: auto;
+    justify-content: flex-start;
+    flex-wrap: nowrap;
+    width: 100%;
+    padding-bottom: 4px;
+  }
+
+  .nav-links::-webkit-scrollbar {
+    height: 4px;
+  }
+
+  .nav-links::-webkit-scrollbar-thumb {
+    border-radius: 999px;
+    background: rgba(255, 79, 216, 0.38);
+  }
+
+  .nav-link {
+    flex: 0 0 auto;
+  }
+
+  .nav-right-actions {
+    display: grid !important;
+    grid-template-columns: 1fr;
+    gap: 10px;
+  }
+
+  .nav-action-button {
+    width: 100%;
+    min-height: 46px;
+  }
+
+  main {
+    padding-top: 285px;
+  }
+}
+
+@media (max-width: 520px) {
+  .nav-link {
+    padding: 11px 14px;
+    font-size: 0.9rem;
+  }
+
+  .hero h1,
+  .subpage h1 {
+    font-size: 3rem;
+  }
+
+  .hero-card {
+    padding: 28px;
+  }
+
+  .training-top,
+  .progress-detail-top {
+    flex-direction: column;
+  }
+
+  .recruitment-popup {
+    grid-template-columns: auto 1fr;
+  }
+
+  .recruitment-popup a,
+  .close-notification {
+    grid-column: span 1;
+  }
+
+  .modal-actions {
+    justify-content: stretch;
+  }
+
+  .modal-actions button {
+    width: 100%;
+  }
+
+  .footer {
+    flex-direction: column;
+    align-items: center;
+    gap: 14px;
+  }
+}
+
+/* =========================
+   REDUCED MOTION
+========================= */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}
