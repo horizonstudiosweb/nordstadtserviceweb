@@ -3,26 +3,36 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Meine Tickets - Nordstadt Roleplay</title>
+
+  <title>Tickets - Nordstadt Roleplay</title>
+
+  <meta
+    name="description"
+    content="Das alte Ticketportal wurde in das neue Nordstadt Support-Center integriert."
+  />
+
+  <meta http-equiv="refresh" content="2; url=support-center.html#myTicketsSection" />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+    rel="stylesheet"
+  />
 
   <style>
     :root {
-      --bg: #050d18;
-      --panel: rgba(12, 27, 47, 0.78);
-      --card: rgba(255, 255, 255, 0.065);
-      --card-hover: rgba(255, 255, 255, 0.095);
-      --line: rgba(145, 190, 255, 0.16);
-      --line-strong: rgba(145, 190, 255, 0.3);
-      --text: #f7fbff;
-      --muted: rgba(226, 238, 255, 0.7);
-      --muted-soft: rgba(226, 238, 255, 0.48);
-      --blue: #75c5ff;
-      --green: #7af0aa;
-      --yellow: #ffe083;
-      --red: #ff7d96;
-      --radius: 28px;
-      --radius-sm: 18px;
-      --shadow: 0 28px 90px rgba(0, 0, 0, 0.42);
+      --bg: #05040d;
+      --panel: rgba(18, 14, 34, 0.78);
+      --line: rgba(255, 255, 255, 0.145);
+      --text: #fff7ff;
+      --muted: rgba(255, 235, 255, 0.7);
+      --pink: #ff4fd8;
+      --violet: #8d5cff;
+      --sunset: #ff9a5c;
+      --radius: 34px;
+      --shadow: 0 28px 90px rgba(0, 0, 0, 0.48);
     }
 
     * {
@@ -32,20 +42,22 @@
     html {
       min-height: 100%;
       background: var(--bg);
-      scroll-behavior: smooth;
     }
 
     body {
-      margin: 0;
       min-height: 100vh;
+      margin: 0;
+      display: grid;
+      place-items: center;
+      padding: 24px;
       color: var(--text);
       font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
       background:
-        radial-gradient(circle at 10% 8%, rgba(67, 164, 255, 0.2), transparent 30%),
-        radial-gradient(circle at 88% 12%, rgba(159, 140, 255, 0.15), transparent 32%),
-        radial-gradient(circle at 50% 100%, rgba(117, 197, 255, 0.1), transparent 35%),
-        linear-gradient(135deg, #050d18 0%, #081525 48%, #040a13 100%);
-      overflow-x: hidden;
+        radial-gradient(circle at 8% 8%, rgba(255, 79, 216, 0.2), transparent 30%),
+        radial-gradient(circle at 92% 12%, rgba(141, 92, 255, 0.17), transparent 34%),
+        radial-gradient(circle at 56% 96%, rgba(255, 154, 92, 0.11), transparent 36%),
+        linear-gradient(135deg, #03020a 0%, #090817 44%, #05040d 100%);
+      overflow: hidden;
     }
 
     body::before {
@@ -53,34 +65,16 @@
       position: fixed;
       inset: 0;
       z-index: -3;
-      background:
-        linear-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(255, 255, 255, 0.025) 1px, transparent 1px);
-      background-size: 54px 54px;
-      mask-image: radial-gradient(circle at center, black 0%, transparent 72%);
-      opacity: 0.36;
       pointer-events: none;
+      background:
+        linear-gradient(rgba(255, 255, 255, 0.024) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.024) 1px, transparent 1px);
+      background-size: 52px 52px;
+      mask-image: radial-gradient(circle at center, black 0%, transparent 72%);
+      opacity: 0.34;
     }
 
-    button,
-    input,
-    textarea {
-      font: inherit;
-    }
-
-    button {
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    a {
-      color: inherit;
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
-    .ticket-bg {
+    .redirect-bg {
       position: fixed;
       inset: 0;
       z-index: -2;
@@ -94,27 +88,27 @@
       height: 380px;
       border-radius: 50%;
       filter: blur(66px);
-      opacity: 0.45;
+      opacity: 0.48;
       animation: orbFloat 12s ease-in-out infinite alternate;
     }
 
     .orb-one {
       top: 70px;
       left: -120px;
-      background: rgba(67, 164, 255, 0.34);
+      background: rgba(255, 79, 216, 0.36);
     }
 
     .orb-two {
       top: 160px;
       right: -130px;
-      background: rgba(159, 140, 255, 0.25);
+      background: rgba(141, 92, 255, 0.28);
       animation-delay: -4s;
     }
 
     .orb-three {
       left: 34%;
       bottom: -180px;
-      background: rgba(117, 197, 255, 0.16);
+      background: rgba(255, 154, 92, 0.18);
       animation-delay: -7s;
     }
 
@@ -128,126 +122,32 @@
       }
     }
 
-    .ticket-header {
-      width: min(1180px, calc(100% - 32px));
-      margin: 18px auto 0;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 16px;
-      padding: 14px;
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      background: rgba(7, 17, 31, 0.72);
-      box-shadow: 0 18px 55px rgba(0, 0, 0, 0.28);
-      backdrop-filter: blur(24px);
-      position: sticky;
-      top: 14px;
-      z-index: 20;
-    }
-
-    .brand {
-      display: grid;
-      gap: 2px;
-      padding-left: 12px;
-      text-decoration: none;
-    }
-
-    .brand span {
-      color: var(--muted);
-      font-size: 12px;
-      font-weight: 800;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-    }
-
-    .brand strong {
-      font-size: 18px;
-      font-weight: 950;
-      letter-spacing: -0.04em;
-    }
-
-    .top-actions {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .top-actions a {
-      min-height: 40px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      padding: 0 15px;
-      border-radius: 999px;
-      border: 1px solid rgba(145, 190, 255, 0.14);
-      background: rgba(255, 255, 255, 0.055);
-      color: var(--text);
-      font-size: 13px;
-      font-weight: 850;
-      text-decoration: none;
-      transition: 0.18s ease;
-    }
-
-    .top-actions a:hover {
-      transform: translateY(-2px);
-      border-color: rgba(117, 197, 255, 0.35);
-      background: rgba(117, 197, 255, 0.11);
-    }
-
-    .ticket-page {
-      width: min(1180px, calc(100% - 32px));
-      margin: 0 auto;
-      padding: 78px 0 90px;
-    }
-
-    .ticket-hero {
-      display: grid;
-      grid-template-columns: minmax(0, 1.2fr) minmax(330px, 0.8fr);
-      gap: 20px;
-      align-items: stretch;
-      margin-bottom: 26px;
-    }
-
-    .ticket-hero-content,
-    .ticket-hero-panel,
-    .lookup-card,
-    .ticket-view,
-    .chat-card,
-    .detail-box {
+    .redirect-card {
+      width: min(680px, 100%);
       position: relative;
+      padding: clamp(28px, 6vw, 48px);
       border: 1px solid var(--line);
       border-radius: var(--radius);
       background:
-        radial-gradient(circle at top left, rgba(117, 197, 255, 0.14), transparent 36%),
-        linear-gradient(145deg, rgba(13, 28, 49, 0.76), rgba(6, 16, 30, 0.88));
+        radial-gradient(circle at top left, rgba(255, 79, 216, 0.16), transparent 36%),
+        radial-gradient(circle at bottom right, rgba(141, 92, 255, 0.1), transparent 42%),
+        linear-gradient(145deg, rgba(26, 18, 48, 0.78), rgba(5, 4, 13, 0.94));
       box-shadow: var(--shadow);
       backdrop-filter: blur(28px);
       overflow: hidden;
+      text-align: center;
     }
 
-    .ticket-hero-content::before,
-    .ticket-hero-panel::before,
-    .lookup-card::before,
-    .ticket-view::before,
-    .chat-card::before,
-    .detail-box::before {
+    .redirect-card::before {
       content: "";
       position: absolute;
       inset: 0;
+      pointer-events: none;
       border-radius: inherit;
       background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.105), transparent 25%),
-        linear-gradient(135deg, rgba(117, 197, 255, 0.06), transparent 45%);
-      pointer-events: none;
-    }
-
-    .ticket-hero-content {
-      min-height: 420px;
-      display: flex;
-      flex-direction: column;
-      justify-content: flex-end;
-      padding: clamp(26px, 5vw, 48px);
+        linear-gradient(180deg, rgba(255, 255, 255, 0.105), transparent 24%),
+        linear-gradient(135deg, rgba(255, 79, 216, 0.062), transparent 45%);
+      opacity: 0.75;
     }
 
     .eyebrow {
@@ -255,44 +155,48 @@
       width: fit-content;
       display: inline-flex;
       align-items: center;
+      justify-content: center;
+      margin: 0 auto;
       padding: 9px 13px;
-      border: 1px solid rgba(117, 197, 255, 0.22);
+      border: 1px solid rgba(255, 79, 216, 0.23);
       border-radius: 999px;
-      background: rgba(117, 197, 255, 0.1);
-      color: #d7eeff;
+      background: rgba(255, 79, 216, 0.1);
+      color: #ffd7f6;
       font-size: 12px;
-      font-weight: 880;
+      font-weight: 860;
       letter-spacing: 0.075em;
       text-transform: uppercase;
     }
 
-    .ticket-hero h1 {
+    h1 {
       position: relative;
-      margin: 22px 0 16px;
-      font-size: clamp(58px, 10vw, 112px);
-      line-height: 0.86;
+      margin: 22px 0 14px;
+      font-size: clamp(48px, 8vw, 86px);
+      line-height: 0.88;
       font-weight: 960;
-      letter-spacing: -0.105em;
+      letter-spacing: -0.095em;
+      text-shadow:
+        0 0 26px rgba(255, 79, 216, 0.2),
+        0 0 46px rgba(141, 92, 255, 0.14);
     }
 
-    .ticket-hero p {
+    p {
       position: relative;
-      max-width: 760px;
-      margin: 0;
+      max-width: 560px;
+      margin: 0 auto;
       color: var(--muted);
-      font-size: 18px;
+      font-size: 17px;
       line-height: 1.65;
       font-weight: 520;
     }
 
-    .hero-actions,
-    .ticket-view-actions,
-    .chat-head {
+    .actions {
       position: relative;
       display: flex;
-      flex-wrap: wrap;
+      justify-content: center;
       gap: 10px;
-      margin-top: 26px;
+      flex-wrap: wrap;
+      margin-top: 28px;
     }
 
     .primary-btn,
@@ -306,18 +210,23 @@
       cursor: pointer;
       text-decoration: none;
       font-weight: 920;
-      transition: 0.18s ease;
+      transition:
+        transform 0.18s ease,
+        box-shadow 0.18s ease,
+        border-color 0.18s ease,
+        background 0.18s ease;
     }
 
     .primary-btn {
       border: 0;
-      background: linear-gradient(135deg, #ffffff, #dcecff);
-      color: #07111f;
-      box-shadow: 0 18px 42px rgba(67, 164, 255, 0.18);
+      background:
+        linear-gradient(135deg, #ffffff 0%, #ffd7f6 42%, #ff9bdd 100%);
+      color: #120617;
+      box-shadow: 0 18px 42px rgba(255, 79, 216, 0.22);
     }
 
     .secondary-btn {
-      border: 1px solid rgba(145, 190, 255, 0.18);
+      border: 1px solid rgba(255, 255, 255, 0.16);
       background: rgba(255, 255, 255, 0.06);
       color: var(--text);
     }
@@ -327,999 +236,109 @@
       transform: translateY(-2px);
     }
 
-    .ticket-hero-panel {
-      display: grid;
-      align-content: end;
-      gap: 12px;
-      padding: 20px;
+    .secondary-btn:hover {
+      border-color: rgba(255, 79, 216, 0.32);
+      background: rgba(255, 79, 216, 0.1);
     }
 
-    .info-box {
+    .loader {
       position: relative;
-      display: grid;
-      gap: 6px;
-      padding: 18px;
-      border: 1px solid rgba(145, 190, 255, 0.11);
-      border-radius: 22px;
-      background: rgba(255, 255, 255, 0.052);
-    }
-
-    .info-box strong {
-      font-size: 22px;
-      font-weight: 950;
-    }
-
-    .info-box small {
-      color: var(--muted);
-      line-height: 1.45;
-      font-weight: 650;
-    }
-
-    .lookup-card,
-    .ticket-view {
-      padding: clamp(24px, 4vw, 34px);
-    }
-
-    .lookup-head,
-    .ticket-view-head,
-    .chat-head {
-      position: relative;
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 22px;
-      margin-bottom: 22px;
-    }
-
-    .lookup-head h2,
-    .ticket-view-head h2 {
-      margin: 14px 0 0;
-      color: var(--text);
-      font-size: clamp(38px, 5vw, 72px);
-      line-height: 0.9;
-      font-weight: 960;
-      letter-spacing: -0.09em;
-    }
-
-    .lookup-head p,
-    .ticket-view-head p,
-    .chat-head p {
-      max-width: 760px;
-      margin: 14px 0 0;
-      color: var(--muted);
-      line-height: 1.65;
-      font-weight: 520;
-    }
-
-    .safe-badge {
-      position: relative;
-      width: fit-content;
-      display: inline-flex;
-      align-items: center;
-      padding: 9px 13px;
-      border: 1px solid rgba(122, 240, 170, 0.22);
+      width: min(320px, 100%);
+      height: 8px;
+      margin: 28px auto 0;
       border-radius: 999px;
-      background: rgba(122, 240, 170, 0.1);
-      color: #c2ffd6;
-      font-size: 12px;
-      font-weight: 880;
-      letter-spacing: 0.075em;
-      text-transform: uppercase;
-      white-space: nowrap;
+      overflow: hidden;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.12);
     }
 
-    .lookup-form {
-      position: relative;
-      display: grid;
-      grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) auto;
-      gap: 12px;
-      align-items: end;
+    .loader::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      width: 45%;
+      border-radius: inherit;
+      background: linear-gradient(90deg, var(--pink), var(--violet), var(--sunset));
+      animation: loaderMove 1.4s ease-in-out infinite alternate;
+      box-shadow: 0 0 24px rgba(255, 79, 216, 0.32);
     }
 
-    .lookup-form label,
-    .reply-form label {
-      display: grid;
-      gap: 8px;
-      color: var(--muted);
-      font-size: 13px;
-      font-weight: 800;
-    }
-
-    .lookup-form input,
-    .reply-form textarea {
-      width: 100%;
-      border: 1px solid var(--line);
-      border-radius: var(--radius-sm);
-      background: rgba(255, 255, 255, 0.062);
-      color: var(--text);
-      outline: none;
-      font-weight: 620;
-      transition: 0.18s ease;
-    }
-
-    .lookup-form input {
-      min-height: 50px;
-      padding: 0 15px;
-    }
-
-    .reply-form textarea {
-      min-height: 120px;
-      resize: vertical;
-      padding: 14px 15px;
-      line-height: 1.55;
-    }
-
-    .lookup-form input::placeholder,
-    .reply-form textarea::placeholder {
-      color: rgba(226, 238, 255, 0.34);
-    }
-
-    .lookup-form input:focus,
-    .reply-form textarea:focus {
-      border-color: rgba(117, 197, 255, 0.55);
-      background: rgba(255, 255, 255, 0.082);
-      box-shadow: 0 0 0 4px rgba(117, 197, 255, 0.08);
-    }
-
-    .form-message {
-      position: relative;
-      margin-top: 14px;
-      color: var(--muted);
-      font-size: 13px;
-      font-weight: 760;
-      line-height: 1.6;
-    }
-
-    .form-message.error {
-      color: #ffd1db;
-    }
-
-    .form-message.success {
-      color: #c2ffd6;
-    }
-
-    .ticket-detail-grid {
-      position: relative;
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 14px;
-      margin-top: 18px;
-    }
-
-    .detail-box {
-      box-shadow: none;
-      padding: 18px;
-      border-radius: 22px;
-    }
-
-    .detail-box.full {
-      grid-column: 1 / -1;
-    }
-
-    .detail-box span {
-      position: relative;
-      color: var(--muted-soft);
-      font-size: 12px;
-      font-weight: 900;
-      letter-spacing: 0.075em;
-      text-transform: uppercase;
-    }
-
-    .detail-box strong,
-    .detail-box p {
-      position: relative;
-      display: block;
-      margin: 8px 0 0;
-      color: var(--text);
-      line-height: 1.6;
-      white-space: pre-wrap;
-      word-break: break-word;
-    }
-
-    .status-badge {
-      position: relative;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      min-height: 40px;
-      padding: 0 14px;
-      border-radius: 999px;
-      border: 1px solid rgba(145, 190, 255, 0.14);
-      background: rgba(255, 255, 255, 0.055);
-      color: var(--muted);
-      font-size: 12px;
-      font-weight: 900;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-    }
-
-    .status-badge.open {
-      color: #9dd2ff;
-      border-color: rgba(117, 197, 255, 0.24);
-      background: rgba(117, 197, 255, 0.11);
-    }
-
-    .status-badge.in_progress {
-      color: var(--yellow);
-      border-color: rgba(255, 224, 131, 0.24);
-      background: rgba(255, 224, 131, 0.1);
-    }
-
-    .status-badge.closed {
-      color: #d8e0ed;
-      border-color: rgba(216, 224, 237, 0.22);
-      background: rgba(216, 224, 237, 0.09);
-    }
-
-    .chat-card {
-      margin-top: 18px;
-      padding: 22px;
-      box-shadow: none;
-    }
-
-    .chat-head {
-      margin-top: 0;
-      align-items: flex-start;
-      justify-content: space-between;
-    }
-
-    .chat-head h3 {
-      position: relative;
-      margin: 0;
-      font-size: 28px;
-      line-height: 1;
-      font-weight: 950;
-      letter-spacing: -0.06em;
-    }
-
-    .ticket-messages {
-      position: relative;
-      display: grid;
-      gap: 12px;
-      max-height: 460px;
-      overflow: auto;
-      padding-right: 6px;
-    }
-
-    .ticket-messages::-webkit-scrollbar {
-      width: 8px;
-    }
-
-    .ticket-messages::-webkit-scrollbar-thumb {
-      border: 2px solid rgba(8, 18, 32, 0.9);
-      border-radius: 999px;
-      background: rgba(170, 205, 240, 0.35);
-    }
-
-    .message {
-      max-width: 82%;
-      padding: 14px 16px;
-      border: 1px solid rgba(145, 190, 255, 0.11);
-      border-radius: 20px;
-      background: rgba(255, 255, 255, 0.055);
-    }
-
-    .message.user {
-      margin-right: auto;
-    }
-
-    .message.support {
-      margin-left: auto;
-      border-color: rgba(117, 197, 255, 0.28);
-      background:
-        radial-gradient(circle at top left, rgba(117, 197, 255, 0.16), transparent 42%),
-        rgba(67, 164, 255, 0.1);
-    }
-
-    .message.system {
-      max-width: 100%;
-      margin: 0 auto;
-      text-align: center;
-      color: var(--muted);
-      background: rgba(255, 255, 255, 0.035);
-    }
-
-    .message-top {
-      display: flex;
-      justify-content: space-between;
-      gap: 12px;
-      margin-bottom: 8px;
-      color: var(--muted-soft);
-      font-size: 12px;
-      font-weight: 850;
-    }
-
-    .message p {
-      margin: 0;
-      color: var(--text);
-      line-height: 1.6;
-      white-space: pre-wrap;
-      word-break: break-word;
-    }
-
-    .closed-notice {
-      position: relative;
-      margin-top: 14px;
-      padding: 14px 16px;
-      border: 1px solid rgba(255, 224, 131, 0.24);
-      border-radius: 18px;
-      background: rgba(255, 224, 131, 0.08);
-      color: #fff1b6;
-      line-height: 1.55;
-      font-weight: 700;
-    }
-
-    .reply-form {
-      position: relative;
-      display: grid;
-      gap: 12px;
-      margin-top: 14px;
-    }
-
-    .reply-form button {
-      width: fit-content;
-    }
-
-    @media (max-width: 980px) {
-      .ticket-header {
-        border-radius: 26px;
-        align-items: flex-start;
-        flex-direction: column;
+    @keyframes loaderMove {
+      from {
+        transform: translateX(-20%);
       }
 
-      .top-actions {
-        width: 100%;
-        display: grid;
-        grid-template-columns: 1fr;
-      }
-
-      .ticket-hero,
-      .lookup-form,
-      .ticket-detail-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .lookup-head,
-      .ticket-view-head,
-      .chat-head {
-        flex-direction: column;
-      }
-
-      .ticket-hero-content {
-        min-height: 380px;
-      }
-
-      .message {
-        max-width: 100%;
+      to {
+        transform: translateX(145%);
       }
     }
 
     @media (max-width: 620px) {
-      .ticket-page {
-        width: min(100% - 22px, 1180px);
-        padding-top: 42px;
+      body {
+        padding: 14px;
       }
 
-      .ticket-header {
-        width: min(100% - 22px, 1180px);
+      .redirect-card {
+        border-radius: 26px;
       }
 
-      .ticket-hero h1 {
-        font-size: 58px;
-      }
-
-      .ticket-hero-content,
-      .ticket-hero-panel,
-      .lookup-card,
-      .ticket-view,
-      .chat-card,
-      .detail-box {
-        border-radius: 24px;
-      }
-
-      .hero-actions,
-      .ticket-view-actions {
+      .actions {
         flex-direction: column;
       }
 
       .primary-btn,
-      .secondary-btn,
-      .reply-form button {
+      .secondary-btn {
         width: 100%;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
       }
     }
   </style>
 </head>
 
 <body>
-  <div class="ticket-bg">
+  <div class="redirect-bg">
     <div class="orb orb-one"></div>
     <div class="orb orb-two"></div>
     <div class="orb orb-three"></div>
   </div>
 
-  <header class="ticket-header">
-    <a class="brand" href="support-center.html">
-      <span>Nordstadt</span>
-      <strong>Tickets</strong>
-    </a>
+  <main class="redirect-card">
+    <span class="eyebrow">Nordstadt Roleplay</span>
 
-    <nav class="top-actions">
-      <a href="support-center.html">Support-Center</a>
-      <a href="admin.html">Admin-Panel</a>
-      <a href="index.html">Website</a>
-    </nav>
-  </header>
+    <h1>Ticketportal umgezogen</h1>
 
-  <main class="ticket-page">
-    <section class="ticket-hero">
-      <div class="ticket-hero-content">
-        <span class="eyebrow">Ticketportal</span>
-        <h1>Meine Tickets</h1>
-        <p>
-          Öffne dein Ticket, lies Antworten vom Support und schreibe direkt weiter.
-          Du brauchst dafür deine Ticketnummer und deinen Discord-Namen.
-        </p>
+    <p>
+      Das alte Ticketportal wurde in das neue Support-Center integriert.
+      Du wirst automatisch zu „Meine Tickets“ weitergeleitet.
+    </p>
 
-        <div class="hero-actions">
-          <a class="secondary-btn" href="support-center.html">Zurück zur Website</a>
-          <a class="secondary-btn" href="admin.html">Admin-Panel</a>
-        </div>
-      </div>
+    <div class="loader" aria-hidden="true"></div>
 
-      <div class="ticket-hero-panel">
-        <div class="info-box">
-          <strong>Ticket-Chat</strong>
-          <small>Antworten, Status und Schließgrund an einem Ort.</small>
-        </div>
+    <div class="actions">
+      <a class="primary-btn" href="support-center.html#myTicketsSection">
+        Support-Center öffnen
+      </a>
 
-        <div class="info-box">
-          <strong>Transparent</strong>
-          <small>Geschlossene Tickets zeigen dir weiterhin den Verlauf.</small>
-        </div>
-      </div>
-    </section>
-
-    <section class="lookup-card" id="lookupCard">
-      <div class="lookup-head">
-        <div>
-          <span class="eyebrow">Ticket öffnen</span>
-          <h2>Zugang zum Ticket</h2>
-          <p>
-            Gib deine Ticketnummer und deinen Discord-Namen exakt so ein,
-            wie du ihn beim Erstellen angegeben hast.
-          </p>
-        </div>
-
-        <span class="safe-badge">Sicher per Ticketnummer</span>
-      </div>
-
-      <form class="lookup-form" id="ticketLookupForm">
-        <label>
-          Ticketnummer
-          <input
-            id="ticketNumberInput"
-            type="text"
-            placeholder="z. B. NRP-12345678"
-            autocomplete="off"
-            required
-          />
-        </label>
-
-        <label>
-          Discord-Name
-          <input
-            id="discordNameInput"
-            type="text"
-            placeholder="z. B. deinname#0000"
-            autocomplete="off"
-            required
-          />
-        </label>
-
-        <button class="primary-btn" type="submit">
-          Ticket laden
-        </button>
-      </form>
-
-      <div id="lookupMessage" class="form-message"></div>
-    </section>
-
-    <section class="ticket-view hidden" id="ticketView">
-      <div class="ticket-view-head">
-        <div>
-          <span class="eyebrow">Ticket geöffnet</span>
-          <h2 id="ticketTitle">Ticket</h2>
-          <p id="ticketMeta">Wird geladen...</p>
-        </div>
-
-        <div class="ticket-view-actions">
-          <span class="status-badge open" id="ticketStatusBadge">Offen</span>
-          <button class="secondary-btn" id="refreshTicketButtonTop" type="button">
-            Aktualisieren
-          </button>
-          <button class="secondary-btn" id="changeTicketButton" type="button">
-            Anderes Ticket
-          </button>
-        </div>
-      </div>
-
-      <div class="ticket-detail-grid">
-        <article class="detail-box">
-          <span>Kategorie</span>
-          <strong id="ticketCategory">-</strong>
-        </article>
-
-        <article class="detail-box">
-          <span>Discord</span>
-          <strong id="ticketDiscord">-</strong>
-        </article>
-
-        <article class="detail-box">
-          <span>Status</span>
-          <strong id="ticketStatusText">-</strong>
-        </article>
-
-        <article class="detail-box full">
-          <span>Beschreibung</span>
-          <p id="ticketDescription">-</p>
-        </article>
-
-        <article class="detail-box full hidden" id="closedReasonBox">
-          <span>Schließgrund</span>
-          <p id="ticketClosedReason">-</p>
-        </article>
-      </div>
-
-      <section class="chat-card">
-        <div class="chat-head">
-          <div>
-            <h3>Ticket-Chat</h3>
-            <p>Hier erscheinen Nachrichten von dir und vom Support-Team.</p>
-          </div>
-
-          <button class="secondary-btn" id="refreshTicketButton" type="button">
-            Aktualisieren
-          </button>
-        </div>
-
-        <div class="ticket-messages" id="ticketMessages">
-          <div class="message system">
-            <div class="message-top">
-              <span>System</span>
-              <span>Jetzt</span>
-            </div>
-            <p>Ticket wird geladen...</p>
-          </div>
-        </div>
-
-        <div class="closed-notice hidden" id="closedNotice">
-          Dieses Ticket wurde geschlossen. Du kannst den Verlauf weiterhin lesen,
-          aber nicht mehr antworten.
-        </div>
-
-        <form class="reply-form" id="ticketReplyForm">
-          <textarea
-            id="ticketReplyInput"
-            placeholder="Schreibe deine Antwort..."
-            required
-          ></textarea>
-
-          <button class="primary-btn" type="submit">
-            Antwort senden
-          </button>
-        </form>
-
-        <div id="replyMessage" class="form-message"></div>
-      </section>
-    </section>
+      <a class="secondary-btn" href="index.html">
+        Zur Website
+      </a>
+    </div>
   </main>
 
   <script>
-    const ticketPortalSettings = {
-      supabaseJsUrl: "https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2",
-      currentTicketNumber: "",
-      currentDiscordName: "",
-      currentTicket: null,
-      currentMessages: []
-    };
-
-    let ticketSupabaseClient = null;
-
-    const ticketLookupForm = document.getElementById("ticketLookupForm");
-    const ticketNumberInput = document.getElementById("ticketNumberInput");
-    const discordNameInput = document.getElementById("discordNameInput");
-    const lookupMessage = document.getElementById("lookupMessage");
-
-    const lookupCard = document.getElementById("lookupCard");
-    const ticketView = document.getElementById("ticketView");
-
-    const ticketStatusBadge = document.getElementById("ticketStatusBadge");
-    const ticketTitle = document.getElementById("ticketTitle");
-    const ticketMeta = document.getElementById("ticketMeta");
-    const ticketCategory = document.getElementById("ticketCategory");
-    const ticketDiscord = document.getElementById("ticketDiscord");
-    const ticketStatusText = document.getElementById("ticketStatusText");
-    const ticketDescription = document.getElementById("ticketDescription");
-    const closedReasonBox = document.getElementById("closedReasonBox");
-    const ticketClosedReason = document.getElementById("ticketClosedReason");
-
-    const ticketMessages = document.getElementById("ticketMessages");
-    const ticketReplyForm = document.getElementById("ticketReplyForm");
-    const ticketReplyInput = document.getElementById("ticketReplyInput");
-    const replyMessage = document.getElementById("replyMessage");
-    const closedNotice = document.getElementById("closedNotice");
-
-    const refreshTicketButton = document.getElementById("refreshTicketButton");
-    const refreshTicketButtonTop = document.getElementById("refreshTicketButtonTop");
-    const changeTicketButton = document.getElementById("changeTicketButton");
-
-    function ticketEscape(value) {
-      return String(value || "")
-        .replaceAll("&", "&amp;")
-        .replaceAll("<", "&lt;")
-        .replaceAll(">", "&gt;")
-        .replaceAll('"', "&quot;")
-        .replaceAll("'", "&#039;");
-    }
-
-    function ticketFormatDate(value) {
-      if (!value) {
-        return "Unbekannt";
-      }
-
-      return new Date(value).toLocaleString("de-DE", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-        hour: "2-digit",
-        minute: "2-digit"
-      });
-    }
-
-    function ticketStatusLabel(status) {
-      const labels = {
-        open: "Offen",
-        in_progress: "In Bearbeitung",
-        closed: "Geschlossen"
-      };
-
-      return labels[status] || status || "Unbekannt";
-    }
-
-    function ticketCategoryLabel(category, fallback) {
-      const labels = {
-        support: "Allgemeiner Support",
-        application: "Bewerbung",
-        report: "Spieler melden",
-        bug: "Bug melden"
-      };
-
-      return fallback || labels[category] || category || "Support";
-    }
-
-    function setLookupMessage(text, type = "") {
-      lookupMessage.textContent = text || "";
-      lookupMessage.className = `form-message ${type}`.trim();
-    }
-
-    function setReplyMessage(text, type = "") {
-      replyMessage.textContent = text || "";
-      replyMessage.className = `form-message ${type}`.trim();
-    }
-
-    function ticketLoadScript(src) {
-      return new Promise((resolve, reject) => {
-        const existingScript = document.querySelector(`script[src="${src}"]`);
-
-        if (existingScript) {
-          resolve();
-          return;
-        }
-
-        const script = document.createElement("script");
-        script.src = src;
-        script.onload = resolve;
-        script.onerror = () => reject(new Error(`${src} konnte nicht geladen werden.`));
-        document.head.appendChild(script);
-      });
-    }
-
-    async function ticketSetupSupabase() {
-      await ticketLoadScript("supabase-config.js");
-      await ticketLoadScript(ticketPortalSettings.supabaseJsUrl);
-
-      const config = window.NordstadtSupabaseConfig?.getConfig?.();
-
-      if (!config || !config.enabled || !config.url || !config.anonKey) {
-        throw new Error("Supabase ist nicht aktiviert.");
-      }
-
-      ticketSupabaseClient = window.supabase.createClient(config.url, config.anonKey);
-    }
-
-    async function loadTicket(ticketNumber, discordName, options = {}) {
-      const shouldShowLoading = options.showLoading !== false;
-
-      if (shouldShowLoading) {
-        setLookupMessage("Ticket wird geladen...");
-      }
-
-      ticketNumberInput.value = ticketNumber;
-      discordNameInput.value = discordName;
-
-      const { data, error } = await ticketSupabaseClient.rpc("get_public_ticket_with_messages", {
-        p_ticket_number: ticketNumber,
-        p_discord_username: discordName
-      });
-
-      if (error) {
-        throw new Error(error.message || "Ticket konnte nicht geladen werden.");
-      }
-
-      if (!data || data.success !== true) {
-        throw new Error(data?.error || "Ticket nicht gefunden.");
-      }
-
-      ticketPortalSettings.currentTicketNumber = ticketNumber;
-      ticketPortalSettings.currentDiscordName = discordName;
-      ticketPortalSettings.currentTicket = data.ticket;
-      ticketPortalSettings.currentMessages = data.messages || [];
-
-      renderTicket(data.ticket, data.messages || []);
-      updateUrl(ticketNumber, discordName);
-
-      setLookupMessage("");
-    }
-
-    function updateUrl(ticketNumber, discordName) {
-      const url = new URL(window.location.href);
-
-      url.searchParams.set("ticket", ticketNumber);
-      url.searchParams.set("discord", discordName);
-
-      window.history.replaceState({}, "", url.toString());
-    }
-
-    function renderMessages(messages) {
-      if (!messages.length) {
-        ticketMessages.innerHTML = `
-          <div class="message system">
-            <div class="message-top">
-              <span>System</span>
-              <span>Jetzt</span>
-            </div>
-            <p>Noch keine Nachrichten vorhanden.</p>
-          </div>
-        `;
-        return;
-      }
-
-      ticketMessages.innerHTML = messages.map((message) => {
-        const senderType = message.sender_type || message.author_type || "system";
-        const senderName = message.sender_name || message.author_name || "Unbekannt";
-        const text = message.message_text || message.content || message.message || "";
-
-        return `
-          <div class="message ${ticketEscape(senderType)}">
-            <div class="message-top">
-              <span>${ticketEscape(senderName)}</span>
-              <span>${ticketEscape(ticketFormatDate(message.created_at))}</span>
-            </div>
-            <p>${ticketEscape(text)}</p>
-          </div>
-        `;
-      }).join("");
-
-      ticketMessages.scrollTop = ticketMessages.scrollHeight;
-    }
-
-    function renderTicket(ticket, messages) {
-      const status = ticket.status || "open";
-      const isClosed = status === "closed";
-
-      lookupCard.classList.add("hidden");
-      ticketView.classList.remove("hidden");
-
-      ticketStatusBadge.textContent = ticketStatusLabel(status);
-      ticketStatusBadge.className = `status-badge ${ticketEscape(status)}`;
-
-      ticketTitle.textContent = `${ticket.ticket_number || "Ticket"} - ${ticket.title || "Ohne Titel"}`;
-
-      ticketMeta.textContent = [
-        `Erstellt ${ticketFormatDate(ticket.created_at)}`,
-        `Letzte Aktivität ${ticketFormatDate(ticket.last_message_at || ticket.updated_at || ticket.created_at)}`
-      ].join(" · ");
-
-      ticketCategory.textContent = ticketCategoryLabel(ticket.category, ticket.category_label);
-      ticketDiscord.textContent = ticket.discord_username || "Nicht angegeben";
-      ticketStatusText.textContent = ticketStatusLabel(status);
-      ticketDescription.textContent = ticket.description || "Keine Beschreibung vorhanden.";
-
-      if (isClosed) {
-        closedReasonBox.classList.remove("hidden");
-        ticketClosedReason.textContent = ticket.closed_reason || "Kein Grund angegeben.";
-        ticketReplyForm.classList.add("hidden");
-        closedNotice.classList.remove("hidden");
-      } else {
-        closedReasonBox.classList.add("hidden");
-        ticketClosedReason.textContent = "";
-        ticketReplyForm.classList.remove("hidden");
-        closedNotice.classList.add("hidden");
-      }
-
-      renderMessages(messages);
-    }
-
-    async function refreshCurrentTicket() {
-      if (!ticketPortalSettings.currentTicketNumber || !ticketPortalSettings.currentDiscordName) {
-        return;
-      }
-
-      setReplyMessage("Ticket wird aktualisiert...");
-
-      try {
-        await loadTicket(
-          ticketPortalSettings.currentTicketNumber,
-          ticketPortalSettings.currentDiscordName,
-          { showLoading: false }
-        );
-
-        setReplyMessage("Aktualisiert.", "success");
-
-        setTimeout(() => {
-          setReplyMessage("");
-        }, 1400);
-      } catch (error) {
-        setReplyMessage(error.message, "error");
-      }
-    }
-
-    async function sendReply() {
-      const text = ticketReplyInput.value.trim();
-
-      if (!text) {
-        return;
-      }
-
-      if (!ticketPortalSettings.currentTicketNumber || !ticketPortalSettings.currentDiscordName) {
-        setReplyMessage("Kein Ticket geladen.", "error");
-        return;
-      }
-
-      if (ticketPortalSettings.currentTicket?.status === "closed") {
-        setReplyMessage("Dieses Ticket ist geschlossen. Du kannst nicht mehr antworten.", "error");
-        return;
-      }
-
-      setReplyMessage("Antwort wird gesendet...");
-
-      const { data, error } = await ticketSupabaseClient.rpc("send_public_ticket_message", {
-        p_ticket_number: ticketPortalSettings.currentTicketNumber,
-        p_discord_username: ticketPortalSettings.currentDiscordName,
-        p_message_text: text
-      });
-
-      if (error) {
-        setReplyMessage(error.message || "Antwort konnte nicht gesendet werden.", "error");
-        return;
-      }
-
-      if (!data || data.success !== true) {
-        setReplyMessage(data?.error || "Antwort konnte nicht gesendet werden.", "error");
-        return;
-      }
-
-      ticketReplyInput.value = "";
-      setReplyMessage("Antwort wurde gesendet.", "success");
-
-      await loadTicket(
-        ticketPortalSettings.currentTicketNumber,
-        ticketPortalSettings.currentDiscordName,
-        { showLoading: false }
-      );
-
-      setTimeout(() => {
-        setReplyMessage("");
-      }, 1600);
-    }
-
-    function resetTicketView() {
-      ticketPortalSettings.currentTicketNumber = "";
-      ticketPortalSettings.currentDiscordName = "";
-      ticketPortalSettings.currentTicket = null;
-      ticketPortalSettings.currentMessages = [];
-
-      ticketView.classList.add("hidden");
-      lookupCard.classList.remove("hidden");
-
-      setLookupMessage("");
-      setReplyMessage("");
-
-      const url = new URL(window.location.href);
-      url.searchParams.delete("ticket");
-      url.searchParams.delete("discord");
-      window.history.replaceState({}, "", url.toString());
-
-      ticketNumberInput.value = "";
-      discordNameInput.value = "";
-      ticketNumberInput.focus();
-    }
-
-    function getUrlTicketParams() {
-      const params = new URLSearchParams(window.location.search);
-
-      const ticketNumber =
-        params.get("ticket") ||
-        params.get("ticket_number") ||
-        params.get("number") ||
-        "";
-
-      const discordName =
-        params.get("discord") ||
-        params.get("discord_username") ||
-        params.get("discordName") ||
-        "";
-
-      return {
-        ticketNumber: ticketNumber.trim(),
-        discordName: discordName.trim()
-      };
-    }
-
-    ticketLookupForm.addEventListener("submit", async (event) => {
-      event.preventDefault();
-
-      const ticketNumber = ticketNumberInput.value.trim();
-      const discordName = discordNameInput.value.trim();
-
-      if (!ticketNumber || !discordName) {
-        setLookupMessage("Bitte Ticketnummer und Discord-Namen eingeben.", "error");
-        return;
-      }
-
-      try {
-        await loadTicket(ticketNumber, discordName);
-      } catch (error) {
-        setLookupMessage(error.message, "error");
-      }
-    });
-
-    ticketReplyForm.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      await sendReply();
-    });
-
-    refreshTicketButton.addEventListener("click", refreshCurrentTicket);
-    refreshTicketButtonTop.addEventListener("click", refreshCurrentTicket);
-    changeTicketButton.addEventListener("click", resetTicketView);
-
-    (async function initTicketPortal() {
-      try {
-        await ticketSetupSupabase();
-
-        const { ticketNumber, discordName } = getUrlTicketParams();
-
-        if (ticketNumber) {
-          ticketNumberInput.value = ticketNumber;
-        }
-
-        if (discordName) {
-          discordNameInput.value = discordName;
-        }
-
-        if (ticketNumber && discordName) {
-          await loadTicket(ticketNumber, discordName);
-          return;
-        }
-
-        if (ticketNumber && !discordName) {
-          setLookupMessage("Discord-Name fehlt im Link. Bitte Discord-Namen eingeben.", "error");
-        }
-      } catch (error) {
-        setLookupMessage(error.message, "error");
-      }
-    })();
+    window.setTimeout(() => {
+      window.location.href = "support-center.html#myTicketsSection";
+    }, 900);
   </script>
 </body>
 </html>
