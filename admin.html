@@ -3,9 +3,25 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
   <title>Nordstadt Admin</title>
+
+  <meta
+    name="description"
+    content="Admin-Panel für Nordstadt Roleplay. Tickets verwalten, Supportfälle bearbeiten und Sicherheitsfunktionen nutzen."
+  />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+    rel="stylesheet"
+  />
+
   <link rel="stylesheet" href="admin.css" />
 </head>
+
 <body>
   <div class="admin-background">
     <div class="admin-orb admin-orb-one"></div>
@@ -33,12 +49,24 @@
         <form id="adminLoginForm" class="login-form">
           <label>
             E-Mail
-            <input id="adminEmail" type="email" autocomplete="email" placeholder="admin@example.com" required />
+            <input
+              id="adminEmail"
+              type="email"
+              autocomplete="email"
+              placeholder="admin@example.com"
+              required
+            />
           </label>
 
           <label>
             Passwort
-            <input id="adminPassword" type="password" autocomplete="current-password" placeholder="••••••••" required />
+            <input
+              id="adminPassword"
+              type="password"
+              autocomplete="current-password"
+              placeholder="••••••••"
+              required
+            />
           </label>
 
           <button type="submit">Einloggen</button>
@@ -59,7 +87,7 @@
           <strong>Admin</strong>
         </div>
 
-        <nav class="admin-nav">
+        <nav class="admin-nav" aria-label="Admin Navigation">
           <button class="admin-nav-button active" type="button" data-admin-view="dashboard">
             <span>Dashboard</span>
             <small>Übersicht</small>
@@ -95,7 +123,9 @@
           <small id="adminUserRole">-</small>
         </div>
 
-        <button id="adminLogoutButton" class="logout-button" type="button">Abmelden</button>
+        <button id="adminLogoutButton" class="logout-button" type="button">
+          Abmelden
+        </button>
       </div>
     </aside>
 
@@ -104,7 +134,9 @@
         <div class="content-header">
           <div>
             <span class="eyebrow">Support Übersicht</span>
+
             <h1>Dashboard</h1>
+
             <p>
               Behalte offene Tickets, aktuelle Fälle, Kategorien und den Systemstatus im Blick.
             </p>
@@ -194,6 +226,7 @@
             <div class="system-list">
               <div class="system-item">
                 <span></span>
+
                 <div>
                   <strong>Supabase</strong>
                   <small id="systemSupabaseText">Verbindung wird geprüft...</small>
@@ -202,6 +235,7 @@
 
               <div class="system-item">
                 <span></span>
+
                 <div>
                   <strong>Session</strong>
                   <small id="systemSessionText">Nicht geprüft</small>
@@ -210,6 +244,7 @@
 
               <div class="system-item">
                 <span></span>
+
                 <div>
                   <strong>IP-Sperren</strong>
                   <small>Nur Manager können IP-Adressen sperren.</small>
@@ -218,6 +253,7 @@
 
               <div class="system-item">
                 <span></span>
+
                 <div>
                   <strong>Kategorien</strong>
                   <small>Allgemein, Bewerbung, Report und Bug / Fehler.</small>
@@ -232,9 +268,12 @@
         <div class="content-header">
           <div>
             <span class="eyebrow">Ticket Management</span>
+
             <h1>Tickets</h1>
+
             <p>
-              Bearbeite Supportfälle, filtere nach Kategorie, schreibe mit Usern und schließe Tickets nur mit Grund.
+              Bearbeite Supportfälle, filtere nach Kategorie, schreibe mit Usern
+              und schließe Tickets nur mit Grund.
             </p>
           </div>
 
@@ -268,7 +307,12 @@
         <div class="tickets-layout">
           <div class="tickets-list-card">
             <div class="ticket-filter-row">
-              <input id="ticketSearchInput" type="text" placeholder="Ticket, User, Titel suchen..." />
+              <input
+                id="ticketSearchInput"
+                type="text"
+                placeholder="Ticket, User, Titel suchen..."
+                autocomplete="off"
+              />
 
               <select id="ticketStatusFilter">
                 <option value="all">Alle</option>
@@ -289,8 +333,12 @@
           <div class="ticket-detail-card" id="ticketDetailCard">
             <div class="empty-detail">
               <div class="empty-icon"></div>
+
               <strong>Kein Ticket ausgewählt</strong>
-              <span>Wähle links ein Ticket aus, um Details, Chat, Anhänge und Aktionen zu öffnen.</span>
+
+              <span>
+                Wähle links ein Ticket aus, um Details, Chat, Anhänge und Aktionen zu öffnen.
+              </span>
             </div>
           </div>
         </div>
@@ -300,9 +348,12 @@
         <div class="content-header">
           <div>
             <span class="eyebrow">Sicherheit</span>
-            <h1>IP-Sperren</h1>
+
+            <h1>Sicherheit</h1>
+
             <p>
-              Manager können störende IP-Adressen sperren, damit Ticket-Trolling reduziert wird.
+              Manager können störende IP-Adressen sperren. Später werden hier
+              zusätzlich Kundenkonten gesperrt oder entsperrt.
             </p>
           </div>
 
@@ -316,22 +367,37 @@
             <div class="panel-title-row">
               <div>
                 <h2>IP manuell sperren</h2>
-                <p>Nur Accounts mit der Rolle <strong>manager</strong> dürfen IP-Adressen sperren.</p>
+
+                <p>
+                  Nur Accounts mit der Rolle <strong>manager</strong> dürfen IP-Adressen sperren.
+                </p>
               </div>
             </div>
 
             <form class="security-form" id="manualBanForm">
               <label>
                 IP-Adresse
-                <input id="manualBanIpInput" type="text" placeholder="z. B. 127.0.0.1" required />
+                <input
+                  id="manualBanIpInput"
+                  type="text"
+                  placeholder="z. B. 127.0.0.1"
+                  autocomplete="off"
+                  required
+                />
               </label>
 
               <label>
                 Sperrgrund
-                <textarea id="manualBanReasonInput" placeholder="Grund für die Sperre..." required></textarea>
+                <textarea
+                  id="manualBanReasonInput"
+                  placeholder="Grund für die Sperre..."
+                  required
+                ></textarea>
               </label>
 
-              <button type="submit" class="danger-action">IP sperren</button>
+              <button type="submit" class="danger-action">
+                IP sperren
+              </button>
             </form>
 
             <div id="manualBanMessage" class="admin-message"></div>
@@ -350,13 +416,41 @@
             </div>
           </div>
         </div>
+
+        <div class="settings-grid" style="margin-top: 16px;">
+          <div class="panel-card">
+            <h2>Kundenkonto-Sperren</h2>
+
+            <p>
+              Dieser Bereich ist für die kommende Kundenkonto-Funktion vorbereitet.
+              Sobald Login und Kundenprofile aktiv sind, können Manager hier Accounts
+              temporär oder dauerhaft vom Support-Center ausschließen.
+            </p>
+
+            <p class="muted">
+              Geplant: Suche nach E-Mail, Accountstatus, Sperrgrund, Sperren und Entsperren.
+            </p>
+          </div>
+
+          <div class="panel-card">
+            <h2>Anti-Troll-System</h2>
+
+            <p>
+              IP-Sperren bleiben als zusätzliche Sicherheit erhalten. Kundenkonto-Sperren
+              werden später darüber ergänzt, damit Trolling nicht nur browser- oder IP-basiert
+              verhindert wird.
+            </p>
+          </div>
+        </div>
       </section>
 
       <section class="admin-view" id="view-settings">
         <div class="content-header">
           <div>
             <span class="eyebrow">System</span>
+
             <h1>Einstellungen</h1>
+
             <p>
               Rollen, Hinweise und wichtige Systeminformationen für das Nordstadt Support-Team.
             </p>
@@ -366,31 +460,57 @@
         <div class="settings-grid">
           <div class="panel-card">
             <h2>Erlaubte Rollen</h2>
+
             <p>
               Dieses Panel erlaubt nur Accounts mit den Rollen
-              <strong>support</strong>, <strong>admin</strong>, <strong>leitung</strong> oder <strong>manager</strong>.
+              <strong>support</strong>, <strong>admin</strong>, <strong>leitung</strong>
+              oder <strong>manager</strong>.
             </p>
           </div>
 
           <div class="panel-card">
             <h2>Manager-Rechte</h2>
+
             <p>
-              IP-Adressen sperren und entsperren dürfen ausschließlich Accounts mit der Rolle <strong>manager</strong>.
+              IP-Adressen sperren und entsperren dürfen ausschließlich Accounts
+              mit der Rolle <strong>manager</strong>.
             </p>
           </div>
 
           <div class="panel-card">
             <h2>Kategorien</h2>
+
             <p>
-              Tickets werden nach <strong>Allgemein</strong>, <strong>Bewerbung</strong>, <strong>Report</strong>
-              und <strong>Bug / Fehler</strong> getrennt.
+              Tickets werden nach <strong>Allgemein</strong>, <strong>Bewerbung</strong>,
+              <strong>Report</strong> und <strong>Bug / Fehler</strong> getrennt.
             </p>
           </div>
 
           <div class="panel-card">
             <h2>Schließgrund</h2>
+
             <p>
-              Geschlossene Tickets benötigen immer einen Grund. Dieser Grund wird dem User im Ticketportal angezeigt.
+              Geschlossene Tickets benötigen immer einen Grund. Dieser Grund wird dem User
+              im Ticketportal angezeigt.
+            </p>
+          </div>
+
+          <div class="panel-card">
+            <h2>Kundenkonten</h2>
+
+            <p>
+              Für die nächste Ausbaustufe wird das Support-Center auf Kundenkonten umgestellt.
+              Tickets werden dann nicht mehr nur lokal im Browser gespeichert, sondern einem
+              bestätigten Account zugeordnet.
+            </p>
+          </div>
+
+          <div class="panel-card">
+            <h2>E-Mail-Benachrichtigungen</h2>
+
+            <p>
+              Antwort-Erinnerungen per E-Mail werden später über einen Mail-Dienst angebunden.
+              Dafür wird zusätzlich ein Anbieter wie Resend, Brevo, SendGrid oder SMTP benötigt.
             </p>
           </div>
         </div>
@@ -406,7 +526,14 @@
           <h2>Schließgrund angeben</h2>
         </div>
 
-        <button class="modal-close" id="closeModalCancelTop" type="button">×</button>
+        <button
+          class="modal-close"
+          id="closeModalCancelTop"
+          type="button"
+          aria-label="Fenster schließen"
+        >
+          ×
+        </button>
       </div>
 
       <p>
@@ -424,8 +551,13 @@
         </label>
 
         <div class="modal-actions">
-          <button type="button" class="small-button ghost" id="closeModalCancel">Abbrechen</button>
-          <button type="submit" class="danger-action">Ticket schließen</button>
+          <button type="button" class="small-button ghost" id="closeModalCancel">
+            Abbrechen
+          </button>
+
+          <button type="submit" class="danger-action">
+            Ticket schließen
+          </button>
         </div>
       </form>
 
@@ -441,11 +573,19 @@
           <h2>Ticket-IP sperren</h2>
         </div>
 
-        <button class="modal-close" id="banIpCancelTop" type="button">×</button>
+        <button
+          class="modal-close"
+          id="banIpCancelTop"
+          type="button"
+          aria-label="Fenster schließen"
+        >
+          ×
+        </button>
       </div>
 
       <p>
-        Diese Aktion ist nur für Manager erlaubt. Gesperrte IP-Adressen können keine neuen Tickets mehr erstellen.
+        Diese Aktion ist nur für Manager erlaubt. Gesperrte IP-Adressen können keine
+        neuen Tickets mehr erstellen.
       </p>
 
       <form id="banIpForm" class="close-form">
@@ -464,8 +604,13 @@
         </label>
 
         <div class="modal-actions">
-          <button type="button" class="small-button ghost" id="banIpCancel">Abbrechen</button>
-          <button type="submit" class="danger-action">IP sperren</button>
+          <button type="button" class="small-button ghost" id="banIpCancel">
+            Abbrechen
+          </button>
+
+          <button type="submit" class="danger-action">
+            IP sperren
+          </button>
         </div>
       </form>
 
@@ -473,6 +618,7 @@
     </div>
   </div>
 
+  <script src="supabase-config.js"></script>
   <script src="admin.js"></script>
 </body>
 </html>
