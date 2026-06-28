@@ -1,12 +1,15 @@
 const websiteLinks = {
   discord: "https://discord.gg/pR2Yxb5RTh",
   game: "https://www.roblox.com/de/games/101669977836710/Nordstadt-Roleplay",
-  bundespolizeiDocument: "https://drive.google.com/file/d/1t-MPyiy-5xwtz_gKgl1zr8JYi0EwvGuv/view?usp=sharing"
+  bundespolizeiDocument: "https://drive.google.com/file/d/1t-MPyiy-5xwtz_gKgl1zr8JYi0EwvGuv/view?usp=sharing",
+  supportCenter: "support-center.html",
+  adminPanel: "admin.html"
 };
 
 const introSettings = {
   enabled: true,
-  totalDurationInSeconds: 5
+  totalDurationInSeconds: 5,
+  hideDelayInMilliseconds: 900
 };
 
 const recruitmentPopupSettings = {
@@ -41,7 +44,7 @@ const projectStatuses = [
   Status-Optionen:
 
   active   = weißer leuchtender Punkt
-  testing  = blauer leuchtender Punkt
+  testing  = cyan/blauer leuchtender Punkt
   wip      = gelber Punkt
   closed   = roter Punkt
 
@@ -53,6 +56,8 @@ const projectStatuses = [
 
   enabled: true  = Intro erscheint beim Öffnen der Website
   enabled: false = Intro ist ausgeschaltet
+
+  totalDurationInSeconds bestimmt, wie lange das Intro sichtbar ist.
 */
 
 /*
@@ -83,8 +88,47 @@ const cancelDownload = document.getElementById("cancelDownload");
 const confirmDownload = document.getElementById("confirmDownload");
 
 let selectedDownloadLink = "";
+let recruitmentPopupTimer = null;
 
-function openTab(tabName) {
+function safeText(value) {
+  if (typeof value !== "string") return "";
+  return value.trim();
+}
+
+function getFirstExistingSectionId() {
+  const firstSection = document.querySelector(".tab-section");
+  return firstSection ? firstSection.id : "";
+}
+
+function isValidTab(tabName) {
+  if (!tabName) return false;
+  return Boolean(document.getElementById(tabName));
+}
+
+function updateUrlHash(tabName) {
+  if (!tabName) return;
+
+  const currentHash = window.location.hash.replace("#", "");
+
+  if (currentHash === tabName) {
+    return;
+  }
+
+  try {
+    history.replaceState(null, "", `#${tabName}`);
+  } catch (_error) {
+    window.location.hash = tabName;
+  }
+}
+
+function openTab(tabName, options = {}) {
+  const shouldScroll = options.shouldScroll !== false;
+  const shouldUpdateHash = options.shouldUpdateHash === true;
+
+  if (!isValidTab(tabName)) {
+    return;
+  }
+
   navButtons.forEach((button) => {
     button.classList.toggle("active", button.dataset.tab === tabName);
   });
@@ -93,23 +137,63 @@ function openTab(tabName) {
     section.classList.toggle("active", section.id === tabName);
   });
 
-  window.scrollTo({
-    top: 0,
-    behavior: "smooth"
-  });
+  if (shouldUpdateHash) {
+    updateUrlHash(tabName);
+  }
+
+  if (shouldScroll) {
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+  }
 }
 
-navButtons.forEach((button) => {
-  button.addEventListener("click", () => {
-    openTab(button.dataset.tab);
+function setupTabs() {
+  navButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      openTab(button.dataset.tab, {
+        shouldUpdateHash: true
+      });
+    });
   });
-});
 
-openTabButtons.forEach((button) => {
-  button.addEventListener("click", () => {
-    openTab(button.dataset.tabOpen);
+  openTabButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      openTab(button.dataset.tabOpen, {
+        shouldUpdateHash: true
+      });
+    });
   });
-});
+
+  const hashTab = window.location.hash.replace("#", "");
+  const firstSectionId = getFirstExistingSectionId();
+
+  if (isValidTab(hashTab)) {
+    openTab(hashTab, {
+      shouldScroll: false,
+      shouldUpdateHash: false
+    });
+    return;
+  }
+
+  const activeSection = document.querySelector(".tab-section.active");
+
+  if (activeSection) {
+    openTab(activeSection.id, {
+      shouldScroll: false,
+      shouldUpdateHash: false
+    });
+    return;
+  }
+
+  if (firstSectionId) {
+    openTab(firstSectionId, {
+      shouldScroll: false,
+      shouldUpdateHash: false
+    });
+  }
+}
 
 function createStatusCards() {
   if (!statusCardsContainer) return;
@@ -120,19 +204,24 @@ function createStatusCards() {
     const card = document.createElement("article");
     card.className = "status-card";
 
+    const projectName = safeText(project.name);
+    const projectStatus = safeText(project.status);
+    const projectLabel = safeText(project.label);
+    const projectDescription = safeText(project.description);
+
     card.innerHTML = `
       <div>
         <div class="status-top">
           <div>
-            <h3>${project.name}</h3>
-            <p>${project.description}</p>
+            <h3>${projectName}</h3>
+            <p>${projectDescription}</p>
           </div>
 
-          <span class="status-indicator ${project.status}"></span>
+          <span class="status-indicator ${projectStatus}"></span>
         </div>
       </div>
 
-      <div class="status-label">${project.label}</div>
+      <div class="status-label">${projectLabel}</div>
     `;
 
     statusCardsContainer.appendChild(card);
@@ -142,10 +231,14 @@ function createStatusCards() {
 function applyLinks() {
   if (discordButton) {
     discordButton.href = websiteLinks.discord;
+    discordButton.target = "_blank";
+    discordButton.rel = "noopener noreferrer";
   }
 
   if (applyButton) {
     applyButton.href = websiteLinks.discord;
+    applyButton.target = "_blank";
+    applyButton.rel = "noopener noreferrer";
   }
 }
 
@@ -157,16 +250,26 @@ function setupIntro() {
     return;
   }
 
+  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  if (prefersReducedMotion) {
+    introOverlay.style.display = "none";
+    return;
+  }
+
   document.body.classList.add("intro-active");
+
+  const introDuration = Math.max(1, Number(introSettings.totalDurationInSeconds || 5)) * 1000;
+  const hideDelay = Math.max(0, Number(introSettings.hideDelayInMilliseconds || 900));
 
   setTimeout(() => {
     introOverlay.classList.add("hide");
     document.body.classList.remove("intro-active");
-  }, introSettings.totalDurationInSeconds * 1000);
+  }, introDuration);
 
   setTimeout(() => {
     introOverlay.style.display = "none";
-  }, introSettings.totalDurationInSeconds * 1000 + 900);
+  }, introDuration + hideDelay);
 }
 
 function setupRecruitmentPopup() {
@@ -174,17 +277,31 @@ function setupRecruitmentPopup() {
 
   const title = recruitmentPopup.querySelector(".notification-content strong");
   const text = recruitmentPopup.querySelector(".notification-content p");
+  const actionLink = recruitmentPopup.querySelector("a");
 
   if (title) title.textContent = recruitmentPopupSettings.title;
   if (text) text.textContent = recruitmentPopupSettings.text;
 
-  setTimeout(() => {
+  if (actionLink) {
+    actionLink.href = websiteLinks.discord;
+    actionLink.target = "_blank";
+    actionLink.rel = "noopener noreferrer";
+  }
+
+  const popupDelay = Math.max(0, Number(recruitmentPopupSettings.delayInSeconds || 0)) * 1000;
+
+  recruitmentPopupTimer = setTimeout(() => {
     recruitmentPopup.classList.add("show");
-  }, recruitmentPopupSettings.delayInSeconds * 1000);
+  }, popupDelay);
 
   if (closeRecruitmentPopup) {
     closeRecruitmentPopup.addEventListener("click", () => {
       recruitmentPopup.classList.remove("show");
+
+      if (recruitmentPopupTimer) {
+        clearTimeout(recruitmentPopupTimer);
+        recruitmentPopupTimer = null;
+      }
     });
   }
 }
@@ -194,6 +311,7 @@ function openDownloadModal(link) {
 
   if (downloadModal) {
     downloadModal.classList.add("show");
+    document.body.classList.add("modal-active");
   }
 }
 
@@ -202,6 +320,7 @@ function closeDownloadModal() {
 
   if (downloadModal) {
     downloadModal.classList.remove("show");
+    document.body.classList.remove("modal-active");
   }
 }
 
@@ -239,13 +358,19 @@ function setupDownloads() {
   }
 }
 
-createStatusCards();
-applyLinks();
-setupIntro();
-setupRecruitmentPopup();
-setupDownloads();
+function setupKeyboardActions() {
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") {
+      closeDownloadModal();
 
-(function addNordstadtNavActions() {
+      if (recruitmentPopup) {
+        recruitmentPopup.classList.remove("show");
+      }
+    }
+  });
+}
+
+function addNordstadtNavActions() {
   const existingActions = document.querySelector(".nav-right-actions");
 
   if (existingActions) {
@@ -289,14 +414,35 @@ setupDownloads();
   actions.className = "nav-right-actions";
 
   actions.innerHTML = `
-    <a class="nav-action-button support-center" href="support-center.html">
+    <a class="nav-action-button support-center" href="${websiteLinks.supportCenter}">
       Support-Center
     </a>
 
-    <a class="nav-action-button admin" href="admin.html">
+    <a class="nav-action-button admin" href="${websiteLinks.adminPanel}">
       Admin-Panel
     </a>
   `;
 
   headerContainer.appendChild(actions);
-})();
+}
+
+function setupPageVisibilityCleanup() {
+  window.addEventListener("beforeunload", () => {
+    document.body.classList.remove("intro-active");
+    document.body.classList.remove("modal-active");
+  });
+}
+
+function initNordstadtWebsite() {
+  setupTabs();
+  createStatusCards();
+  applyLinks();
+  setupIntro();
+  setupRecruitmentPopup();
+  setupDownloads();
+  setupKeyboardActions();
+  addNordstadtNavActions();
+  setupPageVisibilityCleanup();
+}
+
+initNordstadtWebsite();
