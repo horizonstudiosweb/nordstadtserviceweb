@@ -15,7 +15,7 @@ const supportCenterSettings = {
     - Tickets funktionieren weiterhin ohne Account
     - Auth-Session wird trotzdem erkannt und an die Edge Function gesendet
   */
-  accountSystemEnabled: false,
+  accountSystemEnabled: true,
 
   categories: {
     support: {
