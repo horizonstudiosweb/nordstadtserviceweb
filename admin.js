@@ -1028,15 +1028,46 @@ function adminRenderIpBans() {
 }
 
 async function adminSelectTicket(ticketId) {
-  adminSettings.selectedTicketId = ticketId;
+  if (!ticketId) return;
 
-  await adminLoadMessages(ticketId);
-  await adminLoadNotes(ticketId);
-  await adminLoadAttachments(ticketId);
+  adminSettings.selectedTicketId = ticketId;
 
   const ticket = adminSettings.tickets.find((item) => item.id === ticketId);
 
-  if (!ticket) return;
+  if (!ticket) {
+    adminRenderTicketsList();
+    return;
+  }
+
+  adminRenderTicketsList();
+
+  if (ticketDetailCard) {
+    ticketDetailCard.innerHTML = `
+      <div class="empty-detail">
+        <div class="empty-icon"></div>
+        <strong>Ticket wird geladen...</strong>
+        <span>Details, Chat, Anhänge und Aktionen werden geöffnet.</span>
+      </div>
+    `;
+  }
+
+  const loadResults = await Promise.allSettled([
+    adminLoadMessages(ticketId),
+    adminLoadNotes(ticketId),
+    adminLoadAttachments(ticketId)
+  ]);
+
+  if (loadResults[0].status === "rejected") {
+    adminSettings.messagesByTicketId[ticketId] = [];
+  }
+
+  if (loadResults[1].status === "rejected") {
+    adminSettings.notesByTicketId[ticketId] = [];
+  }
+
+  if (loadResults[2].status === "rejected") {
+    adminSettings.attachmentsByTicketId[ticketId] = [];
+  }
 
   adminRenderTicketsList();
   adminRenderTicketDetail(ticket);
@@ -1585,6 +1616,40 @@ function adminSetupKeyboard() {
   });
 }
 
+function adminSetupEmergencyTicketClickFix() {
+  if (document.body.dataset.adminTicketClickFix === "true") return;
+
+  document.body.dataset.adminTicketClickFix = "true";
+
+  document.addEventListener(
+    "click",
+    async (event) => {
+      const ticketButton = event.target.closest(".ticket-card[data-ticket-id]");
+
+      if (!ticketButton) return;
+
+      const isTicketListButton = Boolean(ticketButton.closest("#adminTicketsList"));
+      const isLatestTicketButton = Boolean(ticketButton.closest("#latestTickets"));
+
+      if (!isTicketListButton && !isLatestTicketButton) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+
+      const ticketId = ticketButton.dataset.ticketId;
+
+      if (!ticketId) return;
+
+      await adminSelectTicket(ticketId);
+
+      if (isLatestTicketButton) {
+        adminOpenView("tickets");
+      }
+    },
+    true
+  );
+}
+
 function adminSetupEvents() {
   adminSetupLogin();
   adminSetupLogout();
@@ -1595,6 +1660,7 @@ function adminSetupEvents() {
   adminSetupBanModal();
   adminSetupManualBanForm();
   adminSetupKeyboard();
+  adminSetupEmergencyTicketClickFix();
 }
 
 async function adminRestoreSession() {
