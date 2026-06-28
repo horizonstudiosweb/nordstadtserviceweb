@@ -29,6 +29,43 @@ const registerMessage = document.getElementById("registerMessage");
 
 const logoutButton = document.getElementById("logoutButton");
 
+function getAuthRedirectTarget() {
+  const params = new URLSearchParams(window.location.search);
+  const redirect = params.get("redirect");
+
+  if (!redirect) {
+    return authSettings.redirectAfterLogin;
+  }
+
+  const cleanRedirect = redirect.trim();
+
+  if (!cleanRedirect) {
+    return authSettings.redirectAfterLogin;
+  }
+
+  if (
+    cleanRedirect.startsWith("http://") ||
+    cleanRedirect.startsWith("https://") ||
+    cleanRedirect.startsWith("//") ||
+    cleanRedirect.includes("\\")
+  ) {
+    return authSettings.redirectAfterLogin;
+  }
+
+  return cleanRedirect;
+}
+
+function getRegisterRedirectUrl() {
+  const redirectTarget = getAuthRedirectTarget();
+  const authUrl = new URL(authSettings.redirectAfterRegister, window.location.href);
+
+  if (redirectTarget) {
+    authUrl.searchParams.set("redirect", redirectTarget);
+  }
+
+  return authUrl.toString();
+}
+
 function authSetMessage(element, text, type = "") {
   if (!element) return;
 
@@ -196,7 +233,7 @@ async function authHandleLogin(event) {
     authShowSession(data.session);
 
     window.setTimeout(() => {
-      window.location.href = authSettings.redirectAfterLogin;
+      window.location.href = getAuthRedirectTarget();
     }, 700);
   } catch (error) {
     authSetMessage(loginMessage, error.message || "Login fehlgeschlagen.", "error");
@@ -223,7 +260,7 @@ async function authHandleRegister(event) {
     authSetButtonLoading(registerButton, true, "Konto wird erstellt...", "Konto erstellen");
     authSetMessage(registerMessage, "Konto wird erstellt...");
 
-    const redirectUrl = new URL(authSettings.redirectAfterRegister, window.location.href).toString();
+    const redirectUrl = getRegisterRedirectUrl();
 
     const { data, error } = await authSupabaseClient.auth.signUp({
       email,
@@ -253,7 +290,7 @@ async function authHandleRegister(event) {
       authShowSession(data.session);
 
       window.setTimeout(() => {
-        window.location.href = authSettings.redirectAfterLogin;
+        window.location.href = getAuthRedirectTarget();
       }, 900);
 
       return;
@@ -267,9 +304,11 @@ async function authHandleRegister(event) {
 
     window.setTimeout(() => {
       authOpenTab("login");
+
       if (loginEmail) {
         loginEmail.value = email;
       }
+
       authSetMessage(
         loginMessage,
         "Bitte bestätige zuerst deine E-Mail-Adresse. Danach kannst du dich einloggen.",
@@ -303,9 +342,20 @@ async function authCheckCurrentSession() {
 
   if (data.session) {
     authShowSession(data.session);
-  } else {
-    authShowForms();
+
+    const params = new URLSearchParams(window.location.search);
+    const redirect = params.get("redirect");
+
+    if (redirect) {
+      window.setTimeout(() => {
+        window.location.href = getAuthRedirectTarget();
+      }, 500);
+    }
+
+    return;
   }
+
+  authShowForms();
 }
 
 function authSetupEvents() {
