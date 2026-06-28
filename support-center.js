@@ -8,7 +8,15 @@ const supportCenterSettings = {
   currentInlineTicketNumber: "",
   currentInlineDiscordName: "",
   currentInlineTicket: null,
+
+  /*
+    Heute bewusst noch false:
+    - Kein harter Login-Zwang
+    - Tickets funktionieren weiterhin ohne Account
+    - Auth-Session wird trotzdem erkannt und an die Edge Function gesendet
+  */
   accountSystemEnabled: false,
+
   categories: {
     support: {
       label: "Allgemein",
@@ -48,6 +56,7 @@ const supportCenterSettings = {
 let supportCenterSupabaseClient = null;
 let supportCenterReady = false;
 let supportCenterSession = null;
+let supportCenterProfile = null;
 
 const ticketModal = document.getElementById("ticketModal");
 const ticketModalClose = document.getElementById("ticketModalClose");
@@ -177,7 +186,7 @@ function loadScript(src) {
     const existingScript = document.querySelector(`script[src="${src}"]`);
 
     if (existingScript) {
-      if (existingScript.dataset.loaded === "true") {
+      if (existingScript.dataset.loaded === "true" || existingScript.src.includes(src)) {
         resolve();
         return;
       }
@@ -202,8 +211,24 @@ function loadScript(src) {
   });
 }
 
+async function refreshSupportCenterSession() {
+  if (!supportCenterSupabaseClient) return null;
+
+  try {
+    const sessionResult = await supportCenterSupabaseClient.auth.getSession();
+    supportCenterSession = sessionResult?.data?.session || null;
+    return supportCenterSession;
+  } catch (_error) {
+    supportCenterSession = null;
+    return null;
+  }
+}
+
 async function setupSupabase() {
-  if (supportCenterReady && supportCenterSupabaseClient) return;
+  if (supportCenterReady && supportCenterSupabaseClient) {
+    await refreshSupportCenterSession();
+    return;
+  }
 
   await loadScript("supabase-config.js");
   await loadScript(supportCenterSettings.supabaseJsUrl);
@@ -214,14 +239,45 @@ async function setupSupabase() {
     throw new Error("Supabase ist nicht aktiviert. Prüfe supabase-config.js.");
   }
 
+  supportCenterSettings.createTicketFunctionName =
+    config.functions?.createTicket || supportCenterSettings.createTicketFunctionName;
+
+  supportCenterSettings.uploadBucket =
+    config.storage?.ticketUploadsBucket || supportCenterSettings.uploadBucket;
+
   supportCenterSupabaseClient = window.supabase.createClient(config.url, config.anonKey);
   supportCenterReady = true;
 
+  await refreshSupportCenterSession();
+
+  supportCenterSupabaseClient.auth.onAuthStateChange(async (_event, session) => {
+    supportCenterSession = session || null;
+    await setupAccountPreview();
+  });
+}
+
+async function loadCustomerProfile() {
+  supportCenterProfile = null;
+
+  if (!supportCenterSession?.user?.id || !supportCenterSupabaseClient) {
+    return null;
+  }
+
   try {
-    const sessionResult = await supportCenterSupabaseClient.auth.getSession();
-    supportCenterSession = sessionResult?.data?.session || null;
+    const { data, error } = await supportCenterSupabaseClient
+      .from("customer_profiles")
+      .select("id,email,display_name,discord_username,account_status,suspended_reason")
+      .eq("id", supportCenterSession.user.id)
+      .single();
+
+    if (error || !data) {
+      return null;
+    }
+
+    supportCenterProfile = data;
+    return data;
   } catch (_error) {
-    supportCenterSession = null;
+    return null;
   }
 }
 
@@ -260,7 +316,8 @@ function saveCreatedTicket(result, ticket) {
     category: ticket.category || "support",
     category_label: result.category_label || categoryConfig.label || "Support",
     status: "open",
-    created_at: new Date().toISOString()
+    created_at: new Date().toISOString(),
+    user_id: result.user_id || supportCenterSession?.user?.id || ""
   };
 
   const filteredTickets = existingTickets.filter((item) => {
@@ -381,6 +438,30 @@ function resetForm() {
   supportCenterSettings.currentInlineTicket = null;
 }
 
+function prefillAccountFields() {
+  if (!supportCenterSession?.user) return;
+
+  const userEmail = supportCenterSession.user.email || "";
+  const displayName =
+    supportCenterProfile?.display_name ||
+    supportCenterSession.user.user_metadata?.display_name ||
+    "";
+
+  const savedDiscord = supportCenterProfile?.discord_username || "";
+
+  if (discordUsernameInput && !discordUsernameInput.value && savedDiscord) {
+    discordUsernameInput.value = savedDiscord;
+  }
+
+  if (rankInput && !rankInput.value && displayName) {
+    rankInput.value = displayName;
+  }
+
+  if (discordUsernameInput && !discordUsernameInput.value && userEmail) {
+    discordUsernameInput.placeholder = `Discord-Name oder ${userEmail}`;
+  }
+}
+
 function openTicketModal(category) {
   if (!ticketModal) return;
 
@@ -389,6 +470,14 @@ function openTicketModal(category) {
 
   if (supportCenterSettings.accountSystemEnabled && !supportCenterSession) {
     window.location.href = "auth.html";
+    return;
+  }
+
+  if (supportCenterSettings.accountSystemEnabled && supportCenterProfile?.account_status === "suspended") {
+    setFormMessage(
+      `Dein Kundenkonto ist gesperrt. Grund: ${supportCenterProfile.suspended_reason || "Kein Grund angegeben."}`,
+      "error"
+    );
     return;
   }
 
@@ -426,6 +515,8 @@ function openTicketModal(category) {
     descriptionInput.placeholder = "Beschreibe den Fehler möglichst genau...";
   }
 
+  prefillAccountFields();
+
   ticketModal.classList.remove("hidden");
   document.body.classList.add("modal-active");
 
@@ -453,7 +544,9 @@ function readTicketForm() {
     application_area: applicationAreaInput.value.trim(),
     target_user: targetUserInput.value.trim(),
     proof: proofInput.value.trim(),
-    reproduce: reproduceInput.value.trim()
+    reproduce: reproduceInput.value.trim(),
+    auth_user_id: supportCenterSession?.user?.id || null,
+    auth_email: supportCenterSession?.user?.email || null
   };
 }
 
@@ -550,11 +643,14 @@ async function uploadFiles(ticket) {
 }
 
 async function createTicket(ticket, attachments) {
+  await refreshSupportCenterSession();
+
   const invokeOptions = {
     body: {
       ...ticket,
       attachments,
-      page_url: window.location.href
+      page_url: window.location.href,
+      has_auth_session: Boolean(supportCenterSession?.access_token)
     }
   };
 
@@ -805,6 +901,20 @@ async function handleSubmit(event) {
 
   try {
     await setupSupabase();
+    await loadCustomerProfile();
+
+    if (supportCenterSettings.accountSystemEnabled && !supportCenterSession) {
+      window.location.href = "auth.html";
+      return;
+    }
+
+    if (supportCenterSettings.accountSystemEnabled && supportCenterProfile?.account_status === "suspended") {
+      setFormMessage(
+        `Dein Kundenkonto ist gesperrt. Grund: ${supportCenterProfile.suspended_reason || "Kein Grund angegeben."}`,
+        "error"
+      );
+      return;
+    }
 
     const ticket = readTicketForm();
     const validationError = validateTicket(ticket);
@@ -941,20 +1051,43 @@ function setupAttachmentValidation() {
 async function setupAccountPreview() {
   if (!accountInfoCard && !authGate) return;
 
+  await refreshSupportCenterSession();
+
   if (!supportCenterSettings.accountSystemEnabled) {
-    if (accountInfoCard) accountInfoCard.classList.add("hidden");
-    if (authGate) authGate.classList.add("hidden");
+    if (authGate) {
+      authGate.classList.add("hidden");
+    }
+
+    if (accountInfoCard && supportCenterSession?.user) {
+      accountInfoCard.classList.remove("hidden");
+
+      if (accountInfoText) {
+        accountInfoText.textContent =
+          `Angemeldet als ${supportCenterSession.user.email || "Kunde"}. Dein Konto ist erkannt. Heute bleibt Ticket-Erstellung noch ohne Login-Zwang aktiv.`;
+      }
+    }
+
+    if (accountInfoCard && !supportCenterSession?.user) {
+      accountInfoCard.classList.add("hidden");
+    }
+
     return;
   }
 
-  await setupSupabase();
-
   if (supportCenterSession?.user) {
+    await loadCustomerProfile();
+
     if (authGate) authGate.classList.add("hidden");
     if (accountInfoCard) accountInfoCard.classList.remove("hidden");
 
     if (accountInfoText) {
-      accountInfoText.textContent = `Angemeldet als ${supportCenterSession.user.email || "Kunde"}. Deine Tickets werden deinem Kundenkonto zugeordnet.`;
+      if (supportCenterProfile?.account_status === "suspended") {
+        accountInfoText.textContent =
+          `Angemeldet als ${supportCenterSession.user.email || "Kunde"}. Dieses Konto ist gesperrt. Grund: ${supportCenterProfile.suspended_reason || "Kein Grund angegeben."}`;
+      } else {
+        accountInfoText.textContent =
+          `Angemeldet als ${supportCenterSession.user.email || "Kunde"}. Deine Tickets werden deinem Kundenkonto zugeordnet.`;
+      }
     }
   } else {
     if (accountInfoCard) accountInfoCard.classList.add("hidden");
@@ -972,6 +1105,7 @@ function setupLogoutButton() {
       await setupSupabase();
       await supportCenterSupabaseClient.auth.signOut();
       supportCenterSession = null;
+      supportCenterProfile = null;
       await setupAccountPreview();
     } catch (_error) {
       window.location.href = "auth.html";
@@ -987,6 +1121,7 @@ async function initSupportCenter() {
     setupAttachmentValidation();
     setupLogoutButton();
     await setupSupabase();
+    await loadCustomerProfile();
     await setupAccountPreview();
   } catch (error) {
     setFormMessage(error.message || "Support-Center konnte nicht vollständig geladen werden.", "error");
